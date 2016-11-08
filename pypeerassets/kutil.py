@@ -69,6 +69,13 @@ class Kutil:
             ).hexdigest()[0:8]
 
         return b58encode(step1 + unhexlify(checksum))
+    
+    @staticmethod
+    def check_wif(wif):
+        b58_wif = b58decode(wif)
+        check = b58_wif[-4:]
+        checksum = sha256(sha256(b58_wif[:-4]).digest()).digest()[0:4]
+        return checksum == check
 
     def to_wif(self, compressed=False):
         '''convert raw private key to WIF'''
@@ -77,12 +84,15 @@ class Kutil:
         if compressed:
             extkey += b'01'
         extcheck = unhexlify(extkey) + sha256(sha256(unhexlify(extkey)).digest()).digest()[0:4]
-        return b58encode(extcheck)
-
-    @staticmethod
-    def wif_to_privkey(wif):
+        wif = b58encode(extcheck)
+        
+        assert self.check_wif(wif)
+        return wif
+    
+    def wif_to_privkey(self, wif):
         '''import WIF'''
-
+        
+        assert self.check_wif(wif)       
         b58_wif = b58decode(wif)
 
         if len(wif) == 51:
@@ -101,4 +111,3 @@ class Kutil:
         '''verify >message< against >signature<'''
 
         return self.keypair.pubkey.ecdsa_verify(message, signature)
-
