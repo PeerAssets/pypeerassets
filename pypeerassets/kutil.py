@@ -110,4 +110,4 @@ class Kutil:
     def verify(self, message, signature):
         '''verify >message< against >signature<'''
 
-        return self.keypair.pubkey.ecdsa_verify(message, signature)
+        return self.keypair.pubkey.ecdsa_verify(message.encode('utf-8'), signature)
