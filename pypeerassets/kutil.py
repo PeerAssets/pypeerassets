@@ -69,9 +69,11 @@ class Kutil:
             ).hexdigest()[0:8]
 
         return b58encode(step1 + unhexlify(checksum))
-    
+
     @staticmethod
     def check_wif(wif):
+        '''check if WIF is properly formated.'''
+
         b58_wif = b58decode(wif)
         check = b58_wif[-4:]
         checksum = sha256(sha256(b58_wif[:-4]).digest()).digest()[0:4]
