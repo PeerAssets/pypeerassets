@@ -85,16 +85,18 @@ class Kutil:
         extkey = self._wif_prefix + self.privkey
         if compressed:
             extkey += b'01'
-        extcheck = unhexlify(extkey) + sha256(sha256(unhexlify(extkey)).digest()).digest()[0:4]
+
+        extcheck = unhexlify(extkey) + sha256(sha256(unhexlify(extkey
+                                                              )).digest()).digest()[0:4]
         wif = b58encode(extcheck)
-        
+
         assert self.check_wif(wif)
         return wif
-    
+
     def wif_to_privkey(self, wif):
         '''import WIF'''
-        
-        assert self.check_wif(wif)       
+
+        assert self.check_wif(wif)
         b58_wif = b58decode(wif)
 
         if len(wif) == 51:
