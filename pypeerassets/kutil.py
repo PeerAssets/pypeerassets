@@ -59,16 +59,16 @@ class Kutil:
     def address(self):
         '''generate an address from pubkey'''
 
-        step1 = unhexlify(self._pubkeyhash + hexlify(
+        keyhash = unhexlify(self._pubkeyhash + hexlify(
             new('ripemd160', sha256(self._pubkey).digest()).
             digest())
-                         )
+                           )
 
         checksum = sha256(
-            sha256(step1).digest()
+            sha256(keyhash).digest()
             ).hexdigest()[0:8]
 
-        return b58encode(step1 + unhexlify(checksum))
+        return b58encode(keyhash + unhexlify(checksum))
 
     @staticmethod
     def check_wif(wif):
@@ -82,7 +82,7 @@ class Kutil:
     def to_wif(self, compressed=False):
         '''convert raw private key to WIF'''
 
-        extkey = self._wif_prefix + self.privkey
+        extkey = self._wif_prefix + self.privkey.encode("utf-8")
         if compressed:
             extkey += b'01'
 
