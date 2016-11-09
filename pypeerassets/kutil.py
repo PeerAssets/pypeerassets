@@ -47,13 +47,13 @@ class Kutil:
     def privkey(self):
         '''retrun privkey in hex format'''
 
-        return hexlify(self._privkey)
+        return hexlify(self._privkey).decode("utf-8")
 
     @property
     def pubkey(self):
         '''return compressed pubkey in hex format'''
 
-        return hexlify(self._pubkey_compressed)
+        return hexlify(self._pubkey_compressed).decode("utf-8")
 
     @property
     def address(self):
