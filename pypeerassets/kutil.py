@@ -59,13 +59,13 @@ class Kutil:
         '''generate an address from pubkey'''
 
         if not compressed:
-            keyhash = unhexlify(mykey._pubkeyhash + hexlify(
-                new('ripemd160', sha256(mykey._pubkey).digest()).
+            keyhash = unhexlify(self._pubkeyhash + hexlify(
+                new('ripemd160', sha256(self._pubkey).digest()).
                 digest())
                                )
         else:
-            keyhash = unhexlify(mykey._pubkeyhash + hexlify(
-                new('ripemd160', sha256(mykey._pubkey_compressed + b'01').digest()).
+            keyhash = unhexlify(self._pubkeyhash + hexlify(
+                new('ripemd160', sha256(self._pubkey_compressed + b'01').digest()).
                 digest())
                                )
 
