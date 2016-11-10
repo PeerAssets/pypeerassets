@@ -24,7 +24,7 @@ class Kutil:
         if privkey is not None:
             self.keypair = PrivateKey(unhexlify(privkey))
 
-        if (privkey and wif and seed) is None:
+        if privkey == wif == seed == None:
             self.keypair = PrivateKey() # new keypair
 
         if network is None:
