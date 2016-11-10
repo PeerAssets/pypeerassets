@@ -24,7 +24,7 @@ class Kutil:
         if privkey is not None:
             self.keypair = PrivateKey(unhexlify(privkey))
 
-        if (privkey and wif and seed) is None:
+        if privkey == wif == seed == None:
             self.keypair = PrivateKey() # new keypair
 
         if network is None:
@@ -59,13 +59,13 @@ class Kutil:
         '''generate an address from pubkey'''
 
         if not compressed:
-            keyhash = unhexlify(mykey._pubkeyhash + hexlify(
-                new('ripemd160', sha256(mykey._pubkey).digest()).
+            keyhash = unhexlify(self._pubkeyhash + hexlify(
+                new('ripemd160', sha256(self._pubkey).digest()).
                 digest())
                                )
         else:
-            keyhash = unhexlify(mykey._pubkeyhash + hexlify(
-                new('ripemd160', sha256(mykey._pubkey_compressed + b'01').digest()).
+            keyhash = unhexlify(self._pubkeyhash + hexlify(
+                new('ripemd160', sha256(self._pubkey_compressed + b'01').digest()).
                 digest())
                                )
 
