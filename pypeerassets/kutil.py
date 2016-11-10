@@ -65,7 +65,7 @@ class Kutil:
                                )
         else:
             keyhash = unhexlify(self._pubkeyhash + hexlify(
-                new('ripemd160', sha256(self._pubkey_compressed + b'01').digest()).
+                new('ripemd160', sha256(self._pubkey_compressed).digest()).
                 digest())
                                )
 
