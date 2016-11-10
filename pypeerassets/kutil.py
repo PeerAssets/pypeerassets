@@ -39,7 +39,7 @@ class Kutil:
     def load_network_parameters(self, query):
         '''loads network parameters and sets class variables'''
 
-        (self._network_name, self._network_shortname, self._subnet_name,
+        (self._network_name, self._network_shortname,
          self._pubkeyhash, self._wif_prefix, self._scripthash,
          self._magicbytes) = tuple(networks.query(query))
 
