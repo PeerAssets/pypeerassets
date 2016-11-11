@@ -11,7 +11,7 @@ Library is coded with Python3 in mind, compatibility with older python releases 
 
 ### Dependencies
 
-`pip install --user secp256k1 base58`
+`pip install --user secp256k1 base58 protobuf
 
 ### Clone
 
@@ -23,7 +23,7 @@ Library is coded with Python3 in mind, compatibility with older python releases 
 
 `from pypeerassets import Kutil`
 
-`mykey = Kutil(network=ppc)`
+`mykey = Kutil(network='ppc')`
 
 `mykey = Kutil(wif=wif)` # Import privkey from wallet.
 
