@@ -13,7 +13,7 @@ networks = (
     # Peercoin mainnet
     Network("Peercoin", "ppc", b'37', b'b7', b'75', b'e6e8e9e5'),
     # Peercoin testnet
-    Network("Peercoin-testnet", "tppc", b'6f', b'ef', b'c4', b'cbf2c0ef')
+    Network("Peercoin-testnet", "tppc", b'6f', b'ef', b'c4', b'cbf2c0ef'),
     # Bitcoin mainnet
     Network("Bitcoin", "btc", b'00', b'80', b'05', b'd9b4bef9'),
     # Bitcoin testnet
