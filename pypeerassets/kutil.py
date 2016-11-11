@@ -59,15 +59,15 @@ class Kutil:
         '''generate an address from pubkey'''
 
         if not compressed:
-            keyhash = unhexlify(self._pubkeyhash + hexlify(
-                new('ripemd160', sha256(self._pubkey).digest()).
-                digest())
-                               )
+            key = self._pubkey
+
         else:
-            keyhash = unhexlify(self._pubkeyhash + hexlify(
-                new('ripemd160', sha256(self._pubkey_compressed).digest()).
-                digest())
-                               )
+            key = self._pubkey_compressed
+
+        keyhash = unhexlify(self._pubkeyhash + hexlify(
+            new('ripemd160', sha256(key).digest()).
+            digest())
+                           )
 
         checksum = sha256(
             sha256(keyhash).digest()
@@ -87,7 +87,7 @@ class Kutil:
     def to_wif(self, compressed=False):
         '''convert raw private key to WIF'''
 
-        extkey = self._wif_prefix + hexlify(self._privkey)
+        extkey = self._wif_prefix + hexlify(self._privkey) + b'01'
         if compressed:
             extkey += b'01'
 
