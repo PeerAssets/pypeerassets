@@ -11,7 +11,7 @@ Library is coded with Python3 in mind, compatibility with older python releases 
 
 ### Dependencies
 
-`pip install --user secp256k1 base58 protobuf
+`pip install --user secp256k1 base58 protobuf`
 
 ### Clone
 
