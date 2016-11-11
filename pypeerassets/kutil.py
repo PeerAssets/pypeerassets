@@ -87,7 +87,7 @@ class Kutil:
     def to_wif(self, compressed=False):
         '''convert raw private key to WIF'''
 
-        extkey = self._wif_prefix + hexlify(self._privkey) + b'01'
+        extkey = self._wif_prefix + hexlify(self._privkey)
         if compressed:
             extkey += b'01'
 
