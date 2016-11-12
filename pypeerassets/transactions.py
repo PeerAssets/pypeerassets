@@ -4,7 +4,6 @@
 from base58 import b58decode
 from binascii import hexlify, unhexlify
 from time import time
-import networks
 import struct
 
 OP_RETURN = b'\x6a'
