@@ -67,7 +67,7 @@ def make_raw_transaction(inputs, outputs, network='ppc'):
     '''
     raw_tx = b'01000000' # 4 byte version number
 
-    if networks.query(network).tx_timestamp:
+    if network == "ppc":
         raw_tx += hexlify(struct.pack('<L', int(time()))) # 4 byte timestamp (Peercoin specific)
 
     raw_tx += var_int(len(inputs)) # varint for number of inputs
