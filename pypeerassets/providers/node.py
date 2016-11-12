@@ -23,13 +23,15 @@ def select_inputs(cls, total_amount):
             "vout": tx["vout"],
             "ScriptSig": tx["scriptPubKey"]
         })
-    
+
         utxo_sum += float(tx["amount"])
         if utxo_sum >= total_amount:
             return utxo
-            
+
     if utxo_sum < total_amount:
         raise ValueError("Not enough funds.")
 
-Client.select_inputs = select_inputs
+class RpcNode(Client):
+
+    select_inputs = select_inputs
 
