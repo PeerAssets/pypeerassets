@@ -21,7 +21,7 @@ def select_inputs(cls, total_amount):
         utxo.append({
             "txid": tx["txid"],
             "vout": tx["vout"],
-            "ScriptSig": tx["scriptPubKey"]
+            "scriptSig": tx["scriptPubKey"]
         })
 
         utxo_sum += float(tx["amount"])
