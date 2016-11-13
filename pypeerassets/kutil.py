@@ -55,14 +55,11 @@ class Kutil:
 
         return hexlify(self._pubkey_compressed).decode("utf-8")
 
-    def address(self, compressed=False):
+    @property
+    def address(self):
         '''generate an address from pubkey'''
 
-        if not compressed:
-            key = self._pubkey
-
-        else:
-            key = self._pubkey_compressed
+        key = self._pubkey_compressed # compressed pubkey as default
 
         keyhash = unhexlify(self._pubkeyhash + hexlify(
             new('ripemd160', sha256(key).digest()).
@@ -84,13 +81,11 @@ class Kutil:
         checksum = sha256(sha256(b58_wif[:-4]).digest()).digest()[0:4]
         return checksum == check
 
-    def to_wif(self, compressed=False):
+    @property
+    def wif(self):
         '''convert raw private key to WIF'''
 
-        extkey = self._wif_prefix + hexlify(self._privkey)
-        if compressed:
-            extkey += b'01'
-
+        extkey = self._wif_prefix + hexlify(self._privkey) + b'01' # compressed by default
         extcheck = unhexlify(extkey) + sha256(sha256(unhexlify(extkey
                                                               )).digest()).digest()[0:4]
         wif = b58encode(extcheck)
