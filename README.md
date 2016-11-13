@@ -23,10 +23,10 @@ Library is coded with Python3 in mind, compatibility with older python releases 
 
 `from pypeerassets import Kutil`
 
-`mykey = Kutil(network='ppc')`
+`mykey = Kutil(network='ppc')` # Generates new keypair.
 
-`mykey = Kutil(wif=wif)` # Import privkey from wallet.
+`mykey = Kutil(wif=wif)` # Import privkey in WIF format.
 
-`mykey.address`
+`mykey.address` # Compressed address.
 
-`mykey.to_wif()`
+`mykey.wif` # Return key in WIF format.
