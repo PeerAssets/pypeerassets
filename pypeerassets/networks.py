@@ -7,19 +7,19 @@ Network = namedtuple('Network', [
     'wif_prefix',
     'scripthash',
     'magicbytes',
-    'tx_timestamp,
+    'tx_timestamp',
     'denomination',
 ])
 
 networks = (
     # Peercoin mainnet
-    Network("Peercoin", "ppc", b'37', b'b7', b'75', b'e6e8e9e5',True,1000000),
+    Network("Peercoin", "ppc", b'37', b'b7', b'75', b'e6e8e9e5', True, 1000000),
     # Peercoin testnet
-    Network("Peercoin-testnet", "tppc", b'6f', b'ef', b'c4', b'cbf2c0ef',True,1000000),
+    Network("Peercoin-testnet", "tppc", b'6f', b'ef', b'c4', b'cbf2c0ef', True, 1000000),
     # Bitcoin mainnet
-    Network("Bitcoin", "btc", b'00', b'80', b'05', b'd9b4bef9',False,100000000),
+    Network("Bitcoin", "btc", b'00', b'80', b'05', b'd9b4bef9', False, 100000000),
     # Bitcoin testnet
-    Network("Bitcoin-testnet", "tbtc", b'6f', b'ef', b'c4', b'dab5bffa',False,100000000)
+    Network("Bitcoin-testnet", "tbtc", b'6f', b'ef', b'c4', b'dab5bffa', False, 100000000)
 )
 
 def query(query):
