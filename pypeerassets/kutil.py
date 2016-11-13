@@ -39,9 +39,8 @@ class Kutil:
     def load_network_parameters(self, query):
         '''loads network parameters and sets class variables'''
 
-        (self._network_name, self._network_shortname,
-         self._pubkeyhash, self._wif_prefix, self._scripthash,
-         self._magicbytes) = tuple(networks.query(query))
+        for field, var in zip(networks.query(query)._fields, networks.query(query)):
+            setattr(self, field, var)
 
     @property
     def privkey(self):
@@ -61,7 +60,7 @@ class Kutil:
 
         key = self._pubkey_compressed # compressed pubkey as default
 
-        keyhash = unhexlify(self._pubkeyhash + hexlify(
+        keyhash = unhexlify(self.pubkeyhash + hexlify(
             new('ripemd160', sha256(key).digest()).
             digest())
                            )
@@ -85,7 +84,7 @@ class Kutil:
     def wif(self):
         '''convert raw private key to WIF'''
 
-        extkey = self._wif_prefix + hexlify(self._privkey) + b'01' # compressed by default
+        extkey = self.wif_prefix + hexlify(self._privkey) + b'01' # compressed by default
         extcheck = unhexlify(extkey) + sha256(sha256(unhexlify(extkey
                                                               )).digest()).digest()[0:4]
         wif = b58encode(extcheck)
