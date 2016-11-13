@@ -44,6 +44,12 @@ def var_int(i):
         return hexlify(b'\xfe' + (i).to_bytes(4, byteorder='little'))
     else:
         return hexlify(b'\xff' + (i).to_bytes(8, byteorder='little'))
+    
+def pack_uint64(i):
+    upper = int(i / 4294967296)
+    lower = i - upper * 4294967296
+
+    return hexlify(struct.pack('<L', lower) + struct.pack('<L', upper))
 
 def monosig_script(address):
     '''returns a mono-signature output script'''
@@ -74,15 +80,15 @@ def make_raw_transaction(inputs, outputs, network='ppc'):
     for utxo in inputs:
         raw_tx += utxo['txid'][::-1].encode("utf-8") # previous transaction hash (reversed)
         raw_tx += hexlify(struct.pack('<L', utxo['vout'])) # previous txout index
-        #raw_tx += var_int(len(utxo['scriptSig'])) # scriptSig length
+        raw_tx += var_int(len(utxo['scriptSig'])//2) # scriptSig length
         raw_tx += utxo['scriptSig'].encode("utf-8") # scriptSig
         raw_tx += b'ffffffff' # sequence number (irrelevant unless nLockTime > 0)
 
     raw_tx += var_int(len(outputs)) # varint for number of outputs
 
     for output in outputs:
-        raw_tx += var_int(output['redeem']) # value in peertoshi's or satoshi's
-        raw_tx += var_int(len(output['outputScript']))
+        raw_tx += pack_uint64(int(round(output['redeem'] * 1000000 ))) # value in peertoshi'
+        raw_tx += var_int(len(output['outputScript'])//2)
         raw_tx += output['outputScript']
 
     raw_tx += b'00000000' # nLockTime
