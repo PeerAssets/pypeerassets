@@ -37,61 +37,62 @@ def op_push(n):
 def var_int(i):
 
     if i < 0xfd:
-        return hexlify((i).to_bytes(1, byteorder='little'))
+        return (i).to_bytes(1, byteorder='little')
     elif i <= 0xffff:
-        return hexlify(b'\xfd' + (i).to_bytes(2, byteorder='little'))
+        return b'\xfd' + (i).to_bytes(2, byteorder='little')
     elif i <= 0xffffffff:
-        return hexlify(b'\xfe' + (i).to_bytes(4, byteorder='little'))
+        return b'\xfe' + (i).to_bytes(4, byteorder='little')
     else:
-        return hexlify(b'\xff' + (i).to_bytes(8, byteorder='little'))
+        return b'\xff' + (i).to_bytes(8, byteorder='little')
     
 def pack_uint64(i):
     upper = int(i / 4294967296)
     lower = i - upper * 4294967296
 
-    return hexlify(struct.pack('<L', lower) + struct.pack('<L', upper))
+    return struct.pack('<L', lower) + struct.pack('<L', upper)
 
 def monosig_script(address):
     '''returns a mono-signature output script'''
 
     hash160 = get_hash160(address)
     n = len(hash160)
-    script = hexlify(OP_DUP + OP_HASH160 + op_push(n) + hash160 + OP_EQUALVERIFY + OP_CHECKSIG)
+    script = OP_DUP + OP_HASH160 + op_push(n) + hash160 + OP_EQUALVERIFY + OP_CHECKSIG
     return script
 
 def op_return_script(data):
     '''returns a single OP_RETURN output script'''
 
-    data = hexlify(data.encode('utf-8'))
-    script = hexlify(OP_RETURN + op_push(len(data))) + data
-    return script
+    data = hexlify(data.encode())
+    script = hexlify(OP_RETURN + op_push(len(data)//2)) + data
+    return unhexlify(script)
 
-def make_raw_transaction(inputs, outputs, network='ppc'):
+def make_raw_transaction(inputs, outputs, scriptSig=b'',sequence_number=b'\xff\xff\xff\xff',lock_time=b'\x00\x00\x00\x00', network='ppc'):
     ''' inputs expected as [{'txid':txhash,'vout':index,'scriptSig':txinScript},..]
         ouputs expected as [{'redeem':peertoshis,'outputScript': outputScript},...]
     '''
-    raw_tx = b'01000000' # 4 byte version number
-
-    if network is "ppc" or network is "tppc":
-        raw_tx += hexlify(struct.pack('<L', int(time()))) # 4 byte timestamp (Peercoin specific)
+    raw_tx = b'\x01\x00\x00\x00' # 4 byte version number
+    network_query = networks.query(network)
+    
+    if network_query.tx_timestamp:
+        raw_tx += struct.pack('<L', int(time())) # 4 byte timestamp (Peercoin specific)
 
     raw_tx += var_int(len(inputs)) # varint for number of inputs
 
     for utxo in inputs:
-        raw_tx += utxo['txid'][::-1].encode("utf-8") # previous transaction hash (reversed)
-        raw_tx += hexlify(struct.pack('<L', utxo['vout'])) # previous txout index
-        raw_tx += var_int(len(b'')//2) # scriptSig length
-        raw_tx += b'' # scriptSig
-        raw_tx += b'ffffffff' # sequence number (irrelevant unless nLockTime > 0)
+        raw_tx += unhexlify(utxo['txid'][::-1].encode("utf-8")) # previous transaction hash (reversed)
+        raw_tx += struct.pack('<L', utxo['vout']) # previous txout index
+        raw_tx += var_int(len(scriptSig)) # scriptSig length
+        raw_tx += scriptSig # scriptSig
+        raw_tx += sequence_number # sequence number (irrelevant unless nLockTime > 0)
 
     raw_tx += var_int(len(outputs)) # varint for number of outputs
 
     for output in outputs:
-        raw_tx += pack_uint64(int(round(output['redeem'] * 1000000 ))) # value in peertoshi's or satoshi's
-        raw_tx += var_int(len(output['outputScript'])//2)
+        raw_tx += pack_uint64(int(round(output['redeem'] * network_query.denomination ))) # value in peertoshi's or satoshi's
+        raw_tx += var_int(len(output['outputScript']))
         raw_tx += output['outputScript']
 
-    raw_tx += b'00000000' # nLockTime
+    raw_tx += lock_time # nLockTime
 
     return raw_tx
 
