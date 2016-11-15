@@ -80,14 +80,14 @@ def make_raw_transaction(inputs, outputs, network='ppc'):
     for utxo in inputs:
         raw_tx += utxo['txid'][::-1].encode("utf-8") # previous transaction hash (reversed)
         raw_tx += hexlify(struct.pack('<L', utxo['vout'])) # previous txout index
-        raw_tx += var_int(len(utxo['scriptSig'])//2) # scriptSig length
-        raw_tx += utxo['scriptSig'].encode("utf-8") # scriptSig
+        raw_tx += var_int(len(b'')//2) # scriptSig length
+        raw_tx += b'' # scriptSig
         raw_tx += b'ffffffff' # sequence number (irrelevant unless nLockTime > 0)
 
     raw_tx += var_int(len(outputs)) # varint for number of outputs
 
     for output in outputs:
-        raw_tx += pack_uint64(int(round(output['redeem'] * 1000000 ))) # value in peertoshi'
+        raw_tx += pack_uint64(int(round(output['redeem'] * 1000000 ))) # value in peertoshi's or satoshi's
         raw_tx += var_int(len(output['outputScript'])//2)
         raw_tx += output['outputScript']
 
@@ -95,4 +95,6 @@ def make_raw_transaction(inputs, outputs, network='ppc'):
 
     return raw_tx
 
-    
+
+
+
