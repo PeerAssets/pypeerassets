@@ -3,6 +3,7 @@
 
 from base58 import b58decode
 from binascii import hexlify, unhexlify
+from .networks import query, networks
 from time import time
 import struct
 
@@ -66,12 +67,12 @@ def op_return_script(data):
     script = hexlify(OP_RETURN + op_push(len(data)//2)) + data
     return unhexlify(script)
 
-def make_raw_transaction(inputs, outputs, scriptSig=b'',sequence_number=b'\xff\xff\xff\xff',lock_time=b'\x00\x00\x00\x00', network='ppc'):
+def make_raw_transaction(inputs, outputs, scriptSig=b'', sequence_number=b'\xff\xff\xff\xff', lock_time=b'\x00\x00\x00\x00', network='ppc'):
     ''' inputs expected as [{'txid':txhash,'vout':index,'scriptSig':txinScript},..]
         ouputs expected as [{'redeem':peertoshis,'outputScript': outputScript},...]
     '''
     raw_tx = b'\x01\x00\x00\x00' # 4 byte version number
-    network_query = networks.query(network)
+    network_query = query(network)
     
     if network_query.tx_timestamp:
         raw_tx += struct.pack('<L', int(time())) # 4 byte timestamp (Peercoin specific)
