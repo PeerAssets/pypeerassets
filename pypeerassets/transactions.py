@@ -19,6 +19,47 @@ OP_3 = b'\x53'
 OP_CHECKMULTISIG = b'\xae'
 OP_EQUAL = b'\x87'
 
+class Tx_buffer:
+    '''helper class for unpacking binary data'''
+
+    def __init__(self, data, ptr=0):
+        self.data = data
+        self.len = len(data)
+        self.ptr = ptr
+
+    def shift(self, chars):
+        prefix = self.data[self.ptr:self.ptr+chars]
+        self.ptr += chars
+
+        return prefix
+
+    def shift_unpack(self, chars, format):
+        unpack = struct.unpack(format, self.shift(chars))
+
+        return unpack[0]
+
+    def shift_varint(self):
+        value = self.shift_unpack(1, 'B')
+
+        if value == 0xFF:
+            value = self.shift_uint64()
+        elif value == 0xFE:
+            value = self.shift_unpack(4, '<L')
+        elif value == 0xFD:
+            value = self.shift_unpack(2, '<H')
+
+        return value
+
+    def shift_uint64(self):
+        return self.shift_unpack(4, '<L') + 4294967296 * self.shift_unpack(4, '<L')
+
+    def used(self):
+        return min(self.ptr, self.len)
+
+    def remaining(self):
+        return max(self.len - self.ptr, 0)
+
+
 def get_hash160(address):
     '''return ripemd160 hash of the pubkey form the address'''
 
@@ -73,7 +114,7 @@ def make_raw_transaction(inputs, outputs, scriptSig=b'', sequence_number=b'\xff\
     '''
     raw_tx = b'\x01\x00\x00\x00' # 4 byte version number
     network_query = query(network)
-    
+
     if network_query.tx_timestamp:
         raw_tx += struct.pack('<L', int(time())) # 4 byte timestamp (Peercoin specific)
 
@@ -97,6 +138,53 @@ def make_raw_transaction(inputs, outputs, scriptSig=b'', sequence_number=b'\xff\
 
     return raw_tx
 
+def unpack_txn_buffer(buffer, network="ppc"):
 
+    txn = {
+        'vin': [],
+        'vout': [],
+        }
 
+    txn['version'] = buffer.shift_unpack(4, '<L') # small-endian 32-bits
+    if query(network).tx_timestamp: # peercoin: add 4 byte timestamp
+        txn['timestamp'] = buffer.shift_unpack(4, '<L') # small-endian 32-bits
 
+    inputs = buffer.shift_varint()
+    if inputs > 100000: # sanity check
+        return None
+
+    for _ in range(inputs):
+        _input = {}
+
+        _input['txid'] = hexlify(buffer.shift(32)[::-1]).decode()
+        _input['vout'] = buffer.shift_unpack(4, '<L')
+        length = buffer.shift_varint()
+        _input['scriptSig'] = hexlify(buffer.shift(length)).decode()
+        _input['sequence'] = buffer.shift_unpack(4, '<L')
+
+        txn['vin'].append(_input)
+
+    outputs = buffer.shift_varint()
+    if outputs > 100000: # sanity check
+        return None
+
+    for _ in range(outputs):
+        output = {}
+
+        output['value'] = float(buffer.shift_uint64()) / 1000000
+        length = buffer.shift_varint()
+        output['scriptPubKey'] = hexlify(buffer.shift(length)).decode()
+
+        txn['vout'].append(output)
+
+    txn['locktime'] = buffer.shift_unpack(4, '<L')
+
+    return txn
+
+def unpack_raw_transaction(rawtx):
+    '''unpacks raw transactions, returns dictionary'''
+
+    if not isinstance(rawtx, bytes):
+        raise ValueError('Binary input required')
+
+    return unpack_txn_buffer(Tx_buffer(rawtx))
