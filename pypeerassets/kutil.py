@@ -19,7 +19,7 @@ class Kutil:
             network = key['net_prefix']
 
         if seed is not None:
-            self.keypair = PrivateKey(raw=bytes([seed]))
+            self.keypair = PrivateKey(privkey=self.seed_to_privkey(seed))
 
         if privkey is not None:
             self.keypair = PrivateKey(unhexlify(privkey))
@@ -104,6 +104,13 @@ class Kutil:
             return {'privkey': b58_wif[1:-5], 'net_prefix': hexlify(b58_wif[0:1])}
         else:
             return 'Invalid WIF length'
+
+    @staticmethod
+    def seed_to_privkey(seed):
+        '''use mnemonic seed hash as privkey'''
+
+        seed_hash = sha256(seed.encode("utf-8")).digest()
+        return seed_hash
 
     def sign(self, message):
         '''sing >message< with the privkey'''
