@@ -4,6 +4,11 @@ from pypeerassets.transactions import *
 
 class TransactionsTestCase(unittest.TestCase):
 
+    def test_get_hash_160(self):
+
+        address = "PUsvrXxav7ryMawmxZk9ShmGiuCJWjdPmo"
+        self.assertEqual(get_hash160(address), b'\xde\x8d\xa6A3P\x18\x8b\x95H\x8d\xb2\xf9\tmu\xb6U\xfc\xc7')
+
     def test_transaction_dissasembly_test(self):
         '''verifies that transaction dissasembly is in order'''
 
