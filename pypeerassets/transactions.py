@@ -171,7 +171,7 @@ def unpack_txn_buffer(buffer, network="ppc"):
     for _ in range(outputs):
         output = {}
 
-        output['value'] = float(buffer.shift_uint64()) / 1000000
+        output['value'] = float(buffer.shift_uint64()) / query(network).denomination
         length = buffer.shift_varint()
         output['scriptPubKey'] = hexlify(buffer.shift(length)).decode()
 
