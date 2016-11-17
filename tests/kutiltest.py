@@ -1,4 +1,5 @@
 import unittest
+from hashlib import sha256
 from pypeerassets.kutil import Kutil
 
 class KutilTestCase(unittest.TestCase):
@@ -21,11 +22,14 @@ class KutilTestCase(unittest.TestCase):
         self.assertTrue(isinstance(mykey.keypair.private_key, bytes))
         self.assertTrue(isinstance(mykey.keypair.pubkey.serialize(), bytes))
 
-        # check if key generation is what is expected from seed
-        '''
-        self.assertEqual(mykey.privkey, '416b2b925a4b004a3ccb92295e5a835cfd854ef7c4afde0b0eabd5d2492594e2')
-        self.assertEqual(mykey.pubkey, '03d612848fca55fd57760ff204434d41091927eeda4dfec39e78956b2cc6dbd62b')
-        '''
+    def test_key_generation_from_seed(self):
+        '''check if key generation is what is expected from seed'''
+
+        seed = "Hello PeerAssets."
+        mykey = Kutil(seed=seed)
+
+        self.assertEqual(mykey.privkey, '680510f7f5e622347bc8d9e54e109a9192353693ef61d82d2d5bdf4bc9fd638b')
+        self.assertEqual(mykey.pubkey, '037cf9e7664b5d10ce209cf9e2c7f68baa06f1950114f25677531b959edd7e670c')
 
     def test_address_generation(self):
         '''test if addresses are properly made'''
