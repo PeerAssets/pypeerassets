@@ -14,7 +14,6 @@ def testnet_or_mainnet(node):
 def load_p2th_privkeys_into_node(node):
 
     if testnet_or_mainnet(node) is "testnet":
-        assert testnet_PAPROD_addr in node.getaddressbyaccount()
         try:
             node.importprivkey(testnet_PAPROD)
             assert testnet_PAPROD_addr in node.getaddressbyaccount()
