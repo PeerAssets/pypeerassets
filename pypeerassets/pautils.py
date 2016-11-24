@@ -15,13 +15,13 @@ def load_p2th_privkeys_into_node(node):
 
     if testnet_or_mainnet(node) is "testnet":
         try:
-            node.importprivkey(testnet_PAPROD)
+            node.importprivkey(testnet_PAPROD, "PAPROD")
             assert testnet_PAPROD_addr in node.getaddressbyaccount()
         except Exception:
             return {"error": "Loading P2TH privkey failed."}
     else:
         try:
-            node.importprivkey(mainnet_PAPROD)
+            node.importprivkey(mainnet_PAPROD, "PAPROD")
             assert mainnet_PAPROD_addr in node.getaddressbyaccount()
         except Exception:
             return {"error": "Loading P2TH privkey failed."}
@@ -30,13 +30,13 @@ def load_test_p2th_privkeys_into_node(node):
 
     if testnet_or_mainnet(node) is "testnet":
         try:
-            node.importprivkey(testnet_PATEST)
+            node.importprivkey(testnet_PATEST, "PATEST")
             assert testnet_PATEST_addr in node.getaddressbyaccount()
         except Exception:
             return {"error": "Loading P2TH privkey failed."}
     else:
         try:
-            node.importprivkey(mainnet_PATEST)
+            node.importprivkey(mainnet_PATEST, "PATEST")
             assert mainnet_PATEST_addr in node.getaddressbyaccount()
         except Exception:
             return {"error": "Loading P2TH privkey failed."}
