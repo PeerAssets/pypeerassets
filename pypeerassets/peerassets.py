@@ -34,3 +34,27 @@ class Deck:
         self.number_of_decimals = number_of_decimals # number of decimals on this deck
         assert issue_mode in (0, 1, 2, 4), {"error": "Unknown issue mode."}
         self.issue_mode = issue_mode # deck issue mode
+
+    @property
+    def to_protobuf(self):
+        '''encode deck into protobuf'''
+
+        deck = paproto.DeckSpawn()
+        deck.version = self.version
+        deck.name = self.name
+        deck.number_of_decimals = self.number_of_decimals
+        deck.issue_mode = self.issue_mode
+
+        return deck.SerializeToString()
+
+    @property
+    def to_dict(self):
+        '''encode deck into dictionary'''
+
+        return {
+            "version": self.version,
+            "name": self.name,
+            "number_of_decimals": self.number_of_decimals,
+            "issue_mode": self.issue_mode
+        }
+
