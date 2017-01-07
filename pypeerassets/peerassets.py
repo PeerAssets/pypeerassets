@@ -1,7 +1,7 @@
 
 '''contains main protocol logic like assembly of proof-of-timeline and parsing deck info'''
 
-from . import paproto
+from pypeerassets import paproto
 
 def parse_deckspawn_metainfo(protobuf):
 
