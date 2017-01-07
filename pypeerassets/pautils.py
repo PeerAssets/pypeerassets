@@ -44,3 +44,12 @@ def load_test_p2th_privkeys_into_node(node):
         except Exception:
             return {"error": "Loading P2TH privkey failed."}
 
+def find_deck_spawns(node, prod_or_test):
+    '''find deck spawn transactions via local node, it requiers that Deck spawn P2TH were imported in local node.'''
+
+    if prod_or_test == "prod":
+        decks = [i["txid"] for i in node.listtransactions("PAPROD")]
+    else:
+        decks = [i["txid"] for i in node.listtransaction("PATEST")]
+
+    return decks
