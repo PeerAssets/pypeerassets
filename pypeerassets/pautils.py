@@ -1,7 +1,7 @@
 
 '''miscellaneous utilities.'''
 
-from pypeerassets.constants import mainnet_PAPROD, mainnet_PATEST, testnet_PAPROD, testnet_PATEST
+import pypeerassets.constants
 
 def testnet_or_mainnet(node):
     '''check if local node is configured to testnet or mainnet'''
