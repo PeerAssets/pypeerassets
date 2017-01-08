@@ -86,7 +86,7 @@ def var_int(i):
         return b'\xfe' + (i).to_bytes(4, byteorder='little')
     else:
         return b'\xff' + (i).to_bytes(8, byteorder='little')
-    
+
 def pack_uint64(i):
     upper = int(i / 4294967296)
     lower = i - upper * 4294967296
