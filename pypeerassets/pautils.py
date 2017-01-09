@@ -1,6 +1,7 @@
 
 '''miscellaneous utilities.'''
 
+import binascii
 import pypeerassets.constants
 
 def testnet_or_mainnet(node):
@@ -53,3 +54,25 @@ def find_deck_spawns(node, prod_or_test):
         decks = [i["txid"] for i in node.listtransaction("PATEST")]
 
     return decks
+
+def read_tx_opreturn(node, txid):
+    '''Decode OP_RETURN message from <txid>'''
+
+    vouts = node.getrawtransaction(txid, 1)['vout']
+
+    for vout in vouts:
+        asm = vout['scriptPubKey']['asm']
+        n = asm.find('OP_RETURN')
+        if n == -1:
+            continue
+        else:
+            # add 10 because 'OP_RETURN ' is 10 characters
+            n += 10
+            data = asm[n:]
+            n = data.find(' ')
+            #make sure that we don't include trailing opcodes
+            if n == -1:
+                return binascii.unhexlify(data)
+            else:
+                return binascii.unhexlify(data[:n])
+    return {'error': 'OP_RETURN not found'}
