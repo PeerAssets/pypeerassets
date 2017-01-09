@@ -4,6 +4,11 @@ from pypeerassets.kutil import Kutil
 
 class KutilTestCase(unittest.TestCase):
 
+    @classmethod
+    def setUpClass(cls):
+        print('''Starting Kutil class tests.
+                This class handles all things cryptography.''')
+
     def test_network_parameter_load(self):
         '''tests if loading of network parameteres is accurate'''
 

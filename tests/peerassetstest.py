@@ -4,6 +4,11 @@ from pypeerassets.peerassets import parse_deckspawn_metainfo
 class PeerAssetsTestCase(unittest.TestCase):
     '''tests for protobuf manipulation'''
 
+    @classmethod
+    def setUpClass(cls):
+        print('''Starting PeerAssets tests.
+                This class handles all things PeerAssets protocol.''')
+
     def test_parse_deckspawn_metainfo(self):
         '''tests if loading of deck parameteres from protobuf'''
 

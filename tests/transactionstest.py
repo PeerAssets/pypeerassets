@@ -4,6 +4,10 @@ from pypeerassets.transactions import *
 
 class TransactionsTestCase(unittest.TestCase):
 
+    @classmethod
+    def setUpClass(cls):
+        print('''Starting transactions, verify if transaction assembly/dissasembly is working as it should.''')
+
     def test_get_hash_160(self):
 
         address = "PUsvrXxav7ryMawmxZk9ShmGiuCJWjdPmo"
