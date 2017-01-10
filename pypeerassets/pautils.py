@@ -95,7 +95,7 @@ def parse_deckspawn_metainfo(protobuf):
     return {
         "version": deck.version,
         "name": deck.name,
-        "issue_mode": deck.issue_mode,
+        "issue_mode": deck.MODE.Name(deck.issue_mode),
         "number_of_decimals": deck.number_of_decimals,
         "asset_specific_data": deck.asset_specific_data
     }
