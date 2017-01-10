@@ -2,7 +2,7 @@
 '''miscellaneous utilities.'''
 
 import binascii
-import pypeerassets.constants
+from pypeerassets import constants, paproto
 
 def testnet_or_mainnet(node):
     '''check if local node is configured to testnet or mainnet'''
