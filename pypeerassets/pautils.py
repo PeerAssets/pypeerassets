@@ -75,6 +75,7 @@ def read_tx_opreturn(node, txid):
                 return binascii.unhexlify(data)
             else:
                 return binascii.unhexlify(data[:n])
+
     return {'error': 'OP_RETURN not found'}
 
 def validate_deckspawn(deck):
