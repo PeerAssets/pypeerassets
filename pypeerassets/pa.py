@@ -1,18 +1,15 @@
 
 '''contains main protocol logic like assembly of proof-of-timeline and parsing deck info'''
 
-from pypeerassets import paproto, pautils
+from pypeerassets import paproto, pautils, RpcNode
 
 class Deck:
 
     def __init__(self, version, name, number_of_decimals, issue_mode):
         '''initialize deck object, load from dictionary Deck(**dict) or initilize with kwargs Deck(1, "deck", 3, 2)'''
 
-        assert version > 0, {"error": "Version must be greater than 0."}
         self.version = version # protocol version
-        assert name is not "", {"error", "Deck must have a name."}
         self.name = name # deck name
-        assert issue_mode in (0, 1, 2, 4), {"error": "Unknown issue mode."}
         self.issue_mode = issue_mode # deck issue mode
 
     @property
