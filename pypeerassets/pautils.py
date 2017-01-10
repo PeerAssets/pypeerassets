@@ -78,7 +78,7 @@ def read_tx_opreturn(node, txid):
 
     return {'error': 'OP_RETURN not found'}
 
-def validate_deckspawn(deck):
+def validate_deckspawn_metainfo(deck):
     '''validate deck_spawn'''
 
     assert deck.version > 0, {"error": "Deck metainfo incomplete, version can't be 0."}
