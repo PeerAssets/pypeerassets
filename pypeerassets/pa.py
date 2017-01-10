@@ -5,15 +5,16 @@ from pypeerassets import paproto, pautils, RpcNode
 
 class Deck:
 
-    def __init__(self, version, name, number_of_decimals, issue_mode):
+    def __init__(self, version, name, number_of_decimals, issue_mode, asset_id=None):
         '''initialize deck object, load from dictionary Deck(**dict) or initilize with kwargs Deck(1, "deck", 3, 2)'''
 
         self.version = version # protocol version
         self.name = name # deck name
         self.issue_mode = issue_mode # deck issue mode
+        self.asset_id = None
 
     @property
-    def to_protobuf(self):
+    def metainfo_to_protobuf(self):
         '''encode deck into protobuf'''
 
         deck = paproto.DeckSpawn()
@@ -25,7 +26,7 @@ class Deck:
         return deck.SerializeToString()
 
     @property
-    def to_dict(self):
+    def metainfo_to_dict(self):
         '''encode deck into dictionary'''
 
         return {
