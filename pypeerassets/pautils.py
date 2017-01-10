@@ -51,7 +51,7 @@ def find_deck_spawns(node, prod_or_test):
     if prod_or_test == "prod":
         decks = [i["txid"] for i in node.listtransactions("PAPROD")]
     else:
-        decks = [i["txid"] for i in node.listtransaction("PATEST")]
+        decks = [i["txid"] for i in node.listtransactions("PATEST")]
 
     return decks
 
