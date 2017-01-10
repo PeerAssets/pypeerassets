@@ -76,3 +76,22 @@ def read_tx_opreturn(node, txid):
             else:
                 return binascii.unhexlify(data[:n])
     return {'error': 'OP_RETURN not found'}
+
+def parse_deckspawn_metainfo(protobuf):
+    '''decode deck_spawn tx op_return protobuf message and validate it.'''
+
+    deck = paproto.DeckSpawn()
+    deck.ParseFromString(protobuf)
+
+    assert deck.version > 0, {"error": "Deck metainfo incomplete, version can't be 0."}
+    assert deck.name is not "", {"error": "Deck metainfo incomplete, Deck must have a name."}
+    assert deck.number_of_decimals > 0, {"error": '''Deck metainfo incomplete, number of decimals has to be larger than zero.'''}
+    assert deck.issue_mode in (0, 1, 2, 4), {"error": "Deck metainfo incomplete, unknown issue mode."}
+
+    return {
+        "version": deck.version,
+        "name": deck.name,
+        "issue_mode": deck.issue_mode,
+        "number_of_decimals": deck.number_of_decimals
+    }
+
