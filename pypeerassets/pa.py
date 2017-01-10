@@ -1,7 +1,7 @@
 
 '''contains main protocol logic like assembly of proof-of-timeline and parsing deck info'''
 
-from pypeerassets import paproto
+from pypeerassets import paproto, pautils
 
 class Deck:
 
@@ -12,8 +12,6 @@ class Deck:
         self.version = version # protocol version
         assert name is not "", {"error", "Deck must have a name."}
         self.name = name # deck name
-        assert number_of_decimals > 0, {"error": "Numbe of decimals must be greater than zero."}
-        self.number_of_decimals = number_of_decimals # number of decimals on this deck
         assert issue_mode in (0, 1, 2, 4), {"error": "Unknown issue mode."}
         self.issue_mode = issue_mode # deck issue mode
 

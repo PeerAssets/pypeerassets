@@ -85,7 +85,7 @@ def parse_deckspawn_metainfo(protobuf):
 
     assert deck.version > 0, {"error": "Deck metainfo incomplete, version can't be 0."}
     assert deck.name is not "", {"error": "Deck metainfo incomplete, Deck must have a name."}
-    assert deck.number_of_decimals > 0, {"error": '''Deck metainfo incomplete, number of decimals has to be larger than zero.'''}
+#    assert deck.number_of_decimals > 0, {"error": '''Deck metainfo incomplete, number of decimals has to be larger than zero.'''}
     assert deck.issue_mode in (0, 1, 2, 4), {"error": "Deck metainfo incomplete, unknown issue mode."}
 
     return {
