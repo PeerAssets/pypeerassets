@@ -4,7 +4,7 @@
 import binascii
 from pypeerassets import constants, paproto
 
-def testnet_or_mainnet(node):
+def localnode_testnet_or_mainnet(node):
     '''check if local node is configured to testnet or mainnet'''
 
     if node.getinfo()["testnet"] is True:
@@ -15,7 +15,7 @@ def testnet_or_mainnet(node):
 def load_p2th_privkeys_into_node(node):
     '''load production p2th privkey into local node'''
 
-    if testnet_or_mainnet(node) is "testnet":
+    if localnode_testnet_or_mainnet(node) is "testnet":
         try:
             node.importprivkey(testnet_PAPROD, "PAPROD")
             assert testnet_PAPROD_addr in node.getaddressesbyaccount("PAPROD")
@@ -31,7 +31,7 @@ def load_p2th_privkeys_into_node(node):
 def load_test_p2th_privkeys_into_node(node):
     '''load test p2th privkeys into local node'''
 
-    if testnet_or_mainnet(node) is "testnet":
+    if localnode_testnet_or_mainnet(node) is "testnet":
         try:
             node.importprivkey(testnet_PATEST, "PATEST")
             assert mainnet_PATEST_addr in node.getaddressesbyaccount("PATEST")
