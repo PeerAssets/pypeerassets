@@ -91,7 +91,7 @@ def parse_deckspawn_metainfo(protobuf):
     deck = paproto.DeckSpawn()
     deck.ParseFromString(protobuf)
 
-    validate_deckspawn(deck)
+    validate_deckspawn_metainfo(deck)
 
     return {
         "version": deck.version,
