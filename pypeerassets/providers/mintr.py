@@ -7,7 +7,7 @@ class Mintr:
     This wrapper does some tweaks to output to match original RPC response.'''
 
     @classmethod
-    def __init__(cls, network):
+    def __init__(cls, network="peercoin"):
 
         cls.api = "https://{0}.mintr.org/api/".format(network)
 
