@@ -101,3 +101,24 @@ def parse_deckspawn_metainfo(protobuf):
         "asset_specific_data": deck.asset_specific_data
     }
 
+def validate_deckspawn_p2th(node, deck_id, testnet=False, prod_or_test="prod"):
+    '''validate if deck spawn pays to p2th in vout[0] and if it correct P2TH address'''
+
+    raw = node.getrawtransaction(deck_id, 1)
+    vout = raw["vout"][0]["scriptPubKey"].get("addresses")[0]
+    error = {"error": "This deck is not properly tagged."}
+
+    if testnet:
+
+        if prod_or_test == "prod":
+            assert vout == constants.testnet_PAPROD_addr, error
+        else:
+            assert vout == constants.testnet_PATEST_addr, error
+
+    if not testnet:
+
+        if prod_or_test == "prod":
+            assert vout == constants.mainnet_PAPROD_addr, error
+        else:
+            assert vout == constants.mainnet_PATEST_addr, error
+
