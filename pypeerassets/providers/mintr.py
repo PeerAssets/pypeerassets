@@ -18,6 +18,12 @@ class Mintr:
         return requests.get(cls.api + query, verify=False).json()
 
     @classmethod
+    def getinfo(cls):
+        '''mock response, to allow compatibility with local rpc node'''
+
+        return {"testnet": False}
+
+    @classmethod
     def getrawtransaction(cls, txid):
         '''this mimics the behaviour of local node `getrawtransaction` query with argument 1'''
 
