@@ -112,13 +112,17 @@ def validate_deckspawn_p2th(node, deck_id, testnet=False, prod_or_test="prod"):
 
         if prod_or_test == "prod":
             assert vout == constants.testnet_PAPROD_addr, error
-        else:
+            return True
+        if prod_or_test == "test":
             assert vout == constants.testnet_PATEST_addr, error
+            return True
 
     if not testnet:
 
         if prod_or_test == "prod":
             assert vout == constants.mainnet_PAPROD_addr, error
-        else:
+            return True
+        if prod_or_test == "test":
             assert vout == constants.mainnet_PATEST_addr, error
+            return True
 
