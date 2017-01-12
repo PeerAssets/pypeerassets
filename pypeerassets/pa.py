@@ -1,7 +1,7 @@
 
 '''contains main protocol logic like assembly of proof-of-timeline and parsing deck info'''
 
-from pypeerassets import paproto, pautils, RpcNode
+from pypeerassets import paproto, pautils, Kutil, RpcNode
 
 def find_all_valid_decks(node, testnet=True, prod_or_test="prod"):
     '''scan the blockchain for PeerAssets decks, returns list of deck objects.'''
@@ -32,6 +32,18 @@ class Deck:
         self.number_of_decimals = number_of_decimals
         self.asset_specific_data = asset_specific_data # optional metadata for the deck
         self.asset_id = asset_id
+
+    @property
+    def p2th_addr(self):
+        '''P2TH address of this deck'''
+
+        return Kutil(seed=self.asset_id).address
+
+    @property
+    def p2th_wif(self):
+        '''P2TH privkey in WIF format'''
+
+        return Kutil(seed=self.asset_id).wif
 
     @property
     def metainfo_to_protobuf(self):
