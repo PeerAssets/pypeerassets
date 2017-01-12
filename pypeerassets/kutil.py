@@ -1,8 +1,11 @@
+
+'''Kutil is for all things cryptography.'''
+
 from hashlib import sha256, new
 from binascii import hexlify, unhexlify
 from base58 import b58encode, b58decode
 from secp256k1 import PrivateKey
-from . import networks
+from pypeerassets import networks
 
 class Kutil:
     '''pubkey/privkey operations'''
