@@ -23,7 +23,7 @@ def find_all_valid_decks(node, testnet=True, prod_or_test="prod"):
 
 class Deck:
 
-    def __init__(self, version, name, number_of_decimals, issue_mode, asset_specific_data, asset_id=None):
+    def __init__(self, version, name, number_of_decimals, issue_mode, asset_specific_data="", asset_id=None):
         '''initialize deck object, load from dictionary Deck(**dict) or initilize with kwargs Deck(1, "deck", 3, 2)'''
 
         self.version = version # protocol version
