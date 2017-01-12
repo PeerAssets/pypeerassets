@@ -24,10 +24,28 @@ class Mintr:
         return {"testnet": False}
 
     @classmethod
-    def getrawtransaction(cls, txid):
+    def getrawtransaction(cls, txid, verbose=1):
         '''this mimics the behaviour of local node `getrawtransaction` query with argument 1'''
 
-        return cls.get("tx/hash/" + txid)
+        def wrapper(raw):
+            '''make Mintr API response just like RPC response'''
+
+            for v in raw["vout"]:
+                v["scriptPubKey"] = {"asm": v["asm"], "hex": v["hex"],
+                                     "type": v["type"], "reqSigs": v["reqsigs"],
+                                     "address": [v["address"]]
+                                    }
+                for k in ("address", "asm", "hex", "reqsigs", "type"):
+                    v.pop(k)
+
+            return raw
+
+        if verbose == 0:
+            return cls.get("tx/hash/" + txid)
+        else:
+            resp = cls.get("tx/hash/" + txid + "/full")
+            if not resp == {'error': 'Unknown API call'}:
+                return wrapper(resp)
 
     @classmethod
     def listtransactions(cls, addr):
