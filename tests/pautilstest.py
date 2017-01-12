@@ -37,13 +37,12 @@ class PAutilsTestCase(unittest.TestCase):
                           "93dff38d65ef25ff9539ea2fa1fda45eb29d8bb989ca91399218c7e83e6630ea",
                           testnet=True, prod_or_test="test")
 
-    """
     def test_read_tx_opreturn(self):
         '''test if it parses the OP_RETURN from tx correctly'''
 
-        node = Mintr()
-        self.assertEqual(read_tx_opreturn(node, "2d101a202de7b468a43649bd6eda9dcd6372ba368e829c1e0e5f62640c0bee04"))
-    """
+        node = Mintr("peercoin")
+        self.assertEqual(read_tx_opreturn(node, "8baddc69aff7873b3ca0bf5fb94a8487611c9aacb7a0f3bcaf90d501f955ad77"),
+                         b'Thank you for your work and dedication, peerchemist. Your friend, saeveritt.')
 
 if __name__ == '__main__':
     unittest.main()
