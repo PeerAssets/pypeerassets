@@ -22,45 +22,22 @@ class TransactionsTestCase(unittest.TestCase):
 
         ## decoded by ppcoind
         decoded_raw_tx = {
-            "txid" : "10060b0349d3c84a7d88bd396a703d6df39c587bf8169fef73db46e7b346efe5",
-            "version" : 1,
-            "time" : 1479378005,
-            "locktime" : 0,
-            "vin" : [
+            'vout': [
+                {'scriptPubKey': '', 'value': 0.0},
+                {'scriptPubKey': '21027f2101a1eb0ef4f53ab48919a0f390dfcaddd6b8104324b4ef8d2654b08b3722ac',
+                 'value': 218.47}
+            ],
+            'timestamp': 1479378005,
+            'version': 1,
+            'vin': [
                 {
-                    "txid" : "f5bb2499be92fd169fae51ce73e258cec2ae1b96c339ef9e79d27ec09c123e89",
-                    "vout" : 2,
-                    "scriptSig" : {
-                        "asm" : "3046022100b4de95eb9652b86fe3070ab9c1ccf60ec700638848589416f48bfaa0342c2d46022100ed7ff3ec83324c146e3ce8123854a62a9953f6ebd027b77330a1c2b9f0a5847501",
-                        "hex" : "493046022100b4de95eb9652b86fe3070ab9c1ccf60ec700638848589416f48bfaa0342c2d46022100ed7ff3ec83324c146e3ce8123854a62a9953f6ebd027b77330a1c2b9f0a5847501"
-                    },
-                    "sequence" : 4294967295
+                    'vout': 2,
+                    'sequence': 4294967295,
+                    'scriptSig': '493046022100b4de95eb9652b86fe3070ab9c1ccf60ec700638848589416f48bfaa0342c2d46022100ed7ff3ec83324c146e3ce8123854a62a9953f6ebd027b77330a1c2b9f0a5847501',
+                    'txid': 'f5bb2499be92fd169fae51ce73e258cec2ae1b96c339ef9e79d27ec09c123e89'
                 }
             ],
-            "vout" : [
-                {
-                    "value" : 0.00000000,
-                    "n" : 0,
-                    "scriptPubKey" : {
-                        "asm" : "",
-                        "hex" : "",
-                        "type" : "nonstandard"
-                    }
-                },
-                {
-                    "value" : 218.47000000,
-                    "n" : 1,
-                    "scriptPubKey" : {
-                        "asm" : "027f2101a1eb0ef4f53ab48919a0f390dfcaddd6b8104324b4ef8d2654b08b3722 OP_CHECKSIG",
-                        "hex" : "21027f2101a1eb0ef4f53ab48919a0f390dfcaddd6b8104324b4ef8d2654b08b3722ac",
-                        "reqSigs" : 1,
-                        "type" : "pubkey",
-                        "addresses" : [
-                            "PWCdgQDaRcXFQK3qjLJeKi5g18pxcjrAzN"
-                        ]
-                    }
-                }
-            ]
+            'locktime': 0
         }
 
         self.assertEqual(unpack_raw_transaction(unhexlify(rawtx)), decoded_raw_tx)
