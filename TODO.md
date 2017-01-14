@@ -4,7 +4,8 @@
 * exporting new privkey to WIF format
 * message sign
 * signed message verify against address
-* basic raw transaction assembly/dissasembly
+* unit test raw transaction assembly
+* parse addresses from scripts
 * PeerAssets deck spawning
 * PeerAssets P2TH
 * PeeAssets proof-of-timeline
