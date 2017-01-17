@@ -12,9 +12,10 @@ def find_all_valid_decks(node, testnet=True, prod_or_test="prod"):
     for i in deck_spawns:
         try:
             pautils.validate_deckspawn_p2th(node, i, testnet=testnet, prod_or_test="prod")
-            d = pautils.parse_deckspawn_metainfo(pautils.read_tx_opreturn(node, i))
-            d["asset_id"] = i
-            decks.append(Deck(**d))
+            if pautils.parse_deckspawn_metainfo(pautils.read_tx_opreturn(node, i)):
+                d = pautils.parse_deckspawn_metainfo(pautils.read_tx_opreturn(node, i))
+                d["asset_id"] = i
+                decks.append(Deck(**d))
 
         except AssertionError:
             pass

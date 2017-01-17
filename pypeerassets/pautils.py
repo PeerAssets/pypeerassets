@@ -58,25 +58,22 @@ def find_deck_spawns(node, prod_or_test="prod"):
 def read_tx_opreturn(node, txid):
     '''Decode OP_RETURN message from <txid>'''
 
-    vouts = node.getrawtransaction(txid, 1)['vout']
+    vout = node.getrawtransaction(txid, 1)['vout'][1] # protocol requires that OP_RETURN is vout[1]
 
-    for vout in vouts:
-        asm = vout['scriptPubKey']['asm']
-        n = asm.find('OP_RETURN')
+    asm = vout['scriptPubKey']['asm']
+    n = asm.find('OP_RETURN')
+    if n == -1:
+        return False #{'error': 'OP_RETURN not found'}
+    else:
+        # add 10 because 'OP_RETURN ' is 10 characters
+        n += 10
+        data = asm[n:]
+        n = data.find(' ')
+        #make sure that we don't include trailing opcodes
         if n == -1:
-            continue
+            return binascii.unhexlify(data)
         else:
-            # add 10 because 'OP_RETURN ' is 10 characters
-            n += 10
-            data = asm[n:]
-            n = data.find(' ')
-            #make sure that we don't include trailing opcodes
-            if n == -1:
-                return binascii.unhexlify(data)
-            else:
-                return binascii.unhexlify(data[:n])
-
-    return {'error': 'OP_RETURN not found'}
+            return binascii.unhexlify(data[:n])
 
 def validate_deckspawn_metainfo(deck):
     '''validate deck_spawn'''
