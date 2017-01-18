@@ -2,7 +2,8 @@
 '''miscellaneous utilities.'''
 
 import binascii
-from pypeerassets import constants, paproto
+from pypeerassets.constants import *
+from pypeerassets import paproto
 
 def localnode_testnet_or_mainnet(node):
     '''check if local node is configured to testnet or mainnet'''
@@ -122,4 +123,36 @@ def validate_deckspawn_p2th(node, deck_id, testnet=False, prod_or_test="prod"):
         if prod_or_test == "test":
             assert vout == constants.mainnet_PATEST_addr, error
             return True
+
+def load_deck_p2th_into_local_node(node, deck, prod=True):
+    '''
+    load deck p2th into local node,
+    this allows building of proof-of-timeline for this deck
+    '''
+
+    error = {"error": "Deck P2TH import went wrong."}
+
+    if localnode_testnet_or_mainnet(node) == "testnet":
+
+        if prod:
+
+            node.importprivkey(testnet_PAPROD, deck["name"])
+            assert testnet_PAPROD_addr in node.getaddressesbyaccount(deck["name"]), error
+
+        else:
+
+            node.importprivkey(testnet_PATEST, deck["name"])
+            assert testnet_PATEST_addr in node.getaddressesbyaccount(deck["name"]), error
+
+    else:
+
+        if prod:
+
+            node.importprivkey(mainnet_PAPROD, deck["name"])
+            assert testnet_PAPROD_addr in node.getaddressesbyaccount(deck["name"]), error
+
+        else:
+
+            node.importprivkey(mainnet_PATEST, deck["name"])
+            assert testnet_PATEST_addr in node.getaddressesbyaccount(deck["name"]), error
 
