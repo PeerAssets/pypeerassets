@@ -110,22 +110,22 @@ def validate_deckspawn_p2th(node, deck_id, testnet=False, prod_or_test="prod"):
     if testnet:
 
         if prod_or_test == "prod":
-            assert vout == testnet_PAPROD_addr, error
+            assert vout == constants.testnet_PAPROD_addr, error
             return True
         if prod_or_test == "test":
-            assert vout == testnet_PATEST_addr, error
+            assert vout == constants.testnet_PATEST_addr, error
             return True
 
     if not testnet:
 
         if prod_or_test == "prod":
-            assert vout == mainnet_PAPROD_addr, error
+            assert vout == constants.mainnet_PAPROD_addr, error
             return True
         if prod_or_test == "test":
-            assert vout == mainnet_PATEST_addr, error
+            assert vout == constants.mainnet_PATEST_addr, error
             return True
 
-def load_deck_p2th_into_local_node(node, deck):
+def load_deck_p2th_into_local_node(node, deck, prod=True):
     '''
     load deck p2th into local node,
     this allows building of proof-of-timeline for this deck
@@ -133,19 +133,11 @@ def load_deck_p2th_into_local_node(node, deck):
 
     error = {"error": "Deck P2TH import went wrong."}
 
-    try:
-        node.importprivkey(deck.p2th_wif, deck.name)
-        assert deck.name in node.getaddressesbyaccount(deck.name), error
-    except Exception as e:
-        print(e)
-
-
-    """    
     if localnode_testnet_or_mainnet(node) == "testnet":
 
         if prod:
 
-            node.importprivkey(deck.p2th_wif, deck["name"])
+            node.importprivkey(testnet_PAPROD, deck["name"])
             assert testnet_PAPROD_addr in node.getaddressesbyaccount(deck["name"]), error
 
         else:
@@ -164,4 +156,4 @@ def load_deck_p2th_into_local_node(node, deck):
 
             node.importprivkey(mainnet_PATEST, deck["name"])
             assert testnet_PATEST_addr in node.getaddressesbyaccount(deck["name"]), error
-    """
+
