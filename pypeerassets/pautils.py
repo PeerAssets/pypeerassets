@@ -100,7 +100,7 @@ def parse_deckspawn_metainfo(protobuf):
         "asset_specific_data": deck.asset_specific_data
     }
 
-def validate_deckspawn_p2th(node, deck_id, testnet=False, prod_or_test="prod"):
+def validate_deckspawn_p2th(node, deck_id, testnet=False, test=False):
     '''validate if deck spawn pays to p2th in vout[0] and if it correct P2TH address'''
 
     raw = node.getrawtransaction(deck_id, 1)
@@ -109,20 +109,20 @@ def validate_deckspawn_p2th(node, deck_id, testnet=False, prod_or_test="prod"):
 
     if testnet:
 
-        if prod_or_test == "prod":
-            assert vout == testnet_PAPROD_addr, error
-            return True
-        if prod_or_test == "test":
+        if test: # if test P2TH
             assert vout == testnet_PATEST_addr, error
+            return True
+        else:
+            assert vout == testnet_PAPROD_addr, error
             return True
 
     if not testnet:
 
-        if prod_or_test == "prod":
-            assert vout == mainnet_PAPROD_addr, error
-            return True
-        if prod_or_test == "test":
+        if test: # if test P2TH
             assert vout == mainnet_PATEST_addr, error
+            return True
+        else:
+            assert vout == mainnet_PAPROD_addr, error
             return True
 
 def load_deck_p2th_into_local_node(node, deck):
