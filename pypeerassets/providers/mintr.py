@@ -30,6 +30,9 @@ class Mintr:
         def wrapper(raw):
             '''make Mintr API response just like RPC response'''
 
+            raw["blocktime"] = raw["time"]
+            raw.pop("time")
+
             for v in raw["vout"]:
                 v["scriptPubKey"] = {"asm": v["asm"], "hex": v["hex"],
                                      "type": v["type"], "reqSigs": v["reqsigs"],
