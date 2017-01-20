@@ -110,22 +110,22 @@ def validate_deckspawn_p2th(node, deck_id, testnet=False, prod_or_test="prod"):
     if testnet:
 
         if prod_or_test == "prod":
-            assert vout == constants.testnet_PAPROD_addr, error
+            assert vout == testnet_PAPROD_addr, error
             return True
         if prod_or_test == "test":
-            assert vout == constants.testnet_PATEST_addr, error
+            assert vout == testnet_PATEST_addr, error
             return True
 
     if not testnet:
 
         if prod_or_test == "prod":
-            assert vout == constants.mainnet_PAPROD_addr, error
+            assert vout == mainnet_PAPROD_addr, error
             return True
         if prod_or_test == "test":
-            assert vout == constants.mainnet_PATEST_addr, error
+            assert vout == mainnet_PATEST_addr, error
             return True
 
-def load_deck_p2th_into_local_node(node, deck, prod=True):
+def load_deck_p2th_into_local_node(node, deck):
     '''
     load deck p2th into local node,
     this allows building of proof-of-timeline for this deck
@@ -133,27 +133,8 @@ def load_deck_p2th_into_local_node(node, deck, prod=True):
 
     error = {"error": "Deck P2TH import went wrong."}
 
-    if localnode_testnet_or_mainnet(node) == "testnet":
-
-        if prod:
-
-            node.importprivkey(testnet_PAPROD, deck["name"])
-            assert testnet_PAPROD_addr in node.getaddressesbyaccount(deck["name"]), error
-
-        else:
-
-            node.importprivkey(testnet_PATEST, deck["name"])
-            assert testnet_PATEST_addr in node.getaddressesbyaccount(deck["name"]), error
-
-    else:
-
-        if prod:
-
-            node.importprivkey(mainnet_PAPROD, deck["name"])
-            assert testnet_PAPROD_addr in node.getaddressesbyaccount(deck["name"]), error
-
-        else:
-
-            node.importprivkey(mainnet_PATEST, deck["name"])
-            assert testnet_PATEST_addr in node.getaddressesbyaccount(deck["name"]), error
-
+    try:
+        node.importprivkey(deck.p2th_wif, deck.name)
+        assert deck.p2th_address in node.getaddressesbyaccount(deck.name), error
+    except Exception as e:
+        print(e)
