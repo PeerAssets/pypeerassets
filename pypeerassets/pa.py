@@ -3,15 +3,20 @@
 
 from pypeerassets import paproto, pautils, Kutil, RpcNode
 
-def find_all_valid_decks(node, testnet=True, prod_or_test="prod"):
-    '''scan the blockchain for PeerAssets decks, returns list of deck objects.'''
+def find_all_valid_decks(node, testnet=True, test=False):
+    '''
+    scan the blockchain for PeerAssets decks, returns list of deck objects.
+    please pass <node> - the provider
+    <testnet> True/False
+    <test> True/False - test or production P2TH
+    '''
 
     decks = []
     deck_spawns = pautils.find_deck_spawns(node) # find all deck_spawns on PAProd P2TH
 
     for i in deck_spawns:
         try:
-            pautils.validate_deckspawn_p2th(node, i, testnet=testnet, prod_or_test="prod")
+            pautils.validate_deckspawn_p2th(node, i, testnet=testnet)
             if pautils.parse_deckspawn_metainfo(pautils.read_tx_opreturn(node, i)):
                 d = pautils.parse_deckspawn_metainfo(pautils.read_tx_opreturn(node, i))
                 d["asset_id"] = i
@@ -77,4 +82,3 @@ class Deck:
             "number_of_decimals": self.number_of_decimals,
             "issue_mode": self.issue_mode
         }
-
