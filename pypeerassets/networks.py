@@ -11,6 +11,11 @@ Network = namedtuple('Network', [
     'denomination',
 ])
 
+'''
+Network name should be capitalized, for testnet append "-testnet".
+For abbreviation prefix testnet of the network with "t".
+'''
+
 networks = (
     # Peercoin mainnet
     Network("Peercoin", "ppc", b'37', b'b7', b'75', b'e6e8e9e5', True, 1000000),

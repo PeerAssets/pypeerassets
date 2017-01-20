@@ -24,7 +24,8 @@ def find_all_valid_decks(node, testnet=True, prod_or_test="prod"):
 
 class Deck:
 
-    def __init__(self, version, name, number_of_decimals, issue_mode, asset_specific_data="", asset_id=None):
+    def __init__(self, version, name, number_of_decimals, issue_mode, asset_specific_data="",
+                 asset_id=None, network="tppc", testnet=True):
         '''initialize deck object, load from dictionary Deck(**dict) or initilize with kwargs Deck(1, "deck", 3, 2)'''
 
         self.version = version # protocol version
@@ -33,6 +34,7 @@ class Deck:
         self.number_of_decimals = number_of_decimals
         self.asset_specific_data = asset_specific_data # optional metadata for the deck
         self.asset_id = asset_id
+        self.testnet = testnet
 
     @property
     def p2th_addr(self):
