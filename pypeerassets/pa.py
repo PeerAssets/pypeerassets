@@ -24,8 +24,12 @@ def find_all_valid_decks(node, testnet=True, prod_or_test="prod"):
 
 class Deck:
 
-    def __init__(self, version, name, number_of_decimals, issue_mode, asset_specific_data="", asset_id=None):
-        '''initialize deck object, load from dictionary Deck(**dict) or initilize with kwargs Deck(1, "deck", 3, 2)'''
+    def __init__(self, version, name, number_of_decimals, issue_mode, asset_specific_data="",
+                 asset_id=None, network="tppc"):
+        '''
+        initialize deck object, load from dictionary Deck(**dict)
+        or initilize with kwargs Deck(1, "deck", 3, 2)
+        '''
 
         self.version = version # protocol version
         self.name = name # deck name
@@ -33,18 +37,23 @@ class Deck:
         self.number_of_decimals = number_of_decimals
         self.asset_specific_data = asset_specific_data # optional metadata for the deck
         self.asset_id = asset_id
+        self.network = network
+        if self.network.startswith("t"):
+            self.testnet = True
+        else:
+            self.testnet = False
 
     @property
-    def p2th_addr(self):
+    def p2th_address(self):
         '''P2TH address of this deck'''
 
-        return Kutil(seed=self.asset_id).address
+        return Kutil(network=self.network, seed=self.asset_id).address
 
     @property
     def p2th_wif(self):
         '''P2TH privkey in WIF format'''
 
-        return Kutil(seed=self.asset_id).wif
+        return Kutil(network=self.network, seed=self.asset_id).wif
 
     @property
     def metainfo_to_protobuf(self):
