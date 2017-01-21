@@ -35,3 +35,12 @@ class RpcNode(Client):
 
     select_inputs = select_inputs
 
+    @property
+    def is_testnet(self):
+        '''check if node is configured to use testnet or mainnet'''
+
+        if self.getinfo()["testnet"] is True:
+            return True
+        else:
+            return False
+

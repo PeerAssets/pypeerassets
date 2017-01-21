@@ -11,6 +11,11 @@ class Mintr:
 
         cls.api = "https://{0}.mintr.org/api/".format(network)
 
+    @property
+    def is_testnet(self):
+        '''testnet or not?'''
+        return False
+
     @classmethod
     def get(cls, query):
 
