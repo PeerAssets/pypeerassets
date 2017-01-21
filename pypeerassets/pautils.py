@@ -46,6 +46,11 @@ def load_test_p2th_privkeys_into_node(node):
         except Exception:
             return {"error": "Loading P2TH privkey failed."}
 
+def find_tx_sender(provider, txid):
+
+    vin = provider.getrawtransaction(txid, 1)["vin"][0]["txid"]
+    return provider.getrawtransaction(vin, 1)["vout"][-1]["scriptPubKey"]["addresses"][0]
+
 def find_deck_spawns(node, prod=True):
     '''find deck spawn transactions via local node,
     it requires that Deck spawn P2TH were imported in local node.'''

@@ -4,7 +4,7 @@
 from pypeerassets import paproto, Kutil
 from pypeerassets.pautils import *
 
-def find_all_valid_decks(node, testnet=True, test=False):
+def find_all_valid_decks(provider, testnet=True, test=False):
     '''
     scan the blockchain for PeerAssets decks, returns list of deck objects.
     please pass <node> - the provider
@@ -13,15 +13,16 @@ def find_all_valid_decks(node, testnet=True, test=False):
     '''
 
     decks = []
-    deck_spawns = find_deck_spawns(node) # find all deck_spawns on PAProd P2TH
+    deck_spawns = find_deck_spawns(provider) # find all deck_spawns on PAProd P2TH
 
     for i in deck_spawns:
         try:
-            validate_deckspawn_p2th(node, i, testnet=testnet)
-            if parse_deckspawn_metainfo(read_tx_opreturn(node, i)):
-                d = parse_deckspawn_metainfo(read_tx_opreturn(node, i))
+            validate_deckspawn_p2th(provider, i, testnet=testnet)
+            if parse_deckspawn_metainfo(read_tx_opreturn(provider, i)):
+                d = parse_deckspawn_metainfo(read_tx_opreturn(provider, i))
                 d["asset_id"] = i
-                d["time"] = node.getrawtransaction(i, 1)["blocktime"]
+                d["time"] = provider.getrawtransaction(i, 1)["blocktime"]
+                d["issuer"] = find_tx_sender(provider, i)
                 decks.append(Deck(**d))
 
         except AssertionError:
@@ -32,7 +33,7 @@ def find_all_valid_decks(node, testnet=True, test=False):
 class Deck:
 
     def __init__(self, version, name, number_of_decimals, issue_mode, asset_specific_data="",
-                 time=None, asset_id=None, network="tppc"):
+                 issuer="", time=None, asset_id=None, network="tppc"):
         '''
         initialize deck object, load from dictionary Deck(**dict)
         or initilize with kwargs Deck(1, "deck", 3, 2)
@@ -44,6 +45,7 @@ class Deck:
         self.number_of_decimals = number_of_decimals
         self.asset_specific_data = asset_specific_data # optional metadata for the deck
         self.asset_id = asset_id
+        self.issuer = issuer
         self.issue_time = time
         self.network = network
         if self.network.startswith("t"):
