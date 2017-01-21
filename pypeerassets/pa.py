@@ -20,6 +20,7 @@ def find_all_valid_decks(node, testnet=True, test=False):
             if pautils.parse_deckspawn_metainfo(pautils.read_tx_opreturn(node, i)):
                 d = pautils.parse_deckspawn_metainfo(pautils.read_tx_opreturn(node, i))
                 d["asset_id"] = i
+                d["time"] = node.getrawtransaction(i, 1)["blocktime"]
                 decks.append(Deck(**d))
 
         except AssertionError:
@@ -30,7 +31,7 @@ def find_all_valid_decks(node, testnet=True, test=False):
 class Deck:
 
     def __init__(self, version, name, number_of_decimals, issue_mode, asset_specific_data="",
-                 asset_id=None, network="tppc"):
+                 time=None, asset_id=None, network="tppc"):
         '''
         initialize deck object, load from dictionary Deck(**dict)
         or initilize with kwargs Deck(1, "deck", 3, 2)
@@ -42,6 +43,7 @@ class Deck:
         self.number_of_decimals = number_of_decimals
         self.asset_specific_data = asset_specific_data # optional metadata for the deck
         self.asset_id = asset_id
+        self.issue_time = time
         self.network = network
         if self.network.startswith("t"):
             self.testnet = True
@@ -82,3 +84,6 @@ class Deck:
             "number_of_decimals": self.number_of_decimals,
             "issue_mode": self.issue_mode
         }
+
+class CardTransfer:
+    pass
