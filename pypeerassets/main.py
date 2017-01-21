@@ -1,7 +1,8 @@
 
 '''contains main protocol logic like assembly of proof-of-timeline and parsing deck info'''
 
-from pypeerassets import paproto, pautils, Kutil, RpcNode
+from pypeerassets import paproto, Kutil
+from pypeerassets.pautils import *
 
 def find_all_valid_decks(node, testnet=True, test=False):
     '''
@@ -12,13 +13,13 @@ def find_all_valid_decks(node, testnet=True, test=False):
     '''
 
     decks = []
-    deck_spawns = pautils.find_deck_spawns(node) # find all deck_spawns on PAProd P2TH
+    deck_spawns = find_deck_spawns(node) # find all deck_spawns on PAProd P2TH
 
     for i in deck_spawns:
         try:
-            pautils.validate_deckspawn_p2th(node, i, testnet=testnet)
-            if pautils.parse_deckspawn_metainfo(pautils.read_tx_opreturn(node, i)):
-                d = pautils.parse_deckspawn_metainfo(pautils.read_tx_opreturn(node, i))
+            validate_deckspawn_p2th(node, i, testnet=testnet)
+            if parse_deckspawn_metainfo(read_tx_opreturn(node, i)):
+                d = parse_deckspawn_metainfo(read_tx_opreturn(node, i))
                 d["asset_id"] = i
                 d["time"] = node.getrawtransaction(i, 1)["blocktime"]
                 decks.append(Deck(**d))
