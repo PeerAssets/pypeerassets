@@ -2,6 +2,7 @@
 '''miscellaneous utilities.'''
 
 import binascii
+from pypeerassets.provider import RpcNode
 from pypeerassets.constants import *
 from pypeerassets import paproto
 
@@ -15,6 +16,8 @@ def localnode_testnet_or_mainnet(node):
 
 def load_p2th_privkeys_into_node(node):
     '''load production p2th privkey into local node'''
+
+    assert isinstance(node, RpcNode), {"error": "You can load privkeys only into local node."}
 
     if localnode_testnet_or_mainnet(node) is "testnet":
         try:
@@ -31,6 +34,8 @@ def load_p2th_privkeys_into_node(node):
 
 def load_test_p2th_privkeys_into_node(node):
     '''load test p2th privkeys into local node'''
+
+    assert isinstance(node, RpcNode), {"error": "You can load privkeys only into local node."}
 
     if localnode_testnet_or_mainnet(node) is "testnet":
         try:
@@ -55,12 +60,14 @@ def find_deck_spawns(node, prod=True):
     '''find deck spawn transactions via local node,
     it requires that Deck spawn P2TH were imported in local node.'''
 
-    if prod:
-        decks = [i["txid"] for i in node.listtransactions("PAPROD")]
-    else:
-        decks = [i["txid"] for i in node.listtransactions("PATEST")]
+    if isinstance(node, RpcNode):
 
-    return decks
+        if prod:
+            decks = [i["txid"] for i in node.listtransactions("PAPROD")]
+        else:
+            decks = [i["txid"] for i in node.listtransactions("PATEST")]
+
+        return decks
 
 def read_tx_opreturn(node, txid):
     '''Decode OP_RETURN message from <txid>'''
@@ -135,6 +142,8 @@ def load_deck_p2th_into_local_node(node, deck):
     load deck p2th into local node,
     this allows building of proof-of-timeline for this deck
     '''
+
+    assert isinstance(node, RpcNode), {"error": "You can load privkeys only into local node."}
 
     error = {"error": "Deck P2TH import went wrong."}
 

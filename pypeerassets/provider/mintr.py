@@ -60,6 +60,8 @@ class Mintr:
         '''get information about <address>'''
 
         response = cls.get("address/balance/" + addr + "/full")
+        assert response != {'error': 'Could not decode hash'}, {"error": "Can not find the address."}
+
         txid = []
         for i in response["transactions"]:
             t = {"confirmations": i["confirmations"],
