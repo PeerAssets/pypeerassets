@@ -4,7 +4,7 @@
 from pypeerassets import paproto, Kutil
 from pypeerassets.pautils import *
 
-def find_all_valid_decks(provider, testnet=True, test=False):
+def find_all_valid_decks(provider, prod=True):
     '''
     scan the blockchain for PeerAssets decks, returns list of deck objects.
     please pass <node> - the provider
@@ -17,7 +17,7 @@ def find_all_valid_decks(provider, testnet=True, test=False):
 
     for i in deck_spawns:
         try:
-            validate_deckspawn_p2th(provider, i, testnet=testnet)
+            validate_deckspawn_p2th(provider, i, prod=prod, testnet=provider.is_testnet)
             if parse_deckspawn_metainfo(read_tx_opreturn(provider, i)):
                 d = parse_deckspawn_metainfo(read_tx_opreturn(provider, i))
                 d["asset_id"] = i
