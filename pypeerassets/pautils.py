@@ -127,18 +127,18 @@ def validate_deckspawn_p2th(provider, deck_id, testnet=False, prod=True):
     vout = raw["vout"][0]["scriptPubKey"].get("addresses")[0]
     error = {"error": "This deck is not properly tagged."}
 
-    if not prod:
+    if testnet:
 
-        if testnet: # if test P2TH
+        if not prod: # if test P2TH
             assert vout == testnet_PATEST_addr, error
             return True
         else:
             assert vout == testnet_PAPROD_addr, error
             return True
 
-    if prod:
+    else:
 
-        if testnet: # if test P2TH
+        if not prod: # if test P2TH
             assert vout == mainnet_PATEST_addr, error
             return True
         else:

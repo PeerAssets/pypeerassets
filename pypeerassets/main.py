@@ -30,6 +30,14 @@ def find_all_valid_decks(provider, prod=True):
 
     return decks
 
+def find_deck(provider, key, prod=True):
+    '''find specific deck by key, with key being:
+    <id>, <name>, <issuer>, <issue_mode>, <number_of_decimals>
+    '''
+
+    decks = find_all_valid_decks(provider, prod=prod)
+    return [d for d in decks if key in d.__dict__.values()]
+
 class Deck:
 
     def __init__(self, version, name, number_of_decimals, issue_mode, asset_specific_data="",
