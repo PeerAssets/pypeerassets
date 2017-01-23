@@ -2,7 +2,7 @@
 '''miscellaneous utilities.'''
 
 import binascii
-from pypeerassets.provider import RpcNode
+from pypeerassets.provider import RpcNode, Mintr
 from pypeerassets.constants import *
 from pypeerassets import paproto
 
@@ -68,6 +68,13 @@ def find_deck_spawns(node, prod=True):
             decks = [i["txid"] for i in node.listtransactions("PATEST")]
 
         return decks
+
+    if isinstance(node, Mintr):
+
+        if prod:
+            decks = [i["txid"] for i in node.listtransactions(mainnet_PAPROD_addr)]
+        else:
+            raise NotImplementedError
 
 def read_tx_opreturn(node, txid):
     '''Decode OP_RETURN message from <txid>'''
