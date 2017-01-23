@@ -56,23 +56,24 @@ def find_tx_sender(provider, txid):
     vin = provider.getrawtransaction(txid, 1)["vin"][0]["txid"]
     return provider.getrawtransaction(vin, 1)["vout"][-1]["scriptPubKey"]["addresses"][0]
 
-def find_deck_spawns(node, prod=True):
-    '''find deck spawn transactions via local node,
-    it requires that Deck spawn P2TH were imported in local node.'''
+def find_deck_spawns(provider, prod=True):
+    '''find deck spawn transactions via provider,
+    it requires that Deck spawn P2TH were imported in local node or
+    that remote API knows about P2TH address.'''
 
-    if isinstance(node, RpcNode):
+    if isinstance(provider, RpcNode):
 
         if prod:
-            decks = [i["txid"] for i in node.listtransactions("PAPROD")]
+            decks = [i["txid"] for i in provider.listtransactions("PAPROD")]
         else:
-            decks = [i["txid"] for i in node.listtransactions("PATEST")]
+            decks = [i["txid"] for i in provider.listtransactions("PATEST")]
 
         return decks
 
-    if isinstance(node, Mintr):
+    if isinstance(provider, Mintr):
 
         if prod:
-            decks = [i["txid"] for i in node.listtransactions(mainnet_PAPROD_addr)]
+            decks = [i["txid"] for i in provider.listtransactions(mainnet_PAPROD_addr)]
         else:
             raise NotImplementedError
 
