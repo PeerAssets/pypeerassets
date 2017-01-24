@@ -19,7 +19,7 @@ def load_p2th_privkeys_into_node(node):
 
     assert isinstance(node, RpcNode), {"error": "You can load privkeys only into local node."}
 
-    if localnode_testnet_or_mainnet(node) is "testnet":
+    if node.is_testnet:
         try:
             node.importprivkey(testnet_PAPROD, "PAPROD")
             assert testnet_PAPROD_addr in node.getaddressesbyaccount("PAPROD")
@@ -37,7 +37,7 @@ def load_test_p2th_privkeys_into_node(node):
 
     assert isinstance(node, RpcNode), {"error": "You can load privkeys only into local node."}
 
-    if localnode_testnet_or_mainnet(node) is "testnet":
+    if node.is_testnet:
         try:
             node.importprivkey(testnet_PATEST, "PATEST")
             assert mainnet_PATEST_addr in node.getaddressesbyaccount("PATEST")
