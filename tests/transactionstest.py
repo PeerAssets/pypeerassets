@@ -1,5 +1,5 @@
 import unittest
-from binascii import unhexlify
+from binascii import unhexlify, hexlify
 from pypeerassets.transactions import *
 
 class TransactionsTestCase(unittest.TestCase):
@@ -41,6 +41,28 @@ class TransactionsTestCase(unittest.TestCase):
         }
 
         self.assertEqual(unpack_raw_transaction(unhexlify(rawtx)), decoded_raw_tx)
+
+    def test_transaction_assembly_test(self):
+        '''verifies that transaction assembly is functioning properly'''
+
+        prev_txid = unhexlify('4fe5233fe5b25047730e41fc2fcdbaf270aa01a35c6292f13ab7432529d6d293')
+
+        inputs = [{'txid': prev_txid,
+                   'vout':2,
+                   'scriptSig': unhexlify('483045022057a5995013c8c55a16c1f692d91881fef443a467316d73a15abd65b6ca6c77dd022100f349283acebe70c2be16dcfd7860aa530e920e74f7a4afeb905d58d73e381ce2012103cd1236a7327457047f596e621b7dfa4a923cfdafffd6094e12db09f0f5695b4d')}]
+
+        outputs = [{'redeem': 123,
+                    'outputScript': unhexlify('76a9141e667ee94ea8e62c63fe59a0269bb3c091c86ca388ac')}]
+
+        raw_tx = make_raw_transaction(inputs, outputs, network='ppc')
+
+        # split on vin[0] txid to make test time independent
+        split = raw_tx.split(prev_txid[::-1]) # txid is stored reversed
+
+        self.assertTrue(len(split) > 1, msg='Failed to find vin[0] txid in raw_tx')
+
+        # Match the remainder
+        self.assertEqual(hexlify(split[1]), b'020000006b483045022057a5995013c8c55a16c1f692d91881fef443a467316d73a15abd65b6ca6c77dd022100f349283acebe70c2be16dcfd7860aa530e920e74f7a4afeb905d58d73e381ce2012103cd1236a7327457047f596e621b7dfa4a923cfdafffd6094e12db09f0f5695b4dffffffff01c0d45407000000001976a9141e667ee94ea8e62c63fe59a0269bb3c091c86ca388ac00000000')
 
 if __name__ == '__main__':
     unittest.main()
