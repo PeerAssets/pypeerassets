@@ -108,7 +108,7 @@ def op_return_script(data):
     script = hexlify(OP_RETURN + op_push(len(data)//2)) + data
     return unhexlify(script)
 
-def make_raw_transaction(inputs, outputs, scriptSig=b'', sequence_number=b'\xff\xff\xff\xff', lock_time=b'\x00\x00\x00\x00', network='ppc'):
+def make_raw_transaction(inputs, outputs, sequence_number=b'\xff\xff\xff\xff', lock_time=b'\x00\x00\x00\x00', network='ppc'):
     ''' inputs expected as [{'txid':txhash,'vout':index,'scriptSig':txinScript},..]
         ouputs expected as [{'redeem':peertoshis,'outputScript': outputScript},...]
     '''
@@ -121,10 +121,10 @@ def make_raw_transaction(inputs, outputs, scriptSig=b'', sequence_number=b'\xff\
     raw_tx += var_int(len(inputs)) # varint for number of inputs
 
     for utxo in inputs:
-        raw_tx += unhexlify(utxo['txid'][::-1].encode("utf-8")) # previous transaction hash (reversed)
+        raw_tx += utxo['txid'][::-1] # previous transaction hash (reversed)
         raw_tx += struct.pack('<L', utxo['vout']) # previous txout index
-        raw_tx += var_int(len(scriptSig)) # scriptSig length
-        raw_tx += scriptSig # scriptSig
+        raw_tx += var_int(len(utxo['scriptSig'])) # scriptSig length
+        raw_tx += utxo['scriptSig'] # scriptSig
         raw_tx += sequence_number # sequence number (irrelevant unless nLockTime > 0)
 
     raw_tx += var_int(len(outputs)) # varint for number of outputs
