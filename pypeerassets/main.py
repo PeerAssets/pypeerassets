@@ -65,13 +65,13 @@ class Deck:
     def p2th_address(self):
         '''P2TH address of this deck'''
 
-        return Kutil(network=self.network, seed=self.asset_id).address
+        return Kutil(network=self.network, privkey=self.asset_id).address
 
     @property
     def p2th_wif(self):
         '''P2TH privkey in WIF format'''
 
-        return Kutil(network=self.network, seed=self.asset_id).wif
+        return Kutil(network=self.network, privkey=self.asset_id).wif
 
     @property
     def metainfo_to_protobuf(self):
@@ -98,3 +98,4 @@ class Deck:
 
 class CardTransfer:
     pass
+
