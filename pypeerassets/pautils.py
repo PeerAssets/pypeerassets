@@ -133,18 +133,15 @@ def validate_deckspawn_p2th(provider, deck_id, testnet=False, prod=True):
             assert vout == mainnet_PAPROD_addr, error
             return True
 
-def load_deck_p2th_into_local_node(node, deck):
+def load_deck_p2th_into_local_node(provider, deck):
     '''
     load deck p2th into local node,
     this allows building of proof-of-timeline for this deck
     '''
 
-    assert isinstance(node, RpcNode), {"error": "You can load privkeys only into local node."}
-
+    assert isinstance(provider, RpcNode), {"error": "You can load privkeys only into local node."}
     error = {"error": "Deck P2TH import went wrong."}
 
-    try:
-        node.importprivkey(deck.p2th_wif, deck.name)
-        assert deck.p2th_address in node.getaddressesbyaccount(deck.name), error
-    except Exception as e:
-        print(e)
+    provider.importprivkey(deck.p2th_wif, deck.name)
+    assert deck.p2th_address in provider.getaddressesbyaccount(deck.name), error
+
