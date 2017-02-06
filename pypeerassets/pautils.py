@@ -14,42 +14,30 @@ def localnode_testnet_or_mainnet(node):
     else:
         return "mainnet"
 
-def load_p2th_privkeys_into_node(node):
+def load_p2th_privkeys_into_node(provider, prod=True):
     '''load production p2th privkey into local node'''
 
-    assert isinstance(node, RpcNode), {"error": "You can load privkeys only into local node."}
+    assert isinstance(provider, RpcNode), {"error": "You can load privkeys only into local node."}
+    error = {"error": "Loading P2TH privkey failed."}
 
-    if node.is_testnet:
-        try:
-            node.importprivkey(testnet_PAPROD, "PAPROD")
-            assert testnet_PAPROD_addr in node.getaddressesbyaccount("PAPROD")
-        except Exception:
-            return {"error": "Loading P2TH privkey failed."}
-    else:
-        try:
-            node.importprivkey(mainnet_PAPROD, "PAPROD")
-            assert mainnet_PAPROD_addr in node.getaddressesbyaccount("PAPROD")
-        except Exception:
-            return {"error": "Loading P2TH privkey failed."}
+    if provider.is_testnet:
 
-def load_test_p2th_privkeys_into_node(node):
-    '''load test p2th privkeys into local node'''
+        if prod is True:
+            provider.importprivkey(testnet_PAPROD, "PAPROD")
+            assert testnet_PAPROD_addr in provider.getaddressesbyaccount("PAPROD"), error
 
-    assert isinstance(node, RpcNode), {"error": "You can load privkeys only into local node."}
-
-    if node.is_testnet:
-        try:
-            node.importprivkey(testnet_PATEST, "PATEST")
-            assert mainnet_PATEST_addr in node.getaddressesbyaccount("PATEST")
-        except Exception:
-            return {"error": "Loading P2TH privkey failed."}
+        else:
+            provider.importprivkey(testnet_PATEST, "PATEST")
+            assert testnet_PATEST_addr in provider.getaddressesbyaccount("PATEST"), error
 
     else:
-        try:
-            node.importprivkey(mainnet_PATEST, "PATEST")
-            assert mainnet_PAPROD_addr in node.getaddressesbyaccount("PATEST")
-        except Exception:
-            return {"error": "Loading P2TH privkey failed."}
+        if prod is True:
+            provider.importprivkey(mainnet_PAPROD, "PAPROD")
+            assert mainnet_PAPROD_addr in provider.getaddressesbyaccount("PAPROD"), error
+
+        else:
+            provider.importprivkey(mainnet_PAPROD, "PAPROD")
+            assert mainnet_PAPROD_addr in provider.getaddressesbyaccount("PAPROD"), error
 
 def find_tx_sender(provider, txid):
 
