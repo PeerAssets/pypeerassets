@@ -99,9 +99,43 @@ class Deck:
 def find_all_valid_card_transfers(provider, deck):
     '''find all <deck> card transfers'''
 
+    cards = []
     card_transfers = provider.listtransactions(deck.name)
-    return card_transfers
+
+    for ct in card_transfers:
+        try:
+            validate_card_transfer_p2th(provider, ct["txid"], deck)
+
+            if parse_card_transfer_metainfo(read_tx_opreturn(provider, ct["txid"])):
+
+                raw_card = parse_card_transfer_metainfo(read_tx_opreturn(provider, ct["txid"]))
+                _card = {}
+                _card["deck"] = deck
+                _card["id"] = ct["txid"]
+                _card["blockhash"] = ct["blockhash"]
+                _card["timestamp"] = ct["time"]
+                _card["sender"] = find_tx_sender(provider, ct["txid"])
+
+                vouts = provider.getrawtransaction(ct["txid"], 1)["vout"]
+                if len(raw_card["amounts"]) > 1:
+                    for am, v in zip(raw_card["amounts"], vouts[2:]):
+                        c = _card.copy()
+                        c["amount"] = am
+                        c["receiver"] = v["scriptPubKey"]["addresses"][0]
+                        cards.append(CardTransfer(**c))
+                else:
+                    _card["receiver"] = v["scriptPubKey"]["addresses"][0]
+                    _card["amount"] = raw_card["amounts"][0]
+                    cards.append(CardTransfer(**_card))
+
+        except AssertionError:
+            pass
+
+    return cards
+
 
 class CardTransfer:
-    pass
+
+    def __init__(self, deck, id, sender, receiver, amount, blockhash, timestamp):
+        pass
 
