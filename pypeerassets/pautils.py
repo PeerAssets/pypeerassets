@@ -145,3 +145,31 @@ def load_deck_p2th_into_local_node(provider, deck):
     provider.importprivkey(deck.p2th_wif, deck.name)
     assert deck.p2th_address in provider.getaddressesbyaccount(deck.name), error
 
+def validate_card_transfer_p2th(provider, txid, deck):
+    '''validate if card_transfer transaction pays to deck p2th in vout[0]'''
+
+    raw = provider.getrawtransaction(txid, 1)
+    error = {"error": "Card transfer is not properly tagged."}
+
+    assert raw["vout"][0]["scriptPubKey"].get("addresses")[0] == deck.p2th_address, error
+
+def validate_card_transfer_metainfo(card):
+    '''validate card_transfer'''
+
+    assert card.version > 0, {"error": "Card metainfo incomplete, version can't be 0."}
+    assert isinstance(card.amounts, list), {"error": "Card metainfo does not designate any amounts"}
+
+def parse_card_transfer_metainfo(protobuf):
+    '''decode card_spawn tx op_return protobuf message and validate it.'''
+
+    card = paproto.CardTransfer()
+    card.ParseFromString(protobuf)
+
+    # validate_card_transfer_metainfo(card) ## skip for now
+
+    return {
+        "version": card.version,
+        "amounts": card.amounts,
+        "asset_specific_data": card.asset_specific_data
+    }
+
