@@ -96,6 +96,12 @@ class Deck:
             "issue_mode": self.issue_mode
         }
 
+def find_all_valid_card_transfers(provider, deck):
+    '''find all <deck> card transfers'''
+
+    card_transfers = provider.listtransactions(deck.name)
+    return card_transfers
+
 class CardTransfer:
     pass
 
