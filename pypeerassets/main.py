@@ -102,6 +102,8 @@ def find_all_valid_card_transfers(provider, deck):
     cards = []
     card_transfers = provider.listtransactions(deck.name)
 
+    nderror = {"error": "Number of decimals does not match."}
+
     for ct in card_transfers:
         try:
             validate_card_transfer_p2th(provider, ct["txid"], deck)
@@ -110,14 +112,21 @@ def find_all_valid_card_transfers(provider, deck):
 
                 raw_card = parse_card_transfer_metainfo(read_tx_opreturn(provider, ct["txid"]))
                 _card = {}
+                _card["version"] = raw_card["version"]
+                _card["number_of_decimals"] = raw_card["number_of_decimals"]
+                ## check if card number of decimals matches the deck atribute
+                assert _card["number_of_decimals"] == deck.number_of_decimals, nderror
+
                 _card["deck"] = deck
-                _card["id"] = ct["txid"]
+                _card["txid"] = ct["txid"]
                 _card["blockhash"] = ct["blockhash"]
                 _card["timestamp"] = ct["time"]
                 _card["sender"] = find_tx_sender(provider, ct["txid"])
+                _card["asset_specific_data"] = raw_card["asset_specific_data"]
 
                 vouts = provider.getrawtransaction(ct["txid"], 1)["vout"]
-                if len(raw_card["amounts"]) > 1:
+
+                if len(raw_card["amounts"]) > 1: ## if card states multiple outputs:
                     for am, v in zip(raw_card["amounts"], vouts[2:]):
                         c = _card.copy()
                         c["amount"] = am
@@ -136,6 +145,25 @@ def find_all_valid_card_transfers(provider, deck):
 
 class CardTransfer:
 
-    def __init__(self, deck, id, sender, receiver, amount, blockhash, timestamp):
-        pass
+    def __init__(self, version, deck, txid, sender, receiver, amount, blockhash,
+                 timestamp, asset_specific_data, number_of_decimals):
+        '''initialize CardTransfer object'''
+
+        self.version = version
+        self.deck_id = deck.asset_id
+        self.txid = txid
+        self.sender = sender
+        self.receiver = receiver
+        self.amount = amount
+        self.blockhash = blockhash
+        self.timestamp = timestamp
+        self.asset_specific_data = asset_specific_data
+        self.number_of_decimals = number_of_decimals
+
+        if self.sender == deck.issuer:
+            self.type = "CardIssue"
+        elif self.receiver == deck.issuer:
+            self.type = "CardBurn"
+        else:
+            self.type = "CardTransfer"
 
