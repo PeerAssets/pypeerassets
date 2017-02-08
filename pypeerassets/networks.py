@@ -20,13 +20,13 @@ For abbreviation prefix testnet of the network with "t".
 
 networks = (
     # Peercoin mainnet
-    Network("Peercoin", "ppc", b'37', b'b7', b'75', b'e6e8e9e5', '\x17PPCoin Signed Message:\n', True, 1000000),
+    Network("Peercoin", "ppc", b'37', b'b7', b'75', b'e6e8e9e5', b'\x17PPCoin Signed Message:\n', True, 1000000),
     # Peercoin testnet
-    Network("Peercoin-testnet", "tppc", b'6f', b'ef', b'c4', b'cbf2c0ef', '\x17PPCoin Signed Message:\n', True, 1000000),
+    Network("Peercoin-testnet", "tppc", b'6f', b'ef', b'c4', b'cbf2c0ef', b'\x17PPCoin Signed Message:\n', True, 1000000),
     # Bitcoin mainnet
-    Network("Bitcoin", "btc", b'00', b'80', b'05', b'd9b4bef9', '\x18Bitcoin Signed Message:\n' ,False, 100000000),
+    Network("Bitcoin", "btc", b'00', b'80', b'05', b'd9b4bef9', b'\x18Bitcoin Signed Message:\n' ,False, 100000000),
     # Bitcoin testnet
-    Network("Bitcoin-testnet", "tbtc", b'6f', b'ef', b'c4', b'dab5bffa', '\x18Bitcoin Signed Message:\n', False, 100000000)
+    Network("Bitcoin-testnet", "tbtc", b'6f', b'ef', b'c4', b'dab5bffa', b'\x18Bitcoin Signed Message:\n', False, 100000000)
 )
 
 def query(query):
