@@ -169,6 +169,7 @@ def parse_card_transfer_metainfo(protobuf):
 
     return {
         "version": card.version,
+        "number_of_decimals": card.number_of_decimals,
         "amounts": card.amounts,
         "asset_specific_data": card.asset_specific_data
     }
