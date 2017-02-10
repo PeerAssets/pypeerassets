@@ -111,12 +111,12 @@ def op_return_script(data):
     script = hexlify(OP_RETURN + op_push(len(data)//2)) + data
     return unhexlify(script)
 
-def make_raw_transaction(inputs, outputs, sequence_number=b'\xff\xff\xff\xff', lock_time=b'\x00\x00\x00\x00', network='ppc'):
+def make_raw_transaction(network, inputs, outputs, sequence_number=b'\xff\xff\xff\xff', lock_time=b'\x00\x00\x00\x00'):
     ''' inputs expected as [{'txid':txhash,'vout':index,'scriptSig':txinScript},..]
         ouputs expected as [{'redeem':peertoshis,'outputScript': outputScript},...]
     '''
     raw_tx = b'\x01\x00\x00\x00' # 4 byte version number
-    network_query = query(network)
+    network_vars = query(network)
 
     if network_query.tx_timestamp:
         raw_tx += struct.pack('<L', int(time())) # 4 byte timestamp (Peercoin specific)
@@ -133,7 +133,7 @@ def make_raw_transaction(inputs, outputs, sequence_number=b'\xff\xff\xff\xff', l
     raw_tx += var_int(len(outputs)) # varint for number of outputs
 
     for output in outputs:
-        raw_tx += pack_uint64(int(round(output['redeem'] * network_query.denomination ))) # value in peertoshi's or satoshi's
+        raw_tx += pack_uint64(int(round(output['redeem'] * network_vars.denomination ))) # value in peertoshi's or satoshi's
         raw_tx += var_int(len(output['outputScript']))
         raw_tx += output['outputScript']
 
