@@ -104,7 +104,10 @@ def monosig_script(address):
 def op_return_script(data):
     '''returns a single OP_RETURN output script'''
 
-    data = hexlify(data.encode())
+    if not isinstance(data, bytes):
+        data = data.encode()
+
+    data = hexlify(data)
     script = hexlify(OP_RETURN + op_push(len(data)//2)) + data
     return unhexlify(script)
 
