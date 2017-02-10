@@ -82,7 +82,7 @@ class Deck:
         deck.version = self.version
         deck.name = self.name
         deck.number_of_decimals = self.number_of_decimals
-        deck.issue_mode = self.issue_mode
+        deck.issue_mode = deck.MODE.Value(self.issue_mode)
 
         return deck.SerializeToString()
 
