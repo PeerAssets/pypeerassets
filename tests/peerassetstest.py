@@ -1,7 +1,9 @@
 import unittest
 from pypeerassets.main import parse_deckspawn_metainfo
 from pypeerassets import Kutil
+from pypeerassets.main import Deck
 
+"""
 class PeerAssetsTestCase(unittest.TestCase):
     '''tests for protobuf manipulation'''
 
@@ -30,14 +32,13 @@ class PeerAssetsTestCase(unittest.TestCase):
 
         string = b'\x08\x01\x12\x06faulty \x02' # without number_of_decimals
         self.assertRaises(AssertionError, parse_deckspawn_metainfo, string)
-
+"""
 
 class P2THTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        print('''Starting PeerAssets tests.
-                This class handles all things PeerAssets protocol.''')
+        print('''Starting P2TH test...''')
 
         cls.txid = "c23375caa1ba3b0eec3a49fff5e008dede0c2761bb31fddd830da32671c17f84"
 
@@ -56,6 +57,29 @@ class P2THTest(unittest.TestCase):
 
         self.assertEqual(key.address, "mxjFTJApv7sjz9T9a4vCnAQbmsqSoL8VWo")
         self.assertEqual(key.wif, "cU6CjGw3mRmirjiUZfRkJ1aj2D493k7uuhywj6tCVbLAMABy4MwU")
+
+class DeckInitTest(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        print('''Starting Deck initialization...''')
+
+    def test_deck_to_dict(self):
+        '''test deck to dict'''
+
+        my_deck = Deck(version=1, name="Tabula Rasa", number_of_decimals=1, issue_mode="MULTI")
+        self.assertEqual(my_deck.metainfo_to_dict,
+                         {'issue_mode': 'MULTI',
+                          'name': 'Tabula Rasa',
+                          'number_of_decimals': 1,
+                          'version': 1}
+                        )
+
+    def test_deck_to_protobuf(self):
+        '''test deck to protobuf'''
+
+        my_deck = Deck(version=1, name="Tabula Rasa", number_of_decimals=1, issue_mode="MULTI")
+        self.assertEqual(my_deck.metainfo_to_protobuf, b'\x08\x01\x12\x0bTabula Rasa\x18\x01 \x04')
 
 if __name__ == '__main__':
     unittest.main()
