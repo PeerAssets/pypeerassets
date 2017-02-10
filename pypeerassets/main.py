@@ -1,6 +1,7 @@
 
 '''contains main protocol logic like assembly of proof-of-timeline and parsing deck info'''
 
+import warnings
 from pypeerassets import paproto, Kutil
 from pypeerassets.pautils import *
 
@@ -83,8 +84,14 @@ class Deck:
         deck.name = self.name
         deck.number_of_decimals = self.number_of_decimals
         deck.issue_mode = deck.MODE.Value(self.issue_mode)
+        deck.asset_specific_data = self.asset_specific_data.encode()
 
-        return deck.SerializeToString()
+        proto = deck.SerializeToString()
+
+        if len(proto) > 80:
+            warnings.warn('\nMetainfo size exceeds maximum of 80bytes that fit into OP_RETURN.')
+
+        return proto
 
     @property
     def metainfo_to_dict(self):
