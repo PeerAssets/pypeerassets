@@ -118,7 +118,7 @@ def make_raw_transaction(network, inputs, outputs, sequence_number=b'\xff\xff\xf
     raw_tx = b'\x01\x00\x00\x00' # 4 byte version number
     network_vars = query(network)
 
-    if network_query.tx_timestamp:
+    if network_vars.tx_timestamp:
         raw_tx += struct.pack('<L', int(time())) # 4 byte timestamp (Peercoin specific)
 
     raw_tx += var_int(len(inputs)) # varint for number of inputs
