@@ -50,6 +50,7 @@ class Deck:
         self.version = version # protocol version
         self.name = name # deck name
         self.issue_mode = issue_mode # deck issue mode
+        assert isinstance(number_of_decimals, int), {"error": "number_of_decimals must be an integer"}
         self.number_of_decimals = number_of_decimals
         self.asset_specific_data = asset_specific_data # optional metadata for the deck
         self.asset_id = asset_id
