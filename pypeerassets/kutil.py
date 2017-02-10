@@ -124,9 +124,11 @@ class Kutil:
         prefix2 = var_int(len(message))
         buffer = b''.join([self.msgPrefix, prefix2, message])
         msg_hash = sha256(sha256(buffer).digest()).digest()
-        sig = self.keypair.ecdsa_sign_recoverable(msg_hash, raw=True)
+        sig = self.keypair.ecdsa_sign(msg_hash, raw=True)
+        ## calculate the size of the key ?
+        signature = self.keypair.ecdsa_serialize_compact(sig)
 
-        return b64encode(self.keypair.ecdsa_serialize_compact(sig)[0]).decode()
+        return b64encode(var_int(len(signature)) + signature).decode()
 
     def verify_message(self, message, signature):
         '''verify >message< against >signature<'''

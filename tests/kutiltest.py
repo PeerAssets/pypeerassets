@@ -54,18 +54,15 @@ class KutilTestCase(unittest.TestCase):
         self.assertEqual(mykey.pubkey, '02a119079ef5be1032bed61cc295cdccde58bf70e0dd982399c024d1263740f398')
         self.assertEqual(mykey.privkey, 'b43d38cdfa04ecea88f7d9d7e95b15b476e4a6c3f551ae7b45344831c3098da2')
 
-    def test_message_sign(self):
+    def test_sign_message(self):
         '''test Bitcoin style signature'''
 
         WIF = "cVzLwfaC59g5CQuM1qCHiYTeWNWpHPuPGpnoXciV7Mv3vjgp8vZx"
-        #addr = "mpGSVZSRnu2DfKmML1Gix5AGZni3j5dTou"
         string = "hello world."
         signature = "IAO8Yt7+tVD2XEB7b6lI78c+TVeDCFhSAqgbIKVjnHW3vpOz/zkkBs/ZxlfQW/IIZK/9ZrpIQmmMiQ9MLKY83NU="
 
         mykey = Kutil(wif=WIF)
-        #self.assertEqual(mykey.address, addr)
-
-        self.assertEqual(mykey.sign(string), signature)
+        self.assertEqual(mykey.sign_message(string), signature)
 
 if __name__ == '__main__':
     unittest.main()
