@@ -3,9 +3,11 @@
 
 from hashlib import sha256, new
 from binascii import hexlify, unhexlify
+from base64 import b64encode, b64decode
 from base58 import b58encode, b58decode
 from secp256k1 import PrivateKey
 from pypeerassets import networks
+from pypeerassets.transactions import var_int
 
 class Kutil:
     '''pubkey/privkey operations'''
@@ -115,12 +117,19 @@ class Kutil:
         seed_hash = sha256(seed.encode("utf-8")).digest()
         return seed_hash
 
-    def sign(self, message):
+    def sign_message(self, message):
         '''sing >message< with the privkey'''
 
-        return self.keypair.ecdsa_sign(message.encode('utf-8'))
+        message = message.encode()
+        prefix2 = var_int(len(message))
+        buffer = b''.join([self.msgPrefix, prefix2, message])
+        msg_hash = sha256(sha256(buffer).digest()).digest()
+        sig = self.keypair.ecdsa_sign_recoverable(msg_hash, raw=True)
 
-    def verify(self, message, signature):
+        return b64encode(self.keypair.ecdsa_serialize_compact(sig)[0]).decode()
+
+    def verify_message(self, message, signature):
         '''verify >message< against >signature<'''
 
-        return self.keypair.pubkey.ecdsa_verify(message.encode('utf-8'), signature)
+        sig = self.keypair.ecdsa_deserialize_compact(b64decode(message.encode("utf-8")))
+        return self.keypair.pubkey.ecdsa_verify(sig, signature)
