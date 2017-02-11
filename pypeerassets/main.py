@@ -132,7 +132,7 @@ def deck_spawn(provider, deck, network, utxos=None, change_address=None, prod=Tr
 
     for utxo in inputs['utxos']:
         utxo['txid'] = unhexlify(utxo['txid'])
-        utxo['sigScript'] = unhexlify(utxo['sigScript'])
+        utxo['scriptSig'] = unhexlify(utxo['scriptSig'])
 
     outputs = [
         {"redeem": p2th_fee, "outputScript": transactions.monosig_script(p2th_address)},
