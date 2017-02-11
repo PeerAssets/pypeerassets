@@ -22,12 +22,12 @@ def select_inputs(cls, total_amount):
             "txid": tx["txid"],
             "vout": tx["vout"],
             "scriptSig": tx["scriptPubKey"],
-            "amount": cls.gettransaction(tx["txid"])["amount"]
+            "amount": tx["amount"]
         })
 
         utxo_sum += float(tx["amount"])
         if utxo_sum >= total_amount:
-            return utxo
+            return {'utxos':utxo, 'total':utxo_sum}
 
     if utxo_sum < total_amount:
         raise ValueError("Not enough funds.")
