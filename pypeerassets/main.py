@@ -139,7 +139,7 @@ def deck_spawn(provider, deck, network, utxos=None, change_address=None, prod=Tr
         {"redeem": float(inputs['total']) - float(tx_fee) - float(p2th_fee), "outputScript": transactions.monosig_script(change_address)
         }]
 
-    return transactions.make_raw_transaction(network, inputs, outputs)
+    return transactions.make_raw_transaction(network, inputs['utxos'] , outputs)
 
 def find_all_valid_card_transfers(provider, deck):
     '''find all <deck> card transfers'''
