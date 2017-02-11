@@ -111,15 +111,16 @@ def deck_spawn(provider, deck, network, utxos=None, change_address=None, prod=Tr
     if provider.is_testnet:
         p2th_fee = constants.testnet_p2th_fee
         if prod:
-            p2th_address = constants.mainnet_PAPROD_addr
-        else:
-            p2th_address = constants.mainnet_PATEST_addr
-    else:
-        p2th_fee = constants.mainnet_p2th_fee
-        if prod:
             p2th_address = constants.testnet_PAPROD_addr
         else:
             p2th_address = constants.testnet_PATEST_addr
+
+    else:
+        p2th_fee = constants.mainnet_p2th_fee
+        if prod:
+            p2th_address = constants.mainnet_PAPROD_addr
+        else:
+            p2th_address = constants.mainnet_PATEST_addr
 
     tx_fee = float(0.01) ## make it static for now, make proper logic later
 
@@ -139,7 +140,7 @@ def deck_spawn(provider, deck, network, utxos=None, change_address=None, prod=Tr
         {"redeem": float(inputs['total']) - float(tx_fee) - float(p2th_fee), "outputScript": transactions.monosig_script(change_address)
         }]
 
-    return transactions.make_raw_transaction(network, inputs['utxos'] , outputs)
+    return transactions.make_raw_transaction(network, inputs['utxos'], outputs)
 
 def find_all_valid_card_transfers(provider, deck):
     '''find all <deck> card transfers'''
