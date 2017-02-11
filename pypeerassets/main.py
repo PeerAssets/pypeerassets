@@ -127,23 +127,16 @@ def deck_spawn(provider, deck, network, utxos=None, change_address=None, prod=Tr
         change_address = provider.getnewaddress()
 
     if not utxos:
-        utxos = provider.select_inputs(tx_fee + p2th_fee)
+        inputs = provider.select_inputs(tx_fee + p2th_fee)
 
-    inputs = []
-    utxo_sum = 0
-
-    for utxo in inputs:
-        inputs.append({"txid": unhexlify(utxo['txid']),
-                       "vout": utxo['vout'],
-                       "scriptSig": unhexlify(utxo["scriptSig"])
-                      }
-                     )
-        utxo_sum += utxo['amount']
+    for utxo in inputs['utxos']:
+        utxo['txid'] = unhexlify(utxo['txid'])
+        utxo['sigScript'] = unhexlify(utxo['sigScript'])
 
     outputs = [
         {"redeem": p2th_fee, "outputScript": transactions.monosig_script(p2th_address)},
         {"redeem": 0, "outputScript": transactions.op_return_script(deck.metainfo_to_protobuf)},
-        {"redeem": float(utxo_sum) - float(tx_fee) - float(p2th_fee), "outputScript": transactions.monosig_script(change_address)
+        {"redeem": float(inputs['total']) - float(tx_fee) - float(p2th_fee), "outputScript": transactions.monosig_script(change_address)
         }]
 
     return transactions.make_raw_transaction(network, inputs, outputs)
