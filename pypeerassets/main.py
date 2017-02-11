@@ -2,8 +2,10 @@
 '''contains main protocol logic like assembly of proof-of-timeline and parsing deck info'''
 
 import warnings
+from binascii import hexlify, unhexlify
 from pypeerassets import paproto, Kutil
 from pypeerassets.pautils import *
+from pypeerassets import constants, transactions
 
 def find_all_valid_decks(provider, prod=True):
     '''
@@ -103,6 +105,48 @@ class Deck:
             "number_of_decimals": self.number_of_decimals,
             "issue_mode": self.issue_mode
         }
+
+def deck_spawn(provider, deck, network, utxos=None, change_address=None, prod=True):
+
+    if provider.is_testnet:
+        p2th_fee = constants.testnet_p2th_fee
+        if prod:
+            p2th_address = constants.mainnet_PAPROD_addr
+        else:
+            p2th_address = constants.mainnet_PATEST_addr
+    else:
+        p2th_fee = constants.mainnet_p2th_fee
+        if prod:
+            p2th_address = constants.testnet_PAPROD_addr
+        else:
+            p2th_address = constants.testnet_PATEST_addr
+
+    tx_fee = float(0.01) ## make it static for now, make proper logic later
+
+    if not change_address:
+        change_address = provider.getnewaddress()
+
+    if not utxos:
+        utxos = provider.select_inputs(tx_fee + p2th_fee)
+
+    inputs = []
+    utxo_sum = 0
+
+    for utxo in inputs:
+        inputs.append({"txid": unhexlify(utxo['txid']),
+                       "vout": utxo['vout'],
+                       "scriptSig": unhexlify(utxo["scriptSig"])
+                      }
+                     )
+        utxo_sum += utxo['amount']
+
+    outputs = [
+        {"redeem": p2th_fee, "outputScript": transactions.monosig_script(p2th_address)},
+        {"redeem": 0, "outputScript": transactions.op_return_script(deck.metainfo_to_protobuf)},
+        {"redeem": float(utxo_sum) - float(tx_fee) - float(p2th_fee), "outputScript": transactions.monosig_script(change_address)
+        }]
+
+    return transactions.make_raw_transaction(network, inputs, outputs)
 
 def find_all_valid_card_transfers(provider, deck):
     '''find all <deck> card transfers'''
