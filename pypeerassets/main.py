@@ -106,9 +106,9 @@ class Deck:
             "issue_mode": self.issue_mode
         }
 
-def deck_spawn(provider, deck, network, utxos=None, change_address=None, prod=True):
+def deck_spawn(deck, network, inputs, change_address, testnet=True, prod=True):
 
-    if provider.is_testnet:
+    if testnet:
         p2th_fee = constants.testnet_p2th_fee
         if prod:
             p2th_address = constants.testnet_PAPROD_addr
@@ -123,12 +123,6 @@ def deck_spawn(provider, deck, network, utxos=None, change_address=None, prod=Tr
             p2th_address = constants.mainnet_PATEST_addr
 
     tx_fee = float(0.01) ## make it static for now, make proper logic later
-
-    if not change_address:
-        change_address = provider.getnewaddress()
-
-    if not utxos:
-        inputs = provider.select_inputs(tx_fee + p2th_fee)
 
     for utxo in inputs['utxos']:
         utxo['txid'] = unhexlify(utxo['txid'])
