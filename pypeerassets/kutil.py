@@ -118,7 +118,7 @@ class Kutil:
         return seed_hash
 
     def sign_message(self, message):
-        '''sing >message< with the privkey'''
+        '''sign >message< with the privkey and b64encode'''
 
         message = message.encode()
         prefix2 = var_int(len(message))
@@ -130,6 +130,15 @@ class Kutil:
 
         return b64encode(var_int(len(signature)) + signature).decode()
 
+    def ecdsa_sign(self, message):
+        '''sign >message< with the privkey'''
+
+        message = message.encode()
+        msg_hash = sha256(sha256(message).digest()).digest()
+        sig = self.keypair.ecdsa_sign(msg_hash, raw=True)
+
+        return self.keypair.ecdsa_serialize_compact(sig)
+    
     def verify_message(self, message, signature):
         '''verify >message< against >signature<'''
 
