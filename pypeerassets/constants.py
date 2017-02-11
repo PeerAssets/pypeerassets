@@ -16,3 +16,9 @@ testnet_PATEST = "cQToBYwzrB3yHr8h7PchBobM3zbrdGKj2LtXqg7NQLuxsHeKJtRL"
 testnet_PATEST_addr = "mvfR2sSxAfmDaGgPcmdsTwPqzS6R9nM5Bo"
 
 ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
+### P2TH fee
+
+mainnet_p2th_fee = float(0.01)
+testnet_p2th_fee = float(0.01)
+
