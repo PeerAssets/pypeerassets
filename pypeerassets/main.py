@@ -173,7 +173,7 @@ def find_all_valid_card_transfers(provider, deck):
                         c["receiver"] = v["scriptPubKey"]["addresses"][0]
                         cards.append(CardTransfer(**c))
                 else:
-                    _card["receiver"] = v["scriptPubKey"]["addresses"][0]
+                    _card["receiver"] = vouts[2]["scriptPubKey"]["addresses"][0]
                     _card["amount"] = raw_card["amounts"][0]
                     cards.append(CardTransfer(**_card))
 
