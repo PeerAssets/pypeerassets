@@ -153,24 +153,18 @@ def validate_card_transfer_p2th(provider, txid, deck):
 
     assert raw["vout"][0]["scriptPubKey"].get("addresses")[0] == deck.p2th_address, error
 
-def validate_card_transfer_metainfo(card):
-    '''validate card_transfer'''
-
-    assert card.version > 0, {"error": "Card metainfo incomplete, version can't be 0."}
-    assert isinstance(card.amounts, list), {"error": "Card metainfo does not designate any amounts"}
-
 def parse_card_transfer_metainfo(protobuf):
     '''decode card_spawn tx op_return protobuf message and validate it.'''
 
     card = paproto.CardTransfer()
     card.ParseFromString(protobuf)
 
-    # validate_card_transfer_metainfo(card) ## skip for now
+    assert card.version > 0, {"error": "Card metainfo incomplete, version can't be 0."}
 
     return {
         "version": card.version,
         "number_of_decimals": card.number_of_decimals,
-        "amounts": card.amounts,
+        "amount": card.amounts,
         "asset_specific_data": card.asset_specific_data
     }
 
