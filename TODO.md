@@ -8,7 +8,7 @@
 - [x] unit test raw transaction assembly
 - [x] PeerAssets deck spawning
 - [x] PeerAssets P2TH
-- [] PeeAssets proof-of-timeline
+- [] PeerAssets proof-of-timeline
 - [x] PeerAssets card transaction metadata decoding/encoding
 - [x] PeerAssets card transfers [card_issue, card_burn, card_transfer]
 - [] PeerAssets deck transfer transaction
