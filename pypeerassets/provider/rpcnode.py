@@ -25,7 +25,8 @@ class RpcNode(Client):
                 "txid": tx["txid"],
                 "vout": tx["vout"],
                 "scriptSig": tx["scriptPubKey"],
-                "amount": tx["amount"]
+                "amount": tx["amount"],
+                "address": tx["address"]
             })
 
             utxo_sum += float(tx["amount"])
