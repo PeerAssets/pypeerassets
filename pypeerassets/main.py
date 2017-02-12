@@ -137,7 +137,7 @@ def deck_spawn(deck, network, inputs, change_address, prod=True):
 
     return transactions.make_raw_transaction(network, inputs['utxos'], outputs)
 
-def find_all_valid_card_transfers(provider, deck):
+def find_all_card_transfers(provider, deck):
     '''find all <deck> card transfers'''
 
     cards = []
