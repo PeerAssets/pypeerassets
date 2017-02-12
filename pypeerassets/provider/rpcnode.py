@@ -9,32 +9,31 @@ except:
     raise EnvironmentError("peercoin_rpc library is required for this to work,\
                             use pip to install it.")
 
-def select_inputs(cls, total_amount):
-    '''finds apropriate utxo's to include in rawtx, while being careful
-    to never spend old transactions with a lot of coin age.
-    Argument is intiger, returns list of apropriate UTXO's'''
-
-    utxo = []
-    utxo_sum = float(-0.01) ## starts from negative due to minimal fee
-    for tx in sorted(cls.listunspent(), key=itemgetter('confirmations')):
-
-        utxo.append({
-            "txid": tx["txid"],
-            "vout": tx["vout"],
-            "scriptSig": tx["scriptPubKey"],
-            "amount": tx["amount"]
-        })
-
-        utxo_sum += float(tx["amount"])
-        if utxo_sum >= total_amount:
-            return {'utxos':utxo, 'total':utxo_sum}
-
-    if utxo_sum < total_amount:
-        raise ValueError("Not enough funds.")
-
 class RpcNode(Client):
+    '''JSON-RPC connection to local Peercoin node'''
 
-    select_inputs = select_inputs
+    def select_inputs(self, total_amount, address=None):
+        '''finds apropriate utxo's to include in rawtx, while being careful
+        to never spend old transactions with a lot of coin age.
+        Argument is intiger, returns list of apropriate UTXO's'''
+
+        utxo = []
+        utxo_sum = float(-0.01) ## starts from negative due to minimal fee
+        for tx in sorted(self.listunspent(address=address), key=itemgetter('confirmations')):
+
+            utxo.append({
+                "txid": tx["txid"],
+                "vout": tx["vout"],
+                "scriptSig": tx["scriptPubKey"],
+                "amount": tx["amount"]
+            })
+
+            utxo_sum += float(tx["amount"])
+            if utxo_sum >= total_amount:
+                return {'utxos':utxo, 'total':utxo_sum}
+
+        if utxo_sum < total_amount:
+            raise ValueError("Not enough funds.")
 
     @property
     def is_testnet(self):
@@ -44,4 +43,13 @@ class RpcNode(Client):
             return True
         else:
             return False
+
+    def listunspent(self, minconf=1, maxconf=999999, address=None):
+        '''list UTXOs
+        modified version to allow filtering by address.
+        '''
+        if address:
+            return [u for u in self.req("listunspent", [minconf, maxconf]) if u["address"] == address]
+        else:
+            return self.req("listunspent", [minconf, maxconf])
 
