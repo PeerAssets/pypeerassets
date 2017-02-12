@@ -107,6 +107,7 @@ class Deck:
         }
 
 def deck_spawn(deck, network, inputs, change_address, prod=True):
+    '''spawn new deck, returns raw unsigned transaction'''
 
     if network.startswith("t"):
         p2th_fee = constants.testnet_p2th_fee
