@@ -106,9 +106,9 @@ class Deck:
             "issue_mode": self.issue_mode
         }
 
-def deck_spawn(deck, network, inputs, change_address, testnet=True, prod=True):
+def deck_spawn(deck, network, inputs, change_address, prod=True):
 
-    if testnet:
+    if network.startswith("t"):
         p2th_fee = constants.testnet_p2th_fee
         if prod:
             p2th_address = constants.testnet_PAPROD_addr
