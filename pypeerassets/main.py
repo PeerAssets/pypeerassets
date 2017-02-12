@@ -43,7 +43,7 @@ def find_deck(provider, key, prod=True):
 
 class Deck:
 
-    def __init__(self, version, name, number_of_decimals, issue_mode, asset_specific_data="",
+    def __init__(self, name, number_of_decimals, issue_mode, version=1, asset_specific_data="",
                  issuer="", time=None, asset_id=None, network="tppc"):
         '''
         initialize deck object, load from dictionary Deck(**dict)
@@ -185,8 +185,8 @@ def find_all_valid_card_transfers(provider, deck):
 
 class CardTransfer:
 
-    def __init__(self, version, deck, txid, sender, receiver, amount, blockhash,
-                 timestamp, asset_specific_data, number_of_decimals):
+    def __init__(self, deck, receiver, amount=[], version=1, txid=None, sender=None, blockhash=None,
+                 timestamp=None, asset_specific_data="", number_of_decimals=None):
         '''initialize CardTransfer object'''
 
         self.version = version
@@ -198,7 +198,11 @@ class CardTransfer:
         self.blockhash = blockhash
         self.timestamp = timestamp
         self.asset_specific_data = asset_specific_data
-        self.number_of_decimals = number_of_decimals
+        self.p2th_address = deck.p2th_address
+        if not number_of_decimals:
+            self.number_of_decimals = deck.number_of_decimals
+
+        assert str(self.amount)[::-1].find('.') <= deck.number_of_decimals, {"error": "Too many decimals."}
 
         if self.sender == deck.issuer:
             self.type = "CardIssue"
@@ -206,4 +210,21 @@ class CardTransfer:
             self.type = "CardBurn"
         else:
             self.type = "CardTransfer"
+
+    @property
+    def metainfo_to_protobuf(self):
+        '''encode card_transfer info to protobuf'''
+
+        card = paproto.CardTransfer()
+        card.version = self.version
+        card.number_of_decimals = self.number_of_decimals
+        card.asset_specific_data = self.asset_specific_data.encode()
+        card.amounts.append(self.amount)
+
+        proto = card.SerializeToString()
+
+        if len(proto) > 80:
+            warnings.warn('\nMetainfo size exceeds maximum of 80bytes that fit into OP_RETURN.')
+
+        return proto
 
