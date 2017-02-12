@@ -229,3 +229,41 @@ class CardTransfer:
 
         return proto
 
+def card_issue(deck, card_transfer, inputs, change_address, testnet=True, prod=True):
+    '''issue cards for this deck
+        Arguments:
+        * deck - Deck object
+        * card_transfer - CardTransfer object
+        * inputs - utxo [has to be owned by deck issuer]
+        * network - ppc/tppc
+        * testnet - True/False
+        * prod - production P2TH tag [True/False]
+    '''
+
+    issuer_error = {"error": "You must provide UTXO owned by the issuer of this deck."}
+
+    for utxo in inputs["utxos"]:
+        assert utxo["address"] == deck.issuer, issuer_error
+
+    if testnet:
+        p2th_fee = constants.testnet_p2th_fee
+        network = "tppc"
+    else:
+        p2th_fee = constants.mainnet_p2th_fee
+        network = "ppc"
+
+    tx_fee = float(0.01) ## make it static for now, make proper logic later
+
+    for utxo in inputs['utxos']:
+        utxo['txid'] = unhexlify(utxo['txid'])
+        utxo['scriptSig'] = unhexlify(utxo['scriptSig'])
+
+    outputs = [
+        {"redeem": p2th_fee, "outputScript": transactions.monosig_script(deck.p2th_address)},
+        {"redeem": 0, "outputScript": transactions.op_return_script(card_transfer.metainfo_to_protobuf)},
+        {"redeem": 0, "outputScript": transactions.monosig_script(card_transfer.receiver)},
+        {"redeem": float(inputs['total']) - float(tx_fee) - float(p2th_fee), "outputScript": transactions.monosig_script(change_address)
+        }]
+
+    return transactions.make_raw_transaction(network, inputs['utxos'], outputs)
+
