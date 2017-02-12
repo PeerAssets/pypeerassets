@@ -219,7 +219,8 @@ class CardTransfer:
         card.version = self.version
         card.number_of_decimals = self.number_of_decimals
         card.asset_specific_data = self.asset_specific_data.encode()
-        card.amounts.append(self.amount)
+        for i in self.amount:
+            card.amounts.append(i)
 
         proto = card.SerializeToString()
 
