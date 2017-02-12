@@ -167,15 +167,15 @@ def find_all_valid_card_transfers(provider, deck):
 
                 vouts = provider.getrawtransaction(ct["txid"], 1)["vout"]
 
-                if len(raw_card["amounts"]) > 1: ## if card states multiple outputs:
-                    for am, v in zip(raw_card["amounts"], vouts[2:]):
+                if len(raw_card["amount"]) > 1: ## if card states multiple outputs:
+                    for am, v in zip(raw_card["amount"], vouts[2:]):
                         c = _card.copy()
                         c["amount"] = am
                         c["receiver"] = v["scriptPubKey"]["addresses"][0]
                         cards.append(CardTransfer(**c))
                 else:
                     _card["receiver"] = vouts[2]["scriptPubKey"]["addresses"][0]
-                    _card["amount"] = raw_card["amounts"][0]
+                    _card["amount"] = raw_card["amount"][0]
                     cards.append(CardTransfer(**_card))
 
         except AssertionError:
