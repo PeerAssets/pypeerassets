@@ -186,7 +186,7 @@ def find_all_card_transfers(provider, deck):
 
 class CardTransfer:
 
-    def __init__(self, deck, receiver, amount=[], version=1, txid=None, sender=None, blockhash=None,
+    def __init__(self, deck, receivers=[], amount=[], version=1, txid=None, sender=None, blockhash=None,
                  timestamp=None, asset_specific_data="", number_of_decimals=None):
         '''CardTransfer object, used when parsing card_transfers from the blockchain
         or when sending out new card_transfer.
@@ -198,7 +198,7 @@ class CardTransfer:
         self.deck_id = deck.asset_id
         self.txid = txid
         self.sender = sender
-        self.receiver = receiver
+        self.receivers = receivers
         self.amount = amount
         self.blockhash = blockhash
         self.timestamp = timestamp
@@ -265,10 +265,17 @@ def card_issue(deck, card_transfer, inputs, change_address, testnet=True, prod=T
 
     outputs = [
         {"redeem": p2th_fee, "outputScript": transactions.monosig_script(deck.p2th_address)},
-        {"redeem": 0, "outputScript": transactions.op_return_script(card_transfer.metainfo_to_protobuf)},
-        {"redeem": 0, "outputScript": transactions.monosig_script(card_transfer.receiver)},
-        {"redeem": float(inputs['total']) - float(tx_fee) - float(p2th_fee), "outputScript": transactions.monosig_script(change_address)
-        }]
+        {"redeem": 0, "outputScript": transactions.op_return_script(card_transfer.metainfo_to_protobuf)}
+    ]
+
+    for addr in card_transfer.receivers:
+        outputs.append({"redeem": 0, "outputScript": transactions.monosig_script(addr)
+                       })
+
+    outputs.append(
+        {"redeem": float(inputs['total']) - float(tx_fee) - float(p2th_fee),
+         "outputScript": transactions.monosig_script(change_address)
+        })
 
     return transactions.make_raw_transaction(network, inputs['utxos'], outputs)
 
