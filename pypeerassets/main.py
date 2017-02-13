@@ -171,7 +171,7 @@ def find_all_card_transfers(provider, deck):
                     for am, v in zip(raw_card["amount"], vouts[2:]):
                         c = _card.copy()
                         c["amount"] = am
-                        c["receiver"] = v["scriptPubKey"]["addresses"][0]
+                        c["receivers"] = v["scriptPubKey"]["addresses"][0]
                         cards.append(CardTransfer(**c))
                 else:
                     _card["receivers"] = vouts[2]["scriptPubKey"]["addresses"][0]
