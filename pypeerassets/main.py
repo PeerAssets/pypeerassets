@@ -200,7 +200,10 @@ class CardTransfer:
         self.sender = sender
         self.receivers = receivers
         self.amount = amount
-        self.blockhash = blockhash
+        if not blockhash:
+            self.blockhash = "Unconfirmed."
+        else:
+            self.blockhash = blockhash
         self.timestamp = timestamp
         self.asset_specific_data = asset_specific_data
         self.p2th_address = deck.p2th_address
@@ -279,3 +282,40 @@ def card_issue(deck, card_transfer, inputs, change_address, testnet=True, prod=T
 
     return transactions.make_raw_transaction(network, inputs['utxos'], outputs)
 
+def card_burn(deck, card_transfer, inputs, change_address, testnet=True, prod=True):
+    '''card_burn transaction, assets are burned by sending them back to the issuing address'''
+
+    assert deck.issuer in card_transfer.receivers, {"error": "One of the receivers has to be deck issuer."}
+
+    if testnet:
+        p2th_fee = constants.testnet_p2th_fee
+        network = "tppc"
+    else:
+        p2th_fee = constants.mainnet_p2th_fee
+        network = "ppc"
+
+    tx_fee = float(0.01) ## make it static for now, make proper logic later
+
+    for utxo in inputs['utxos']:
+        utxo['txid'] = unhexlify(utxo['txid'])
+        utxo['scriptSig'] = unhexlify(utxo['scriptSig'])
+
+    outputs = [
+        {"redeem": p2th_fee, "outputScript": transactions.monosig_script(deck.p2th_address)},
+        {"redeem": 0, "outputScript": transactions.op_return_script(card_transfer.metainfo_to_protobuf)}
+    ]
+
+    for addr in card_transfer.receivers:
+        outputs.append({"redeem": 0, "outputScript": transactions.monosig_script(addr)
+                       })
+
+    outputs.append(
+        {"redeem": float(inputs['total']) - float(tx_fee) - float(p2th_fee),
+         "outputScript": transactions.monosig_script(change_address)
+        })
+
+    return transactions.make_raw_transaction(network, inputs['utxos'], outputs)
+
+
+def card_transfer():
+    pass
