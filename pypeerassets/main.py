@@ -174,7 +174,7 @@ def find_all_card_transfers(provider, deck):
                         c["receiver"] = v["scriptPubKey"]["addresses"][0]
                         cards.append(CardTransfer(**c))
                 else:
-                    _card["receiver"] = vouts[2]["scriptPubKey"]["addresses"][0]
+                    _card["receivers"] = vouts[2]["scriptPubKey"]["addresses"][0]
                     _card["amount"] = raw_card["amount"][0]
                     cards.append(CardTransfer(**_card))
 
@@ -211,7 +211,7 @@ class CardTransfer:
 
         if self.sender == deck.issuer:
             self.type = "CardIssue"
-        elif self.receiver == deck.issuer:
+        elif self.receivers[0] == deck.issuer:
             self.type = "CardBurn"
         else:
             self.type = "CardTransfer"
