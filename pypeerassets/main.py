@@ -200,6 +200,7 @@ class CardTransfer:
         self.sender = sender
         self.receivers = receivers
         self.amount = amount
+        assert len(self.amount) == len(self.receivers), {"error": "Amounts must match receivers."}
         if blockhash:
             self.blockhash = blockhash
         else:
