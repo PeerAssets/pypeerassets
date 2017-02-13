@@ -16,7 +16,7 @@ raw_tx = hexlify(pa.deck_spawn(new_deck, "tppc", utxo, change_addr)).decode()
 
 signed = provider.signrawtransaction(raw_tx)
 
-provider.sendrawtransaction(signed)
+provider.sendrawtransaction(signed["hex"]) # send the tx
 
 '''
 Now wait for the tx confirm (1) and visit http://137.74.40.81:4000/ to see your assets listed.
