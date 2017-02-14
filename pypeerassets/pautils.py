@@ -42,7 +42,7 @@ def load_p2th_privkeys_into_node(provider, prod=True):
 def find_tx_sender(provider, txid):
 
     vin = provider.getrawtransaction(txid, 1)["vin"][0]["txid"]
-    return provider.getrawtransaction(vin, 1)["vout"][-1]["scriptPubKey"]["addresses"][0]
+    return provider.getrawtransaction(vin, 1)["vout"][0]["scriptPubKey"]["addresses"][0]
 
 def find_deck_spawns(provider, prod=True):
     '''find deck spawn transactions via provider,
