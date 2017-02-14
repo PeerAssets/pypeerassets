@@ -140,6 +140,14 @@ def deck_spawn(deck, network, inputs, change_address, prod=True):
 
     return transactions.make_raw_transaction(network, inputs['utxos'], outputs)
 
+def deck_transfer(deck, network, inputs, change_address, prod=True):
+    '''
+    The deck transfer transaction is a special case of the deck spawn transaction.
+    Instead of registering a new asset, the deck transfer transaction transfers ownership from vin[1] to vin[0],
+    meaning that both parties are required to sign the transfer transaction for it to be accepted in the blockchain.
+    '''
+    raise NotImplementedError
+
 def find_all_card_transfers(provider, deck):
     '''find all <deck> card transfers'''
 
