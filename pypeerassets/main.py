@@ -6,6 +6,7 @@ from binascii import hexlify, unhexlify
 from pypeerassets import paproto, Kutil
 from pypeerassets.pautils import *
 from pypeerassets import constants, transactions
+from .networks import query, networks
 
 def find_all_valid_decks(provider, prod=True):
     '''
@@ -109,6 +110,8 @@ class Deck:
 def deck_spawn(deck, network, inputs, change_address, prod=True):
     '''spawn new deck, returns raw unsigned transaction'''
 
+    network_params = query(network)
+
     if network.startswith("t"):
         p2th_fee = constants.testnet_p2th_fee
         if prod:
@@ -123,7 +126,7 @@ def deck_spawn(deck, network, inputs, change_address, prod=True):
         else:
             p2th_address = constants.mainnet_PATEST_addr
 
-    tx_fee = float(0.01) ## make it static for now, make proper logic later
+    tx_fee = network_params.min_tx_fee # settle for min tx fee for now
 
     for utxo in inputs['utxos']:
         utxo['txid'] = unhexlify(utxo['txid'])
