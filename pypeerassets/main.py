@@ -48,8 +48,8 @@ def find_deck(provider, key, prod=True):
 
 class Deck:
 
-    def __init__(self, name, number_of_decimals, issue_mode, version=1, asset_specific_data="",
-                 issuer="", time=None, asset_id=None, network=None):
+    def __init__(self, name, number_of_decimals, issue_mode, network, version=1,
+                 asset_specific_data="", issuer="", time=None, asset_id=None):
         '''
         initialize deck object, load from dictionary Deck(**dict)
         or initilize with kwargs Deck(1, "deck", 3, 2)
@@ -111,12 +111,12 @@ class Deck:
             "issue_mode": self.issue_mode
         }
 
-def deck_spawn(deck, network, inputs, change_address, prod=True):
+def deck_spawn(deck, inputs, change_address, prod=True):
     '''spawn new deck, returns raw unsigned transaction'''
 
-    network_params = query(network)
+    network_params = query(deck.network)
 
-    if network.startswith("t"):
+    if deck.network.startswith("t"):
         p2th_fee = constants.testnet_p2th_fee
         if prod:
             p2th_address = constants.testnet_PAPROD_addr
@@ -142,7 +142,7 @@ def deck_spawn(deck, network, inputs, change_address, prod=True):
         {"redeem": float(inputs['total']) - float(tx_fee) - float(p2th_fee), "outputScript": transactions.monosig_script(change_address)
         }]
 
-    return transactions.make_raw_transaction(network, inputs['utxos'], outputs)
+    return transactions.make_raw_transaction(deck.network, inputs['utxos'], outputs)
 
 def deck_transfer(deck, network, inputs, change_address, prod=True):
     '''
