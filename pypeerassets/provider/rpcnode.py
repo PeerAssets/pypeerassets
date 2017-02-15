@@ -45,6 +45,15 @@ class RpcNode(Client):
         else:
             return False
 
+    @property
+    def network(self):
+        '''return which network is the node operating on.'''
+
+        if self.is_testnet:
+            return "tppc"
+        else:
+            return "ppc"
+
     def listunspent(self, minconf=1, maxconf=999999, address=None):
         '''list UTXOs
         modified version to allow filtering by address.
