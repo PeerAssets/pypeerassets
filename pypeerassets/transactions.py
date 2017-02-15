@@ -1,7 +1,7 @@
 
 '''transaction assembly/dissasembly'''
 
-from base58 import b58decode
+from pypeerassets.base58 import b58decode
 from binascii import hexlify, unhexlify
 from .networks import query, networks
 from time import time

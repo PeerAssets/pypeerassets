@@ -4,7 +4,7 @@
 from hashlib import sha256, new
 from binascii import hexlify, unhexlify
 from base64 import b64encode, b64decode
-from base58 import b58encode, b58decode
+from pypeerassets.base58 import b58encode, b58decode
 from secp256k1 import PrivateKey
 from pypeerassets import networks
 from pypeerassets.transactions import var_int
