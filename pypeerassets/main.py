@@ -30,6 +30,7 @@ def find_all_valid_decks(provider, prod=True):
                 except KeyError:
                     d["time"] = 0
                 d["issuer"] = find_tx_sender(provider, i)
+                d["network"] = provider.network
                 decks.append(Deck(**d))
 
         except AssertionError:
@@ -48,7 +49,7 @@ def find_deck(provider, key, prod=True):
 class Deck:
 
     def __init__(self, name, number_of_decimals, issue_mode, version=1, asset_specific_data="",
-                 issuer="", time=None, asset_id=None, network="tppc"):
+                 issuer="", time=None, asset_id=None, network=None):
         '''
         initialize deck object, load from dictionary Deck(**dict)
         or initilize with kwargs Deck(1, "deck", 3, 2)
