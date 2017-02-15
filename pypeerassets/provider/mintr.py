@@ -9,12 +9,20 @@ class Mintr:
     @classmethod
     def __init__(cls, network="peercoin"):
 
-        cls.api = "https://{0}.mintr.org/api/".format(network)
+        cls.net = network
+        cls.api = "https://{0}.mintr.org/api/".format(cls.net)
 
     @property
     def is_testnet(self):
         '''testnet or not?'''
         return False
+
+    @property
+    def network(self):
+        '''which network is this running on?'''
+
+        if self.network == "peercoin":
+            return "ppc"
 
     @classmethod
     def get(cls, query):
