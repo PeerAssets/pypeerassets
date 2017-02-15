@@ -175,7 +175,10 @@ def find_all_card_transfers(provider, deck):
 
                 _card["deck"] = deck
                 _card["txid"] = ct["txid"]
-                _card["blockhash"] = ct["blockhash"]
+                try:
+                    _card["blockhash"] = ct["blockhash"]
+                except KeyError:
+                    _card["blockhash"] = 0
                 _card["timestamp"] = ct["time"]
                 _card["sender"] = find_tx_sender(provider, ct["txid"])
                 _card["asset_specific_data"] = raw_card["asset_specific_data"]
