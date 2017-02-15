@@ -25,7 +25,10 @@ def find_all_valid_decks(provider, prod=True):
             if parse_deckspawn_metainfo(read_tx_opreturn(provider, i)):
                 d = parse_deckspawn_metainfo(read_tx_opreturn(provider, i))
                 d["asset_id"] = i
-                d["time"] = provider.getrawtransaction(i, 1)["blocktime"]
+                try:
+                    d["time"] = provider.getrawtransaction(i, 1)["blocktime"]
+                except KeyError:
+                    d["time"] = 0
                 d["issuer"] = find_tx_sender(provider, i)
                 decks.append(Deck(**d))
 
