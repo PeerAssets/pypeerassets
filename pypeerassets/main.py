@@ -203,7 +203,17 @@ class CardTransfer:
         or when sending out new card_transfer.
         It can be initialized by passing the **kwargs and it will do the parsing,
         or it can be initialized with passed arguments.
-        It requires instance of Deck object as an argument.'''
+
+        * deck - instance of Deck object
+        * receivers - list of receivers
+        * amounts - list of amounts to be sent, matching receivers
+        * version - protocol version, default 1
+        * txid - transaction ID of CardTransfer
+        * sender - transaction sender
+        * blockhash - block ID where the tx was first included
+        * timestamp - unix timestamp of the block where it was first included
+        * asset_specific_data - extra metadata
+        * number_of_decimals - number of decimals for amount, inherited from Deck object'''
 
         self.version = version
         self.deck_id = deck.asset_id
