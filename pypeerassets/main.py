@@ -229,7 +229,7 @@ class CardTransfer:
         if blockhash:
             self.blockhash = blockhash
         else:
-            self.blockhash = "Unconfirmed."
+            self.blockhash = 0
         self.timestamp = timestamp
         self.asset_specific_data = asset_specific_data
         self.p2th_address = deck.p2th_address
