@@ -91,7 +91,10 @@ class Deck:
         deck.name = self.name
         deck.number_of_decimals = self.number_of_decimals
         deck.issue_mode = deck.MODE.Value(self.issue_mode)
-        deck.asset_specific_data = self.asset_specific_data.encode()
+        if not isinstance(self.asset_specific_data, bytes):
+            deck.asset_specific_data = self.asset_specific_data.encode()
+        else:
+            deck.asset_specific_data = self.asset_specific_data
 
         proto = deck.SerializeToString()
 
@@ -255,7 +258,10 @@ class CardTransfer:
         card = paproto.CardTransfer()
         card.version = self.version
         card.number_of_decimals = self.number_of_decimals
-        card.asset_specific_data = self.asset_specific_data.encode()
+        if not isinstance(self.asset_specific_data, bytes):
+            card.asset_specific_data = self.asset_specific_data.encode()
+        else:
+            card.asset_specific_data = self.asset_specific_data
         for i in self.amount:
             card.amounts.append(i)
 
