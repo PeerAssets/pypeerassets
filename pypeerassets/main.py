@@ -284,10 +284,8 @@ def card_issue(deck, card_transfer, inputs, change_address, testnet=True, prod=T
 
     if testnet:
         p2th_fee = constants.testnet_p2th_fee
-        network = "tppc"
     else:
         p2th_fee = constants.mainnet_p2th_fee
-        network = "ppc"
 
     tx_fee = float(0.01) ## make it static for now, make proper logic later
 
@@ -309,7 +307,7 @@ def card_issue(deck, card_transfer, inputs, change_address, testnet=True, prod=T
          "outputScript": transactions.monosig_script(change_address)
         })
 
-    return transactions.make_raw_transaction(network, inputs['utxos'], outputs)
+    return transactions.make_raw_transaction(deck.network, inputs['utxos'], outputs)
 
 def card_burn(deck, card_transfer, inputs, change_address, testnet=True, prod=True):
     '''card burn transaction, cards are burned by sending the cards back to deck issuer'''
