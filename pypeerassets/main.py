@@ -279,6 +279,8 @@ def card_issue(deck, card_transfer, inputs, change_address, testnet=True, prod=T
 
     issuer_error = {"error": "You must provide UTXO owned by the issuer of this deck."}
 
+    network_params = query(deck.network)
+
     for utxo in inputs["utxos"]:
         assert utxo["address"] == deck.issuer, issuer_error
 
@@ -287,7 +289,7 @@ def card_issue(deck, card_transfer, inputs, change_address, testnet=True, prod=T
     else:
         p2th_fee = constants.mainnet_p2th_fee
 
-    tx_fee = float(0.01) ## make it static for now, make proper logic later
+    tx_fee = network_params.min_tx_fee # settle for min tx fee for now
 
     for utxo in inputs['utxos']:
         utxo['txid'] = unhexlify(utxo['txid'])
@@ -314,12 +316,14 @@ def card_burn(deck, card_transfer, inputs, change_address, testnet=True, prod=Tr
 
     assert deck.issuer in card_transfer.receivers, {"error": "One of the recipients must be deck issuer."}
 
+    network_params = query(deck.network)
+
     if testnet:
         p2th_fee = constants.testnet_p2th_fee
     else:
         p2th_fee = constants.mainnet_p2th_fee
 
-    tx_fee = float(0.01) ## make it static for now, make proper logic later
+    tx_fee = network_params.min_tx_fee # settle for min tx fee for now
 
     for utxo in inputs['utxos']:
         utxo['txid'] = unhexlify(utxo['txid'])
@@ -344,12 +348,14 @@ def card_burn(deck, card_transfer, inputs, change_address, testnet=True, prod=Tr
 def card_transfer(deck, card_transfer, inputs, change_address, testnet=True, prod=True):
     '''standard peer-to-peer card transfer.'''
 
+    network_params = query(deck.network)
+
     if testnet:
         p2th_fee = constants.testnet_p2th_fee
     else:
         p2th_fee = constants.mainnet_p2th_fee
 
-    tx_fee = float(0.01) ## make it static for now, make proper logic later
+    tx_fee = network_params.min_tx_fee # settle for min tx fee for now
 
     for utxo in inputs['utxos']:
         utxo['txid'] = unhexlify(utxo['txid'])
