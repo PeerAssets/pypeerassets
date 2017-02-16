@@ -346,10 +346,8 @@ def card_transfer(deck, card_transfer, inputs, change_address, testnet=True, pro
 
     if testnet:
         p2th_fee = constants.testnet_p2th_fee
-        network = "tppc"
     else:
         p2th_fee = constants.mainnet_p2th_fee
-        network = "ppc"
 
     tx_fee = float(0.01) ## make it static for now, make proper logic later
 
@@ -371,5 +369,5 @@ def card_transfer(deck, card_transfer, inputs, change_address, testnet=True, pro
          "outputScript": transactions.monosig_script(change_address)
         })
 
-    return transactions.make_raw_transaction(network, inputs['utxos'], outputs)
+    return transactions.make_raw_transaction(deck.network, inputs['utxos'], outputs)
 
