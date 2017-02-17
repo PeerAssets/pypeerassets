@@ -4,7 +4,6 @@
 import binascii
 from pypeerassets.provider import RpcNode, Mintr
 from pypeerassets.constants import *
-from pypeerassets.main import Deck
 from pypeerassets import paproto
 
 def localnode_testnet_or_mainnet(node):
@@ -142,7 +141,6 @@ def load_deck_p2th_into_local_node(provider, deck):
     this allows building of proof-of-timeline for this deck
     '''
 
-    assert isinstance(deck, Deck), {"error": "Argument must be instance of PeerAssets Deck."}
     assert isinstance(provider, RpcNode), {"error": "You can load privkeys only into local node."}
     error = {"error": "Deck P2TH import went wrong."}
 
