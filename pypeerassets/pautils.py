@@ -30,6 +30,7 @@ def load_p2th_privkeys_into_node(provider, prod=True):
         assert pa_params.test_P2TH_wif in provider.getaddressesbyaccount("PATEST"), error
 
 def find_tx_sender(provider, txid):
+    '''find transaction sender, vin[0] is used in this case.'''
 
     vin = provider.getrawtransaction(txid, 1)["vin"][0]
     txid = vin["txid"]
