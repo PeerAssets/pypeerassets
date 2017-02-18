@@ -3,7 +3,7 @@
 
 import binascii
 from pypeerassets.provider import RpcNode, Mintr
-from .constants import param_query, params 
+from .constants import param_query, params
 from pypeerassets import paproto
 
 def localnode_testnet_or_mainnet(node):
@@ -22,12 +22,12 @@ def load_p2th_privkeys_into_node(provider, prod=True):
     pa_params = param_query(provider.network)
 
     if prod:
-        provider.importprivkey(pa_prod.P2TH_wif, "PAPROD")
-        assert pa_prod.P2TH_addr in provider.getaddressesbyaccount("PAPROD"), error
+        provider.importprivkey(pa_params.P2TH_wif, "PAPROD")
+        assert pa_params.P2TH_addr in provider.getaddressesbyaccount("PAPROD"), error
 
     else:
-        provider.importprivkey(pa_prod.test_P2TH_wif, "PATEST")
-        assert pa_prod.test_P2TH_wif in provider.getaddressesbyaccount("PATEST"), error
+        provider.importprivkey(pa_params.test_P2TH_wif, "PATEST")
+        assert pa_params.test_P2TH_wif in provider.getaddressesbyaccount("PATEST"), error
 
 def find_tx_sender(provider, txid):
 
