@@ -201,7 +201,7 @@ def find_all_card_transfers(provider, deck):
 
 class CardTransfer:
 
-    def __init__(self, deck, receivers=[], amount=[], version=1, txid=None, sender=None, blockhash=None,
+    def __init__(self, deck, receivers=[], amounts=[], version=1, txid=None, sender=None, blockhash=None,
                  timestamp=None, asset_specific_data="", number_of_decimals=None):
         '''CardTransfer object, used when parsing card_transfers from the blockchain
         or when sending out new card_transfer.
@@ -224,9 +224,9 @@ class CardTransfer:
         self.txid = txid
         self.sender = sender
         self.receivers = receivers
-        self.amount = amount
+        self.amounts = amounts
         assert len(self.receivers) < 20, {"error": "Too many receivers."}
-        assert len(self.amount) == len(self.receivers), {"error": "Amounts must match receivers."}
+        assert len(self.amounts) == len(self.receivers), {"error": "Amounts must match receivers."}
         if blockhash:
             self.blockhash = blockhash
         else:
@@ -237,7 +237,7 @@ class CardTransfer:
         if not number_of_decimals:
             self.number_of_decimals = deck.number_of_decimals
 
-        assert str(self.amount)[::-1].find('.') <= deck.number_of_decimals, {"error": "Too many decimals."}
+        assert str(self.amounts)[::-1].find('.') <= deck.number_of_decimals, {"error": "Too many decimals."}
 
         if self.sender == deck.issuer:
             self.type = "CardIssue"
@@ -257,7 +257,7 @@ class CardTransfer:
             card.asset_specific_data = self.asset_specific_data.encode()
         else:
             card.asset_specific_data = self.asset_specific_data
-        for i in self.amount:
+        for i in self.amounts:
             card.amounts.append(i)
 
         proto = card.SerializeToString()
