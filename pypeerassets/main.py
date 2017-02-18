@@ -5,8 +5,7 @@ import warnings
 from binascii import hexlify, unhexlify
 from pypeerassets import paproto, Kutil
 from pypeerassets.pautils import *
-from pypeerassets import transactions
-from .constants import param_query, params 
+from pypeerassets import constants, transactions
 from .networks import query, networks
 
 def find_all_valid_decks(provider, prod=True):
@@ -22,7 +21,7 @@ def find_all_valid_decks(provider, prod=True):
 
     for i in deck_spawns:
         try:
-            validate_deckspawn_p2th(provider, i, prod=prod)
+            validate_deckspawn_p2th(provider, i, prod=prod, testnet=provider.is_testnet)
             if parse_deckspawn_metainfo(read_tx_opreturn(provider, i)):
                 d = parse_deckspawn_metainfo(read_tx_opreturn(provider, i))
                 d["asset_id"] = i
@@ -119,12 +118,20 @@ def deck_spawn(deck, inputs, change_address, prod=True):
     '''spawn new deck, returns raw unsigned transaction'''
 
     network_params = query(deck.network)
-    pa_params = param_query(deck.network)
 
-    if prod:
-        p2th_addr = pa_params.P2TH_addr
+    if deck.network.startswith("t"):
+        p2th_fee = constants.testnet_p2th_fee
+        if prod:
+            p2th_address = constants.testnet_PAPROD_addr
+        else:
+            p2th_address = constants.testnet_PATEST_addr
+
     else:
-        p2th_addr = pa_params.test_P2TH_addr
+        p2th_fee = constants.mainnet_p2th_fee
+        if prod:
+            p2th_address = constants.mainnet_PAPROD_addr
+        else:
+            p2th_address = constants.mainnet_PATEST_addr
 
     tx_fee = network_params.min_tx_fee # settle for min tx fee for now
 
@@ -133,10 +140,9 @@ def deck_spawn(deck, inputs, change_address, prod=True):
         utxo['scriptSig'] = unhexlify(utxo['scriptSig'])
 
     outputs = [
-        {"redeem": pa_params.P2TH_fee, "outputScript": transactions.monosig_script(p2th_addr)},
+        {"redeem": p2th_fee, "outputScript": transactions.monosig_script(p2th_address)},
         {"redeem": 0, "outputScript": transactions.op_return_script(deck.metainfo_to_protobuf)},
-        {"redeem": float(inputs['total']) - float(tx_fee) - float(pa_params.P2TH_fee),
-         "outputScript": transactions.monosig_script(change_address)
+        {"redeem": float(inputs['total']) - float(tx_fee) - float(p2th_fee), "outputScript": transactions.monosig_script(change_address)
         }]
 
     return transactions.make_raw_transaction(deck.network, inputs['utxos'], outputs)
@@ -267,7 +273,7 @@ class CardTransfer:
 
         return proto
 
-def card_issue(deck, card_transfer, inputs, change_address, prod=True):
+def card_issue(deck, card_transfer, inputs, change_address, testnet=True, prod=True):
     '''issue cards for this deck
         Arguments:
         * deck - Deck object
@@ -281,10 +287,14 @@ def card_issue(deck, card_transfer, inputs, change_address, prod=True):
     issuer_error = {"error": "You must provide UTXO owned by the issuer of this deck."}
 
     network_params = query(deck.network)
-    pa_params = param_query(deck.network)
 
     for utxo in inputs["utxos"]:
         assert utxo["address"] == deck.issuer, issuer_error
+
+    if testnet:
+        p2th_fee = constants.testnet_p2th_fee
+    else:
+        p2th_fee = constants.mainnet_p2th_fee
 
     tx_fee = network_params.min_tx_fee # settle for min tx fee for now
 
@@ -293,7 +303,7 @@ def card_issue(deck, card_transfer, inputs, change_address, prod=True):
         utxo['scriptSig'] = unhexlify(utxo['scriptSig'])
 
     outputs = [
-        {"redeem": pa_params.P2TH_fee, "outputScript": transactions.monosig_script(deck.p2th_address)},
+        {"redeem": p2th_fee, "outputScript": transactions.monosig_script(deck.p2th_address)},
         {"redeem": 0, "outputScript": transactions.op_return_script(card_transfer.metainfo_to_protobuf)}
     ]
 
@@ -302,19 +312,23 @@ def card_issue(deck, card_transfer, inputs, change_address, prod=True):
                        })
 
     outputs.append(
-        {"redeem": float(inputs['total']) - float(tx_fee) - float(pa_params.P2TH_fee),
+        {"redeem": float(inputs['total']) - float(tx_fee) - float(p2th_fee),
          "outputScript": transactions.monosig_script(change_address)
         })
 
     return transactions.make_raw_transaction(deck.network, inputs['utxos'], outputs)
 
-def card_burn(deck, card_transfer, inputs, change_address, prod=True):
+def card_burn(deck, card_transfer, inputs, change_address, testnet=True, prod=True):
     '''card burn transaction, cards are burned by sending the cards back to deck issuer'''
 
     assert deck.issuer in card_transfer.receivers, {"error": "One of the recipients must be deck issuer."}
 
     network_params = query(deck.network)
-    pa_params = param_query(deck.network)
+
+    if testnet:
+        p2th_fee = constants.testnet_p2th_fee
+    else:
+        p2th_fee = constants.mainnet_p2th_fee
 
     tx_fee = network_params.min_tx_fee # settle for min tx fee for now
 
@@ -323,7 +337,7 @@ def card_burn(deck, card_transfer, inputs, change_address, prod=True):
         utxo['scriptSig'] = unhexlify(utxo['scriptSig'])
 
     outputs = [
-        {"redeem": pa_params.P2TH_fee, "outputScript": transactions.monosig_script(deck.p2th_address)},
+        {"redeem": p2th_fee, "outputScript": transactions.monosig_script(deck.p2th_address)},
         {"redeem": 0, "outputScript": transactions.op_return_script(card_transfer.metainfo_to_protobuf)}
     ]
 
@@ -332,17 +346,21 @@ def card_burn(deck, card_transfer, inputs, change_address, prod=True):
                        })
 
     outputs.append(
-        {"redeem": float(inputs['total']) - float(tx_fee) - float(pa_params.P2TH_fee),
+        {"redeem": float(inputs['total']) - float(tx_fee) - float(p2th_fee),
          "outputScript": transactions.monosig_script(change_address)
         })
 
     return transactions.make_raw_transaction(deck.network, inputs['utxos'], outputs)
 
-def card_transfer(deck, card_transfer, inputs, change_address, prod=True):
+def card_transfer(deck, card_transfer, inputs, change_address, testnet=True, prod=True):
     '''standard peer-to-peer card transfer.'''
 
     network_params = query(deck.network)
-    pa_params = param_query(deck.network)
+
+    if testnet:
+        p2th_fee = constants.testnet_p2th_fee
+    else:
+        p2th_fee = constants.mainnet_p2th_fee
 
     tx_fee = network_params.min_tx_fee # settle for min tx fee for now
 
@@ -351,7 +369,7 @@ def card_transfer(deck, card_transfer, inputs, change_address, prod=True):
         utxo['scriptSig'] = unhexlify(utxo['scriptSig'])
 
     outputs = [
-        {"redeem": pa_params.P2TH_fee, "outputScript": transactions.monosig_script(deck.p2th_address)},
+        {"redeem": p2th_fee, "outputScript": transactions.monosig_script(deck.p2th_address)},
         {"redeem": 0, "outputScript": transactions.op_return_script(card_transfer.metainfo_to_protobuf)}
     ]
 
@@ -360,7 +378,7 @@ def card_transfer(deck, card_transfer, inputs, change_address, prod=True):
                        })
 
     outputs.append(
-        {"redeem": float(inputs['total']) - float(tx_fee) - float(pa_params.P2TH_fee),
+        {"redeem": float(inputs['total']) - float(tx_fee) - float(p2th_fee),
          "outputScript": transactions.monosig_script(change_address)
         })
 
