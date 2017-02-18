@@ -3,7 +3,7 @@
 
 import binascii
 from pypeerassets.provider import RpcNode, Mintr
-from pypeerassets.constants import *
+from .constants import param_query, params 
 from pypeerassets import paproto
 
 def localnode_testnet_or_mainnet(node):
@@ -19,25 +19,15 @@ def load_p2th_privkeys_into_node(provider, prod=True):
 
     assert isinstance(provider, RpcNode), {"error": "You can load privkeys only into local node."}
     error = {"error": "Loading P2TH privkey failed."}
+    pa_params = param_query(provider.network)
 
-    if provider.is_testnet:
-
-        if prod is True:
-            provider.importprivkey(testnet_PAPROD, "PAPROD")
-            assert testnet_PAPROD_addr in provider.getaddressesbyaccount("PAPROD"), error
-
-        else:
-            provider.importprivkey(testnet_PATEST, "PATEST")
-            assert testnet_PATEST_addr in provider.getaddressesbyaccount("PATEST"), error
+    if prod:
+        provider.importprivkey(pa_prod.P2TH_wif, "PAPROD")
+        assert pa_prod.P2TH_addr in provider.getaddressesbyaccount("PAPROD"), error
 
     else:
-        if prod is True:
-            provider.importprivkey(mainnet_PAPROD, "PAPROD")
-            assert mainnet_PAPROD_addr in provider.getaddressesbyaccount("PAPROD"), error
-
-        else:
-            provider.importprivkey(mainnet_PAPROD, "PAPROD")
-            assert mainnet_PAPROD_addr in provider.getaddressesbyaccount("PAPROD"), error
+        provider.importprivkey(pa_prod.test_P2TH_wif, "PATEST")
+        assert pa_prod.test_P2TH_wif in provider.getaddressesbyaccount("PATEST"), error
 
 def find_tx_sender(provider, txid):
 
@@ -51,6 +41,8 @@ def find_deck_spawns(provider, prod=True):
     it requires that Deck spawn P2TH were imported in local node or
     that remote API knows about P2TH address.'''
 
+    pa_params = param_query(provider.network)
+
     if isinstance(provider, RpcNode):
 
         if prod:
@@ -63,7 +55,7 @@ def find_deck_spawns(provider, prod=True):
     if isinstance(provider, Mintr):
 
         if prod:
-            decks = [i["txid"] for i in provider.listtransactions(mainnet_PAPROD_addr)]
+            decks = [i["txid"] for i in provider.listtransactions(pa_params.P2TH_addr)]
         else:
             raise NotImplementedError
 
@@ -110,30 +102,20 @@ def parse_deckspawn_metainfo(protobuf):
         "asset_specific_data": deck.asset_specific_data
     }
 
-def validate_deckspawn_p2th(provider, deck_id, testnet=False, prod=True):
+def validate_deckspawn_p2th(provider, deck_id, prod=True):
     '''validate if deck spawn pays to p2th in vout[0] and if it correct P2TH address'''
 
+    pa_params = param_query(provider.network)
     raw = provider.getrawtransaction(deck_id, 1)
     vout = raw["vout"][0]["scriptPubKey"].get("addresses")[0]
     error = {"error": "This deck is not properly tagged."}
 
-    if testnet:
-
-        if not prod: # if test P2TH
-            assert vout == testnet_PATEST_addr, error
-            return True
-        else:
-            assert vout == testnet_PAPROD_addr, error
-            return True
-
+    if prod:
+        assert vout == pa_params.P2TH_addr, error
+        return True
     else:
-
-        if not prod: # if test P2TH
-            assert vout == mainnet_PATEST_addr, error
-            return True
-        else:
-            assert vout == mainnet_PAPROD_addr, error
-            return True
+        assert vout == pa_params.test_P2TH_addr, error
+        return True
 
 def load_deck_p2th_into_local_node(provider, deck):
     '''
