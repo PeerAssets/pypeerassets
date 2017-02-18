@@ -6,14 +6,6 @@ from pypeerassets.provider import RpcNode, Mintr
 from .constants import param_query, params
 from pypeerassets import paproto
 
-def localnode_testnet_or_mainnet(node):
-    '''check if local node is configured to testnet or mainnet'''
-
-    if node.getinfo()["testnet"] is True:
-        return "testnet"
-    else:
-        return "mainnet"
-
 def load_p2th_privkeys_into_node(provider, prod=True):
     '''load production p2th privkey into local node'''
 
