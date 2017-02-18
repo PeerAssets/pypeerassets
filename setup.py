@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='pypeerassets',
-      version='0.1.1',
+      version='0.2',
       description='Python implementation of the PeerAssets protocol.',
       keywords=["blockchain", "digital asset", "protocol"],
       url='https://github.com/peerassets/pypeerassets',
