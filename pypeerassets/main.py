@@ -210,7 +210,7 @@ class CardTransfer:
 
         * deck - instance of Deck object
         * receivers - list of receivers
-        * amounts - list of amounts to be sent, matching receivers
+        * amounts - list of amounts to be sent, must be float
         * version - protocol version, default 1
         * txid - transaction ID of CardTransfer
         * sender - transaction sender
@@ -218,6 +218,8 @@ class CardTransfer:
         * timestamp - unix timestamp of the block where it was first included
         * asset_specific_data - extra metadata
         * number_of_decimals - number of decimals for amount, inherited from Deck object'''
+
+        assert len(amounts) == len(receivers), {"error": "Amounts must match receivers."}
 
         self.version = version
         self.deck_id = deck.asset_id
@@ -230,11 +232,14 @@ class CardTransfer:
 
         self.receivers = receivers
         assert len(self.receivers) < 20, {"error": "Too many receivers."}
+        assert len(amounts) == len(receivers), {"error": "Amounts must match receivers."}
+        self.amounts = []
 
-        # convert exponent form to nice decimal numbers
-        self.amounts = [exponent_to_amount(i, self.number_of_decimals) for i in amounts]
-        assert len(self.amounts) == len(self.receivers), {"error": "Amounts must match receivers."}
-        assert str(amounts)[0][::-1].find('.') <= self.number_of_decimals, {"error": "Too many decimals."}
+        for i in amounts:
+            if not isinstance(i, float):
+                self.amounts.append(exponent_to_amount(i, self.number_of_decimals))
+            else:
+                assert str(i)[::-1].find('.') <= self.number_of_decimals, {"error": "Too many decimals."}
 
         if blockhash:
             self.blockhash = blockhash
