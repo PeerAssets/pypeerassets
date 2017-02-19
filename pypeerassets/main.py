@@ -223,10 +223,19 @@ class CardTransfer:
         self.deck_id = deck.asset_id
         self.txid = txid
         self.sender = sender
+        if not number_of_decimals:
+            self.number_of_decimals = deck.number_of_decimals
+        else:
+            self.number_of_decimals = number_of_decimals
+
         self.receivers = receivers
-        self.amounts = amounts
         assert len(self.receivers) < 20, {"error": "Too many receivers."}
+
+        # convert exponent form to nice decimal numbers
+        self.amounts = [exponent_to_amount(i, self.number_of_decimals) for i in amounts]
         assert len(self.amounts) == len(self.receivers), {"error": "Amounts must match receivers."}
+        assert str(amounts)[0][::-1].find('.') <= self.number_of_decimals, {"error": "Too many decimals."}
+
         if blockhash:
             self.blockhash = blockhash
         else:
@@ -234,10 +243,6 @@ class CardTransfer:
         self.timestamp = timestamp
         self.asset_specific_data = asset_specific_data
         self.p2th_address = deck.p2th_address
-        if not number_of_decimals:
-            self.number_of_decimals = deck.number_of_decimals
-
-        assert str(self.amounts)[::-1].find('.') <= deck.number_of_decimals, {"error": "Too many decimals."}
 
         if self.sender == deck.issuer:
             self.type = "CardIssue"
@@ -257,7 +262,11 @@ class CardTransfer:
             card.asset_specific_data = self.asset_specific_data.encode()
         else:
             card.asset_specific_data = self.asset_specific_data
-        for i in self.amounts:
+
+        # convert amounts to exponents
+        amounts = [amount_to_exponent(i, self.number_of_decimals) for i in self.amounts]
+
+        for i in amounts:
             card.amounts.append(i)
 
         proto = card.SerializeToString()
