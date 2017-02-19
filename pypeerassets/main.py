@@ -185,12 +185,12 @@ def find_all_card_transfers(provider, deck):
                 if len(raw_card["amount"]) > 1: ## if card states multiple outputs:
                     for am, v in zip(raw_card["amount"], vouts[2:]):
                         c = _card.copy()
-                        c["amount"] = [am]
+                        c["amounts"] = [am]
                         c["receivers"] = v["scriptPubKey"]["addresses"]
                         cards.append(CardTransfer(**c))
                 else:
                     _card["receivers"] = vouts[2]["scriptPubKey"]["addresses"]
-                    _card["amount"] = raw_card["amount"]
+                    _card["amounts"] = raw_card["amount"]
                     cards.append(CardTransfer(**_card))
 
         except AssertionError:
