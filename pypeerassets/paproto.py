@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='0001-peerassets-transaction-specification.proto',
   package='',
   syntax='proto3',
-  serialized_pb=_b('\n/0001-peerassets-transaction-specification.proto\"\xb7\x01\n\tDeckSpawn\x12\x0f\n\x07version\x18\x01 \x01(\r\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x1a\n\x12number_of_decimals\x18\x03 \x01(\r\x12\x12\n\nissue_mode\x18\x04 \x01(\r\x12\x1b\n\x13\x61sset_specific_data\x18\x05 \x01(\x0c\">\n\x04MODE\x12\x08\n\x04NONE\x10\x00\x12\n\n\x06\x43USTOM\x10\x01\x12\x08\n\x04ONCE\x10\x02\x12\t\n\x05MULTI\x10\x04\x12\x0b\n\x07SINGLET\x10\x08\"i\n\x0c\x43\x61rdTransfer\x12\x0f\n\x07version\x18\x01 \x01(\r\x12\x0f\n\x07\x61mounts\x18\x02 \x03(\x04\x12\x1a\n\x12number_of_decimals\x18\x03 \x01(\r\x12\x1b\n\x13\x61sset_specific_data\x18\x04 \x01(\x0c\x62\x06proto3')
+  serialized_pb=_b('\n/0001-peerassets-transaction-specification.proto\"\xb7\x01\n\tDeckSpawn\x12\x0f\n\x07version\x18\x01 \x01(\r\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x1a\n\x12number_of_decimals\x18\x03 \x01(\r\x12\x12\n\nissue_mode\x18\x04 \x01(\r\x12\x1b\n\x13\x61sset_specific_data\x18\x05 \x01(\x0c\">\n\x04MODE\x12\x08\n\x04NONE\x10\x00\x12\n\n\x06\x43USTOM\x10\x01\x12\x08\n\x04ONCE\x10\x02\x12\t\n\x05MULTI\x10\x04\x12\x0b\n\x07SINGLET\x10\x08\"h\n\x0c\x43\x61rdTransfer\x12\x0f\n\x07version\x18\x01 \x01(\r\x12\x0e\n\x06\x61mount\x18\x02 \x03(\x04\x12\x1a\n\x12number_of_decimals\x18\x03 \x01(\r\x12\x1b\n\x13\x61sset_specific_data\x18\x04 \x01(\x0c\x62\x06proto3')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -135,7 +135,7 @@ _CARDTRANSFER = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='amounts', full_name='CardTransfer.amounts', index=1,
+      name='amount', full_name='CardTransfer.amount', index=1,
       number=2, type=4, cpp_type=4, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -168,7 +168,7 @@ _CARDTRANSFER = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=237,
-  serialized_end=342,
+  serialized_end=341,
 )
 
 _DECKSPAWN_MODE.containing_type = _DECKSPAWN
