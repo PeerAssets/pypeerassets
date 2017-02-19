@@ -145,3 +145,13 @@ def parse_card_transfer_metainfo(protobuf):
         "asset_specific_data": card.asset_specific_data
     }
 
+def amount_to_exponent(amount, number_of_decimals):
+    '''encode amount integer as exponent'''
+
+    return int(amount * 10**number_of_decimals)
+
+def exponent_to_amount(exponent, number_of_decimals):
+    '''exponent to integer to be written on the chain'''
+
+    return exponent / 10**number_of_decimals
+
