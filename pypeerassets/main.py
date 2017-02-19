@@ -252,13 +252,12 @@ class CardTransfer:
 
         card = paproto.CardTransfer()
         card.version = self.version
+        card.amounts.extend(self.amounts)
         card.number_of_decimals = self.number_of_decimals
         if not isinstance(self.asset_specific_data, bytes):
             card.asset_specific_data = self.asset_specific_data.encode()
         else:
             card.asset_specific_data = self.asset_specific_data
-        for i in self.amounts:
-            card.amounts.append(i)
 
         proto = card.SerializeToString()
 
