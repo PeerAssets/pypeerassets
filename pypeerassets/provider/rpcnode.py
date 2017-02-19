@@ -24,7 +24,7 @@ class RpcNode(Client):
             utxo.append({
                 "txid": tx["txid"],
                 "vout": tx["vout"],
-                "scriptSig": tx["scriptPubKey"],
+                "scriptSig": "",
                 "amount": tx["amount"],
                 "address": tx["address"]
             })
