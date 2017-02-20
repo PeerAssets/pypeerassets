@@ -22,6 +22,6 @@ issue = pa.CardTransfer(deck, receivers, amounts) # CardTransfer instance
 
 raw_issue = hexlify(pa.card_issue(deck, issue, utxo, change_addr)).decode()
 
-signed = provider.signrawtransaction(hexlify(raw_issue))
+signed = provider.signrawtransaction(raw_issue)
 
 provider.sendrawtransaction(signed["hex"]) # send the tx
