@@ -210,7 +210,7 @@ class CardTransfer:
 
         * deck - instance of Deck object
         * receivers - list of receivers
-        * amounts - list of amounts to be sent, matching receivers
+        * amounts - list of amounts to be sent, must be float
         * version - protocol version, default 1
         * txid - transaction ID of CardTransfer
         * sender - transaction sender
@@ -219,25 +219,34 @@ class CardTransfer:
         * asset_specific_data - extra metadata
         * number_of_decimals - number of decimals for amount, inherited from Deck object'''
 
+        assert len(amounts) == len(receivers), {"error": "Amounts must match receivers."}
         self.version = version
         self.deck_id = deck.asset_id
         self.txid = txid
         self.sender = sender
-        self.receivers = receivers
-        self.amounts = amounts
-        assert len(self.receivers) < 20, {"error": "Too many receivers."}
-        assert len(self.amounts) == len(self.receivers), {"error": "Amounts must match receivers."}
-        if blockhash:
-            self.blockhash = blockhash
-        else:
-            self.blockhash = 0
         self.timestamp = timestamp
         self.asset_specific_data = asset_specific_data
         self.p2th_address = deck.p2th_address
         if not number_of_decimals:
             self.number_of_decimals = deck.number_of_decimals
+        else:
+            self.number_of_decimals = number_of_decimals
 
-        assert str(self.amounts)[::-1].find('.') <= deck.number_of_decimals, {"error": "Too many decimals."}
+        self.receivers = receivers
+        assert len(self.receivers) < 20, {"error": "Too many receivers."}
+        self.amounts = []
+
+        for i in amounts:
+            if not isinstance(i, float): # if not float, than it needs to be converted to float
+                self.amounts.append(exponent_to_amount(i, self.number_of_decimals))
+            else:
+                assert str(i)[::-1].find('.') <= self.number_of_decimals, {"error": "Too many decimals."}
+                self.amounts.append(i)
+
+        if blockhash:
+            self.blockhash = blockhash
+        else:
+            self.blockhash = 0
 
         if self.sender == deck.issuer:
             self.type = "CardIssue"
@@ -252,7 +261,9 @@ class CardTransfer:
 
         card = paproto.CardTransfer()
         card.version = self.version
-        card.amount.extend(self.amounts)
+        card.amount.extend(
+            [amount_to_exponent(i, self.number_of_decimals) for i in self.amounts]
+            )
         card.number_of_decimals = self.number_of_decimals
         if not isinstance(self.asset_specific_data, bytes):
             card.asset_specific_data = self.asset_specific_data.encode()
