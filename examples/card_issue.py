@@ -6,7 +6,7 @@ import pypeerassets as pa
 from binascii import hexlify
 import random
 provider = pa.RpcNode(testnet=True)
-change_addr = "mwkFUPUrh6LsXyMvBY2mz6btiJjuTxGgT8" 
+change_addr = "mhPuRGwWRyhXRhzSfzgfoPPFHPXgAyZVSz" 
 
 deck = pa.Deck(**deck) # use deck from deck_spawn.py example
 
@@ -24,4 +24,4 @@ raw_issue = hexlify(pa.card_issue(deck, issue, utxo, change_addr)).decode()
 
 signed = provider.signrawtransaction(hexlify(raw_issue))
 
-provider.sendrawtransaction(r["hex"]) # send the tx
+provider.sendrawtransaction(signed["hex"]) # send the tx
