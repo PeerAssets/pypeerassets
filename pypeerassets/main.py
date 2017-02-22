@@ -32,6 +32,7 @@ def find_all_valid_decks(provider, prod=True):
                     d["time"] = 0
                 d["issuer"] = find_tx_sender(provider, i)
                 d["network"] = provider.network
+                d["production"] = prod
                 decks.append(Deck(**d))
 
         except AssertionError:
@@ -49,7 +50,7 @@ def find_deck(provider, key, prod=True):
 
 class Deck:
 
-    def __init__(self, name, number_of_decimals, issue_mode, network, version=1,
+    def __init__(self, name, number_of_decimals, issue_mode, network, production, version=1,
                  asset_specific_data="", issuer="", time=None, asset_id=None):
         '''
         initialize deck object, load from dictionary Deck(**dict)
@@ -66,6 +67,7 @@ class Deck:
         self.issuer = issuer
         self.issue_time = time
         self.network = network
+        self.production = production
         if self.network.startswith("t"):
             self.testnet = True
         else:
@@ -115,13 +117,13 @@ class Deck:
             "issue_mode": self.issue_mode
         }
 
-def deck_spawn(deck, inputs, change_address, prod=True):
+def deck_spawn(deck, inputs, change_address):
     '''spawn new deck, returns raw unsigned transaction'''
 
     network_params = query(deck.network)
     pa_params = param_query(deck.network)
 
-    if prod:
+    if deck.production:
         p2th_addr = pa_params.P2TH_addr
     else:
         p2th_addr = pa_params.test_P2TH_addr
@@ -141,7 +143,7 @@ def deck_spawn(deck, inputs, change_address, prod=True):
 
     return transactions.make_raw_transaction(deck.network, inputs['utxos'], outputs)
 
-def deck_transfer(deck, network, inputs, change_address, prod=True):
+def deck_transfer(deck, network, inputs, change_address):
     '''
     The deck transfer transaction is a special case of the deck spawn transaction.
     Instead of registering a new asset, the deck transfer transaction transfers ownership from vin[1] to vin[0],
