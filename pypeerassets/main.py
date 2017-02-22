@@ -279,7 +279,7 @@ class CardTransfer:
 
         return proto
 
-def card_issue(deck, card_transfer, inputs, change_address, prod=True):
+def card_issue(deck, card_transfer, inputs, change_address):
     '''issue cards for this deck
         Arguments:
         * deck - Deck object
@@ -320,7 +320,7 @@ def card_issue(deck, card_transfer, inputs, change_address, prod=True):
 
     return transactions.make_raw_transaction(deck.network, inputs['utxos'], outputs)
 
-def card_burn(deck, card_transfer, inputs, change_address, prod=True):
+def card_burn(deck, card_transfer, inputs, change_address):
     '''card burn transaction, cards are burned by sending the cards back to deck issuer'''
 
     assert deck.issuer in card_transfer.receivers, {"error": "One of the recipients must be deck issuer."}
@@ -350,7 +350,7 @@ def card_burn(deck, card_transfer, inputs, change_address, prod=True):
 
     return transactions.make_raw_transaction(deck.network, inputs['utxos'], outputs)
 
-def card_transfer(deck, card_transfer, inputs, change_address, prod=True):
+def card_transfer(deck, card_transfer, inputs, change_address):
     '''standard peer-to-peer card transfer.'''
 
     network_params = query(deck.network)
