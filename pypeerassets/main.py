@@ -9,12 +9,11 @@ from pypeerassets import transactions
 from .constants import param_query, params 
 from .networks import query, networks
 
-def find_all_valid_decks(provider, prod=True):
+def find_all_valid_decks(provider, prod=True) -> list:
     '''
-    scan the blockchain for PeerAssets decks, returns list of deck objects.
-    please pass <node> - the provider
-    <testnet> True/False
-    <test> True/False - test or production P2TH
+    Scan the blockchain for PeerAssets decks, returns list of deck objects.
+    :node - provider instance
+    :test True/False - test or production P2TH
     '''
 
     decks = []
