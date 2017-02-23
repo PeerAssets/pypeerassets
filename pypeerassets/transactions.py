@@ -93,7 +93,7 @@ def pack_uint64(i):
 
     return struct.pack('<L', lower) + struct.pack('<L', upper)
 
-def monosig_script(address):
+def monosig_script(address: str) -> bytes:
     '''returns a mono-signature output script'''
 
     hash160 = get_hash160(address)
