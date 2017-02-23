@@ -116,8 +116,8 @@ class Deck:
             "issue_mode": self.issue_mode
         }
 
-def deck_spawn(deck, inputs, change_address):
-    '''spawn new deck, returns raw unsigned transaction'''
+def deck_spawn(deck: Deck, inputs: list, change_address: str) -> bytes:
+    '''Creates Deck spawn raw transaction.'''
 
     network_params = query(deck.network)
     pa_params = param_query(deck.network)
