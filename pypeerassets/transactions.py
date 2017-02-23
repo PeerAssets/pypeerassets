@@ -65,7 +65,7 @@ def get_hash160(address):
 
     return b58decode(address)[1:-4]
 
-def op_push(n):
+def op_push(n: int) -> bytes:
 
     if n < 0x4c:
         return (n).to_bytes(1, byteorder='little')              # Push n bytes.
@@ -76,7 +76,7 @@ def op_push(n):
     else:
         return b'\x4e' + (n).to_bytes(4, byteorder='little')    # OP_PUSHDATA4
 
-def var_int(i):
+def var_int(i: int) -> bytes:
 
     if i < 0xfd:
         return (i).to_bytes(1, byteorder='little')
@@ -87,7 +87,7 @@ def var_int(i):
     else:
         return b'\xff' + (i).to_bytes(8, byteorder='little')
 
-def pack_uint64(i):
+def pack_uint64(i: int) -> bytes:
     upper = int(i / 4294967296)
     lower = i - upper * 4294967296
 
