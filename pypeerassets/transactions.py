@@ -186,7 +186,4 @@ def unpack_txn_buffer(buffer, network="ppc"):
 def unpack_raw_transaction(rawtx: bytes) -> dict:
     '''unpacks raw transactions, returns dictionary'''
 
-    if not isinstance(rawtx, bytes):
-        raise ValueError('Binary input required')
-
     return unpack_txn_buffer(Tx_buffer(rawtx))
