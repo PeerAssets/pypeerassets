@@ -79,7 +79,7 @@ def validate_deckspawn_metainfo(deck):
     assert deck.name is not "", {"error": "Deck metainfo incomplete, Deck must have a name."}
     assert deck.issue_mode in (0, 1, 2, 4), {"error": "Deck metainfo incomplete, unknown issue mode."}
 
-def parse_deckspawn_metainfo(protobuf):
+def parse_deckspawn_metainfo(protobuf: bytes):
     '''decode deck_spawn tx op_return protobuf message and validate it.'''
 
     deck = paproto.DeckSpawn()
@@ -130,7 +130,7 @@ def validate_card_transfer_p2th(provider, txid, deck):
 
     assert raw["vout"][0]["scriptPubKey"].get("addresses")[0] == deck.p2th_address, error
 
-def parse_card_transfer_metainfo(protobuf):
+def parse_card_transfer_metainfo(protobuf: bytes) -> dict:
     '''decode card_spawn tx op_return protobuf message and validate it.'''
 
     card = paproto.CardTransfer()
@@ -145,12 +145,12 @@ def parse_card_transfer_metainfo(protobuf):
         "asset_specific_data": card.asset_specific_data
     }
 
-def amount_to_exponent(amount, number_of_decimals):
+def amount_to_exponent(amount: float, number_of_decimals: int) -> int:
     '''encode amount integer as exponent'''
 
     return int(amount * 10**number_of_decimals)
 
-def exponent_to_amount(exponent, number_of_decimals):
+def exponent_to_amount(exponent: int, number_of_decimals: int) -> float:
     '''exponent to integer to be written on the chain'''
 
     return exponent / 10**number_of_decimals
