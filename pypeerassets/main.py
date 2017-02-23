@@ -142,7 +142,7 @@ def deck_spawn(deck: Deck, inputs: list, change_address: str) -> bytes:
 
     return transactions.make_raw_transaction(deck.network, inputs['utxos'], outputs)
 
-def deck_transfer(deck, network, inputs, change_address):
+def deck_transfer(deck: Deck, inputs: list, change_address: str) -> bytes:
     '''
     The deck transfer transaction is a special case of the deck spawn transaction.
     Instead of registering a new asset, the deck transfer transaction transfers ownership from vin[1] to vin[0],
