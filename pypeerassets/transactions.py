@@ -101,7 +101,7 @@ def monosig_script(address):
     script = OP_DUP + OP_HASH160 + op_push(n) + hash160 + OP_EQUALVERIFY + OP_CHECKSIG
     return script
 
-def op_return_script(data):
+def op_return_script(data: bytes) -> bytes:
     '''returns a single OP_RETURN output script'''
 
     if not isinstance(data, bytes):
@@ -184,7 +184,7 @@ def unpack_txn_buffer(buffer, network="ppc"):
 
     return txn
 
-def unpack_raw_transaction(rawtx):
+def unpack_raw_transaction(rawtx: bytes) -> dict:
     '''unpacks raw transactions, returns dictionary'''
 
     if not isinstance(rawtx, bytes):
