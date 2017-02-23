@@ -140,7 +140,7 @@ def make_raw_transaction(network: str, inputs: list, outputs: list,
 
     return raw_tx
 
-def unpack_txn_buffer(buffer, network="ppc"):
+def unpack_txn_buffer(buffer: Tx_buffer, network: str) -> dict:
 
     txn = {
         'vin': [],
