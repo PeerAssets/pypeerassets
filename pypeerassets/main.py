@@ -278,15 +278,9 @@ class CardTransfer:
 
         return proto
 
-def card_issue(deck, card_transfer, inputs, change_address):
-    '''issue cards for this deck
-        Arguments:
-        * deck - Deck object
-        * card_transfer - CardTransfer object
-        * inputs - utxo [has to be owned by deck issuer]
-        * network - ppc/tppc
-        * testnet - True/False
-        * prod - production P2TH tag [True/False]
+def card_issue(deck: Deck, card_transfer: CardTransfer, inputs: list, change_address: str) -> bytes:
+    '''Create card issue transaction.
+       :inputs - utxo [has to be owned by deck issuer]
     '''
 
     issuer_error = {"error": "You must provide UTXO owned by the issuer of this deck."}
