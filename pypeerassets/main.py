@@ -313,8 +313,8 @@ def card_issue(deck: Deck, card_transfer: CardTransfer, inputs: list, change_add
 
     return transactions.make_raw_transaction(deck.network, inputs['utxos'], outputs)
 
-def card_burn(deck, card_transfer, inputs, change_address):
-    '''card burn transaction, cards are burned by sending the cards back to deck issuer'''
+def card_burn(deck: Deck, card_transfer: CardTransfer, inputs: list, change_address: str) -> bytes:
+    '''Create card burn transaction, cards are burned by sending the cards back to deck issuer.'''
 
     assert deck.issuer in card_transfer.receivers, {"error": "One of the recipients must be deck issuer."}
 
