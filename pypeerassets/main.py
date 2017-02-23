@@ -150,7 +150,7 @@ def deck_transfer(deck: Deck, inputs: list, change_address: str) -> bytes:
     '''
     raise NotImplementedError
 
-def find_all_card_transfers(provider, deck):
+def find_card_transfers(provider, deck: Deck) -> list:
     '''find all <deck> card transfers'''
 
     cards = []
