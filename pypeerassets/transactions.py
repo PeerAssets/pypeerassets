@@ -108,10 +108,12 @@ def op_return_script(data: bytes) -> bytes:
     script = hexlify(OP_RETURN + op_push(len(data)//2)) + data
     return unhexlify(script)
 
-def make_raw_transaction(network, inputs, outputs, sequence_number=b'\xff\xff\xff\xff', lock_time=b'\x00\x00\x00\x00'):
+def make_raw_transaction(network: str, inputs: list, outputs: list,
+                         sequence_number=b'\xff\xff\xff\xff', lock_time=b'\x00\x00\x00\x00') -> bytes:
     ''' inputs expected as [{'txid':txhash,'vout':index,'scriptSig':txinScript},..]
         ouputs expected as [{'redeem':peertoshis,'outputScript': outputScript},...]
     '''
+
     raw_tx = b'\x01\x00\x00\x00' # 4 byte version number
     network_vars = query(network)
 
