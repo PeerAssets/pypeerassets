@@ -343,8 +343,8 @@ def card_burn(deck: Deck, card_transfer: CardTransfer, inputs: list, change_addr
 
     return transactions.make_raw_transaction(deck.network, inputs['utxos'], outputs)
 
-def card_transfer(deck, card_transfer, inputs, change_address):
-    '''standard peer-to-peer card transfer.'''
+def card_transfer(deck: Deck, card_transfer: CardTransfer, inputs: list, change_address: str) -> bytes:
+    '''Standard peer-to-peer card transfer.'''
 
     network_params = query(deck.network)
     pa_params = param_query(deck.network)
