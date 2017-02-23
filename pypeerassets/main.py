@@ -39,8 +39,9 @@ def find_all_valid_decks(provider, prod=True) -> list:
 
     return decks
 
-def find_deck(provider, key, prod=True):
-    '''find specific deck by key, with key being:
+def find_deck(provider, key: str, prod=True) -> list:
+    '''
+    Find specific deck by key, with key being:
     <id>, <name>, <issuer>, <issue_mode>, <number_of_decimals>
     '''
 
