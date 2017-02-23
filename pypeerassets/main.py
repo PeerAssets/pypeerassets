@@ -202,8 +202,8 @@ def find_card_transfers(provider, deck: Deck) -> list:
 
 class CardTransfer:
 
-    def __init__(self, deck: Deck, receivers=[]: list, amounts=[]: list, version=1: int, txid=None: str, sender=None: str, blockhash=None: str,
-                 timestamp=None: int, asset_specific_data="": bytes, number_of_decimals=None: int):
+    def __init__(self, deck, receivers=[], amounts=[], version=1, txid=None, sender=None, blockhash=None,
+                 timestamp=None, asset_specific_data="", number_of_decimals=None):
         '''CardTransfer object, used when parsing card_transfers from the blockchain
         or when sending out new card_transfer.
         It can be initialized by passing the **kwargs and it will do the parsing,
