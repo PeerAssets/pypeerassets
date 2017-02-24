@@ -52,6 +52,11 @@ def find_deck_spawns(provider, prod=True):
         else:
             raise NotImplementedError
 
+def tx_serialization_order(provider, blockid: str, txid: str) -> int:
+    '''find index of this tx in the blockid'''
+
+    return provider.getblock(blockid)["tx"].index(txid)
+
 def read_tx_opreturn(node, txid):
     '''Decode OP_RETURN message from <txid>'''
 

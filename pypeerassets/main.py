@@ -175,7 +175,9 @@ def find_card_transfers(provider, deck: Deck) -> list:
                 _card["txid"] = ct["txid"]
                 try:
                     _card["blockhash"] = ct["blockhash"]
+                    _card["blockseq"] = tx_serialization_order(provider, _card["blockhash"], _card["txid"])
                 except KeyError:
+                    _card["blockseq"] = None
                     _card["blockhash"] = 0
                 _card["timestamp"] = ct["time"]
                 _card["sender"] = find_tx_sender(provider, ct["txid"])
@@ -202,8 +204,8 @@ def find_card_transfers(provider, deck: Deck) -> list:
 
 class CardTransfer:
 
-    def __init__(self, deck: Deck, receiver=[], amount=[], version=1, txid=None, sender=None, blockhash=None,
-                 timestamp=None, asset_specific_data="", number_of_decimals=None):
+    def __init__(self, deck: Deck, receiver=[], amount=[], version=1, txid=None, sender=None, blockhash=0,
+                 blockseq=None, timestamp=None, asset_specific_data="", number_of_decimals=None):
         '''CardTransfer object, used when parsing card_transfers from the blockchain
         or when sending out new card_transfer.
         It can be initialized by passing the **kwargs and it will do the parsing,
@@ -216,6 +218,7 @@ class CardTransfer:
         * txid - transaction ID of CardTransfer
         * sender - transaction sender
         * blockhash - block ID where the tx was first included
+        * blockseq - order in which tx was serialized into block
         * timestamp - unix timestamp of the block where it was first included
         * asset_specific_data - extra metadata
         * number_of_decimals - number of decimals for amount, inherited from Deck object'''
@@ -246,8 +249,10 @@ class CardTransfer:
 
         if blockhash:
             self.blockhash = blockhash
+            self.blockseq = blockseq
         else:
             self.blockhash = 0
+            self.blockseq = 0
 
         if self.sender == deck.issuer:
             self.type = "CardIssue"
