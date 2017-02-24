@@ -186,12 +186,12 @@ def find_card_transfers(provider, deck: Deck) -> list:
                 if len(raw_card["amount"]) > 1: ## if card states multiple outputs:
                     for am, v in zip(raw_card["amount"], vouts[2:]):
                         c = _card.copy()
-                        c["amounts"] = [am]
-                        c["receivers"] = v["scriptPubKey"]["addresses"]
+                        c["amount"] = [am]
+                        c["receiver"] = v["scriptPubKey"]["addresses"]
                         cards.append(CardTransfer(**c))
                 else:
-                    _card["receivers"] = vouts[2]["scriptPubKey"]["addresses"]
-                    _card["amounts"] = raw_card["amount"]
+                    _card["receiver"] = vouts[2]["scriptPubKey"]["addresses"]
+                    _card["amount"] = raw_card["amount"]
                     cards.append(CardTransfer(**_card))
 
         except AssertionError:
@@ -202,7 +202,7 @@ def find_card_transfers(provider, deck: Deck) -> list:
 
 class CardTransfer:
 
-    def __init__(self, deck: Deck, receivers=[], amounts=[], version=1, txid=None, sender=None, blockhash=None,
+    def __init__(self, deck: Deck, receiver=[], amount=[], version=1, txid=None, sender=None, blockhash=None,
                  timestamp=None, asset_specific_data="", number_of_decimals=None):
         '''CardTransfer object, used when parsing card_transfers from the blockchain
         or when sending out new card_transfer.
@@ -220,7 +220,7 @@ class CardTransfer:
         * asset_specific_data - extra metadata
         * number_of_decimals - number of decimals for amount, inherited from Deck object'''
 
-        assert len(amounts) == len(receivers), {"error": "Amounts must match receivers."}
+        assert len(amount) == len(receiver), {"error": "Amount must match receiver."}
         self.version = version
         self.deck_id = deck.asset_id
         self.txid = txid
@@ -233,16 +233,16 @@ class CardTransfer:
         else:
             self.number_of_decimals = number_of_decimals
 
-        self.receivers = receivers
-        assert len(self.receivers) < 20, {"error": "Too many receivers."}
-        self.amounts = []
+        self.receiver = receiver
+        assert len(self.receiver) < 20, {"error": "Too many receivers."}
+        self.amount = []
 
-        for i in amounts:
+        for i in amount:
             if not isinstance(i, float): # if not float, than it needs to be converted to float
-                self.amounts.append(exponent_to_amount(i, self.number_of_decimals))
+                self.amount.append(exponent_to_amount(i, self.number_of_decimals))
             else:
                 assert str(i)[::-1].find('.') <= self.number_of_decimals, {"error": "Too many decimals."}
-                self.amounts.append(i)
+                self.amount.append(i)
 
         if blockhash:
             self.blockhash = blockhash
@@ -251,7 +251,7 @@ class CardTransfer:
 
         if self.sender == deck.issuer:
             self.type = "CardIssue"
-        elif self.receivers[0] == deck.issuer:
+        elif self.receiver[0] == deck.issuer:
             self.type = "CardBurn"
         else:
             self.type = "CardTransfer"
@@ -263,7 +263,7 @@ class CardTransfer:
         card = paproto.CardTransfer()
         card.version = self.version
         card.amount.extend(
-            [amount_to_exponent(i, self.number_of_decimals) for i in self.amounts]
+            [amount_to_exponent(i, self.number_of_decimals) for i in self.amount]
             )
         card.number_of_decimals = self.number_of_decimals
         if not isinstance(self.asset_specific_data, bytes):
