@@ -127,7 +127,7 @@ def load_deck_p2th_into_local_node(provider, deck):
     provider.importprivkey(deck.p2th_wif, deck.name)
     assert deck.p2th_address in provider.getaddressesbyaccount(deck.name), error
 
-def validate_card_transfer_p2th(provider, txid, deck):
+def validate_card_transfer_p2th(provider, txid: str, deck) -> None:
     '''validate if card_transfer transaction pays to deck p2th in vout[0]'''
 
     raw = provider.getrawtransaction(txid, 1)
@@ -149,6 +149,17 @@ def parse_card_transfer_metainfo(protobuf: bytes) -> dict:
         "amount": card.amount,
         "asset_specific_data": card.asset_specific_data
     }
+
+def validate_card_tx(txid: str) -> bool:
+
+    try:
+        validate_card_transfer_p2th(provider, txid, deck) # validate P2TH first
+
+        if parse_card_transfer_metainfo(read_tx_opreturn(provider, txid)):
+            return True
+
+    except AssertionError:
+        return False
 
 def amount_to_exponent(amount: float, number_of_decimals: int) -> int:
     '''encode amount integer as exponent'''
