@@ -34,7 +34,7 @@ class RpcNode(Client):
                 return {'utxos':utxo, 'total':utxo_sum}
 
         if utxo_sum < total_amount:
-            raise ValueError("Not enough funds.")
+            raise ValueError("Insufficient funds.")
 
     @property
     def is_testnet(self):
