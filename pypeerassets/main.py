@@ -205,7 +205,7 @@ def find_card_transfers(provider, deck: Deck) -> list:
 
     cards = []
     card_transfers = provider.listtransactions(deck.name)
-    
+
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as th:
         for result in th.map(parse_card_transfer, [(provider, deck, i) for i in card_transfers]):
             cards.extend(result)
@@ -318,7 +318,7 @@ def card_issue(deck: Deck, card_transfer: CardTransfer, inputs: list, change_add
         {"redeem": 0, "outputScript": transactions.op_return_script(card_transfer.metainfo_to_protobuf)}
     ]
 
-    for addr in card_transfer.receivers:
+    for addr in card_transfer.receiver:
         outputs.append({"redeem": 0, "outputScript": transactions.monosig_script(addr)
                        })
 
@@ -332,7 +332,7 @@ def card_issue(deck: Deck, card_transfer: CardTransfer, inputs: list, change_add
 def card_burn(deck: Deck, card_transfer: CardTransfer, inputs: list, change_address: str) -> bytes:
     '''Create card burn transaction, cards are burned by sending the cards back to deck issuer.'''
 
-    assert deck.issuer in card_transfer.receivers, {"error": "One of the recipients must be deck issuer."}
+    assert deck.issuer in card_transfer.receiver, {"error": "One of the recipients must be deck issuer."}
 
     network_params = query(deck.network)
     pa_params = param_query(deck.network)
@@ -348,7 +348,7 @@ def card_burn(deck: Deck, card_transfer: CardTransfer, inputs: list, change_addr
         {"redeem": 0, "outputScript": transactions.op_return_script(card_transfer.metainfo_to_protobuf)}
     ]
 
-    for addr in card_transfer.receivers:
+    for addr in card_transfer.receiver:
         outputs.append({"redeem": 0, "outputScript": transactions.monosig_script(addr)
                        })
 
@@ -376,7 +376,7 @@ def card_transfer(deck: Deck, card_transfer: CardTransfer, inputs: list, change_
         {"redeem": 0, "outputScript": transactions.op_return_script(card_transfer.metainfo_to_protobuf)}
     ]
 
-    for addr in card_transfer.receivers:
+    for addr in card_transfer.receiver:
         outputs.append({"redeem": 0, "outputScript": transactions.monosig_script(addr)
                        })
 
