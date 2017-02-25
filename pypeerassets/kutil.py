@@ -12,7 +12,7 @@ from pypeerassets.transactions import var_int
 class Kutil:
     '''pubkey/privkey operations'''
 
-    def __init__(self, wif=None, privkey=None, network=None, seed=None):
+    def __init__(self, network=None, wif=None, privkey=None, seed=None):
         '''wif=<WIF> import private key from your wallet in WIF format
            privkey=<privkey> import private key in binary format
            network=<network> specify network [ppc, tppc, btc]
@@ -32,9 +32,7 @@ class Kutil:
         if privkey == wif == seed == None:
             self.keypair = PrivateKey() # new keypair
 
-        if network is None:
-            self.load_network_parameters('ppc')
-        else:
+        if network:
             self.load_network_parameters(network)
 
         self._privkey = self.keypair.private_key
