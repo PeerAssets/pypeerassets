@@ -125,7 +125,8 @@ def load_deck_p2th_into_local_node(provider, deck):
     error = {"error": "Deck P2TH import went wrong."}
 
     provider.importprivkey(deck.p2th_wif, deck.name)
-    assert deck.p2th_address in provider.getaddressesbyaccount(deck.name), error
+    check_addr = provider.validateaddress(deck.p2th_address)
+    assert check_addr["isvalid"] and check_addr["ismine"], error
 
 def validate_card_transfer_p2th(provider, txid: str, deck) -> None:
     '''validate if card_transfer transaction pays to deck p2th in vout[0]'''
