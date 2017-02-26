@@ -15,11 +15,13 @@ def load_p2th_privkeys_into_node(provider, prod=True):
 
     if prod:
         provider.importprivkey(pa_params.P2TH_wif, "PAPROD")
-        assert pa_params.P2TH_addr in provider.getaddressesbyaccount("PAPROD"), error
+        check_addr = provider.validateaddress(pa_params.P2TH_addr)        
 
     else:
         provider.importprivkey(pa_params.test_P2TH_wif, "PATEST")
-        assert pa_params.test_P2TH_wif in provider.getaddressesbyaccount("PATEST"), error
+        check_addr = provider.validateaddress(pa_params.test_P2TH_addr)
+        
+    assert check_addr["isvalid"] and check_addr["ismine"], error
 
 def find_tx_sender(provider, txid):
     '''find transaction sender, vin[0] is used in this case.'''
