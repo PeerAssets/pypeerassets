@@ -159,8 +159,10 @@ def postprocess_card(raw_card: dict, raw_tx: str, sender: str, vouts: list, deck
     _card = {}
     _card["version"] = raw_card["version"]
     _card["number_of_decimals"] = raw_card["number_of_decimals"]
-    ## check if card number of decimals matches the deck atribute
-    assert _card["number_of_decimals"] == deck.number_of_decimals, nderror
+    try: ## check if card number of decimals matches the deck atribute
+        assert _card["number_of_decimals"] == deck.number_of_decimals, nderror
+    except:
+        return
 
     _card["deck"] = deck
     _card["txid"] = raw_tx["txid"]
@@ -208,7 +210,8 @@ def find_card_transfers(provider, deck: Deck) -> list:
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as th:
         for result in th.map(parse_card_transfer, [(provider, deck, i) for i in card_transfers]):
-            cards.extend(result)
+            if result:
+                cards.extend(result)
 
     return cards
 
