@@ -15,11 +15,13 @@ def load_p2th_privkeys_into_node(provider, prod=True):
 
     if prod:
         provider.importprivkey(pa_params.P2TH_wif, "PAPROD")
-        assert pa_params.P2TH_addr in provider.getaddressesbyaccount("PAPROD"), error
+        check_addr = provider.validateaddress(pa_params.P2TH_addr)        
 
     else:
         provider.importprivkey(pa_params.test_P2TH_wif, "PATEST")
-        assert pa_params.test_P2TH_wif in provider.getaddressesbyaccount("PATEST"), error
+        check_addr = provider.validateaddress(pa_params.test_P2TH_addr)
+        
+    assert check_addr["isvalid"] and check_addr["ismine"], error
 
 def find_tx_sender(provider, txid):
     '''find transaction sender, vin[0] is used in this case.'''
@@ -125,7 +127,8 @@ def load_deck_p2th_into_local_node(provider, deck):
     error = {"error": "Deck P2TH import went wrong."}
 
     provider.importprivkey(deck.p2th_wif, deck.name)
-    assert deck.p2th_address in provider.getaddressesbyaccount(deck.name), error
+    check_addr = provider.validateaddress(deck.p2th_address)
+    assert check_addr["isvalid"] and check_addr["ismine"], error
 
 def validate_card_transfer_p2th(provider, txid: str, deck) -> None:
     '''validate if card_transfer transaction pays to deck p2th in vout[0]'''
