@@ -23,14 +23,17 @@ def find_all_valid_decks(provider, prod=True) -> list:
     def deck_parser(i):
         try:
             validate_deckspawn_p2th(provider, i, prod=prod)
-            if parse_deckspawn_metainfo(read_tx_opreturn(provider, i)):
-                d = parse_deckspawn_metainfo(read_tx_opreturn(provider, i))
+            raw_tx = provider.getrawtransaction(i, 1)
+
+            if parse_deckspawn_metainfo(read_tx_opreturn(raw_tx)):
+
+                d = parse_deckspawn_metainfo(read_tx_opreturn(raw_tx))
                 d["asset_id"] = i
                 try:
-                    d["time"] = provider.getrawtransaction(i, 1)["blocktime"]
+                    d["time"] = raw_tx["blocktime"]
                 except KeyError:
                     d["time"] = 0
-                d["issuer"] = find_tx_sender(provider, i)
+                d["issuer"] = find_tx_sender(raw_tx)
                 d["network"] = provider.network
                 d["production"] = prod
                 decks.append(Deck(**d))
