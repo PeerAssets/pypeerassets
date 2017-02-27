@@ -32,7 +32,7 @@ def find_all_valid_decks(provider, prod=True) -> list:
                     d["time"] = raw_tx["blocktime"]
                 except KeyError:
                     d["time"] = 0
-                d["issuer"] = find_tx_sender(raw_tx)
+                d["issuer"] = find_tx_sender(provider, raw_tx)
                 d["network"] = provider.network
                 d["production"] = prod
                 decks.append(Deck(**d))
