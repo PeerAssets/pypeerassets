@@ -46,16 +46,16 @@ def find_deck_spawns(provider, prod=True):
     if isinstance(provider, RpcNode):
 
         if prod:
-            decks = [i["txid"] for i in provider.listtransactions("PAPROD")]
+            decks = (i["txid"] for i in provider.listtransactions("PAPROD"))
         else:
-            decks = [i["txid"] for i in provider.listtransactions("PATEST")]
+            decks = (i["txid"] for i in provider.listtransactions("PATEST"))
 
         return decks
 
     if isinstance(provider, Mintr):
 
         if prod:
-            decks = [i["txid"] for i in provider.listtransactions(pa_params.P2TH_addr)]
+            decks = (i["txid"] for i in provider.listtransactions(pa_params.P2TH_addr))
         else:
             raise NotImplementedError
 
