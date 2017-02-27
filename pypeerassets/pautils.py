@@ -4,11 +4,12 @@
 import binascii
 from pypeerassets.provider import RpcNode, Mintr
 from .constants import param_query, params
-from pypeerassets import paproto
+from . import paproto
+from .protocol import CardTransfer
 
 __all__ = ['load_p2th_privkeys_into_local_node', 'find_tx_sender', 'find_deck_spawns', 'tx_serialization_order',
            'read_tx_opreturn', 'parse_deckspawn_metainfo', 'validate_deckspawn_p2th', 'load_deck_p2th_into_local_node',
-           'validate_card_transfer_p2th', 'parse_card_transfer_metainfo', 'validate_card_tx']
+           'validate_card_transfer_p2th', 'parse_card_transfer_metainfo', 'validate_card_tx', 'postprocess_card']
 
 
 def load_p2th_privkeys_into_local_node(provider, prod=True):
@@ -168,6 +169,42 @@ def validate_card_tx(txid: str) -> bool:
 
     except AssertionError:
         return False
+
+def postprocess_card(raw_card: dict, raw_tx: str, sender: str, vouts: list, deck: Deck) -> list:
+    '''Postprocessing of all the relevant card transfer information and creation of CardTransfer object.'''
+
+    nderror = {"error": "Number of decimals does not match."}
+
+    _card = {}
+    _card["version"] = raw_card["version"]
+    _card["number_of_decimals"] = raw_card["number_of_decimals"]
+    try: ## check if card number of decimals matches the deck atribute
+        assert _card["number_of_decimals"] == deck.number_of_decimals, nderror
+    except:
+        return
+
+    _card["deck"] = deck
+    _card["txid"] = raw_tx["txid"]
+    try:
+        _card["blockhash"] = raw_tx["blockhash"]
+    except KeyError:
+        _card["blockhash"] = 0
+    _card["timestamp"] = raw_tx["time"]
+    _card["sender"] = sender
+    _card["asset_specific_data"] = raw_card["asset_specific_data"]
+
+    if len(raw_card["amount"]) > 1: ## if card states multiple outputs:
+        cards = []
+        for am, v in zip(raw_card["amount"], vouts[2:]):
+            c = _card.copy()
+            c["amount"] = [am]
+            c["receiver"] = v["scriptPubKey"]["addresses"]
+            cards.append(CardTransfer(**c))
+        return cards
+    else:
+        _card["receiver"] = vouts[2]["scriptPubKey"]["addresses"]
+        _card["amount"] = raw_card["amount"]
+        return [CardTransfer(**_card)]
 
 def amount_to_exponent(amount: float, number_of_decimals: int) -> int:
     '''encode amount integer as exponent'''
