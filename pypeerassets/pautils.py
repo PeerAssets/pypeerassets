@@ -5,11 +5,6 @@ import binascii
 from pypeerassets.provider import RpcNode, Mintr
 from .constants import param_query, params
 from . import paproto
-from .protocol import CardTransfer
-
-__all__ = ['load_p2th_privkeys_into_local_node', 'find_tx_sender', 'find_deck_spawns', 'tx_serialization_order',
-           'read_tx_opreturn', 'parse_deckspawn_metainfo', 'validate_deckspawn_p2th', 'load_deck_p2th_into_local_node',
-           'validate_card_transfer_p2th', 'parse_card_transfer_metainfo', 'validate_card_tx', 'postprocess_card']
 
 
 def load_p2th_privkeys_into_local_node(provider, prod=True):
@@ -29,7 +24,7 @@ def load_p2th_privkeys_into_local_node(provider, prod=True):
 
     assert check_addr["isvalid"] and check_addr["ismine"], error
 
-def find_tx_sender(provider, txid):
+def find_tx_sender(provider, txid: str) -> str:
     '''find transaction sender, vin[0] is used in this case.'''
 
     vin = provider.getrawtransaction(txid, 1)["vin"][0]
@@ -123,7 +118,7 @@ def validate_deckspawn_p2th(provider, deck_id, prod=True):
         assert vout == pa_params.test_P2TH_addr, error
         return True
 
-def load_deck_p2th_into_local_node(provider, deck):
+def load_deck_p2th_into_local_node(provider, deck) -> None:
     '''
     load deck p2th into local node,
     this allows building of proof-of-timeline for this deck
@@ -136,13 +131,14 @@ def load_deck_p2th_into_local_node(provider, deck):
     check_addr = provider.validateaddress(deck.p2th_address)
     assert check_addr["isvalid"] and check_addr["ismine"], error
 
-def validate_card_transfer_p2th(provider, txid: str, deck) -> None:
+
+def validate_card_transfer_p2th(provider, deck, raw_tx: dict) -> None:
     '''validate if card_transfer transaction pays to deck p2th in vout[0]'''
 
-    raw = provider.getrawtransaction(txid, 1)
     error = {"error": "Card transfer is not properly tagged."}
 
-    assert raw["vout"][0]["scriptPubKey"].get("addresses")[0] == deck.p2th_address, error
+    assert raw_tx["vout"][0]["scriptPubKey"].get("addresses")[0] == deck.p2th_address, error
+
 
 def parse_card_transfer_metainfo(protobuf: bytes) -> dict:
     '''decode card_spawn tx op_return protobuf message and validate it.'''
@@ -159,18 +155,8 @@ def parse_card_transfer_metainfo(protobuf: bytes) -> dict:
         "asset_specific_data": card.asset_specific_data
     }
 
-def validate_card_tx(txid: str) -> bool:
 
-    try:
-        validate_card_transfer_p2th(provider, txid, deck) # validate P2TH first
-
-        if parse_card_transfer_metainfo(read_tx_opreturn(provider, txid)):
-            return True
-
-    except AssertionError:
-        return False
-
-def postprocess_card(raw_card: dict, raw_tx: str, sender: str, vouts: list, deck: Deck) -> list:
+def postprocess_card(raw_card: dict, raw_tx: str, sender: str, vouts: list, deck) -> dict:
     '''Postprocessing of all the relevant card transfer information and creation of CardTransfer object.'''
 
     nderror = {"error": "Number of decimals does not match."}
@@ -199,12 +185,12 @@ def postprocess_card(raw_card: dict, raw_tx: str, sender: str, vouts: list, deck
             c = _card.copy()
             c["amount"] = [am]
             c["receiver"] = v["scriptPubKey"]["addresses"]
-            cards.append(CardTransfer(**c))
+            cards.append(c)
         return cards
     else:
         _card["receiver"] = vouts[2]["scriptPubKey"]["addresses"]
         _card["amount"] = raw_card["amount"]
-        return [CardTransfer(**_card)]
+        return [_card]
 
 def amount_to_exponent(amount: float, number_of_decimals: int) -> int:
     '''encode amount integer as exponent'''
