@@ -79,12 +79,12 @@ def read_tx_opreturn(node, txid):
         else:
             return binascii.unhexlify(data[:n])
 
-def validate_deckspawn_metainfo(deck):
+def validate_deckspawn_metainfo(deck, issue_modes: list) -> None:
     '''validate deck_spawn'''
 
     assert deck.version > 0, {"error": "Deck metainfo incomplete, version can't be 0."}
     assert deck.name is not "", {"error": "Deck metainfo incomplete, Deck must have a name."}
-    assert deck.issue_mode in (0, 1, 2, 4), {"error": "Deck metainfo incomplete, unknown issue mode."}
+    assert deck.issue_mode in issue_modes, {"error": "Deck metainfo incomplete, unknown issue mode."}
 
 def parse_deckspawn_metainfo(protobuf: bytes):
     '''decode deck_spawn tx op_return protobuf message and validate it.'''
@@ -92,7 +92,7 @@ def parse_deckspawn_metainfo(protobuf: bytes):
     deck = paproto.DeckSpawn()
     deck.ParseFromString(protobuf)
 
-    validate_deckspawn_metainfo(deck)
+    validate_deckspawn_metainfo(deck, deck.MODE.values())
 
     return {
         "version": deck.version,
