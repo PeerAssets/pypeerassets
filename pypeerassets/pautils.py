@@ -24,7 +24,7 @@ def load_p2th_privkeys_into_local_node(provider, prod=True):
 
     assert check_addr["isvalid"] and check_addr["ismine"], error
 
-def find_tx_sender(provider, raw_tx: dict) -> str:
+def find_tx_sender(raw_tx: dict) -> str:
     '''find transaction sender, vin[0] is used in this case.'''
 
     vin = raw_tx["vin"][0]
