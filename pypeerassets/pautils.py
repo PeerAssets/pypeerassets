@@ -60,10 +60,10 @@ def tx_serialization_order(provider, blockid: str, txid: str) -> int:
 
     return provider.getblock(blockid)["tx"].index(txid)
 
-def read_tx_opreturn(node, txid):
-    '''Decode OP_RETURN message from <txid>'''
+def read_tx_opreturn(raw_tx: dict) -> bytes:
+    '''Decode OP_RETURN message from raw_tx'''
 
-    vout = node.getrawtransaction(txid, 1)['vout'][1] # protocol requires that OP_RETURN is vout[1]
+    vout = raw_tx['vout'][1]  # PA protocol requires that OP_RETURN is vout[1]
 
     asm = vout['scriptPubKey']['asm']
     n = asm.find('OP_RETURN')
