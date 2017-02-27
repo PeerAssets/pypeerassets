@@ -6,7 +6,7 @@ from pypeerassets.provider import RpcNode, Mintr
 from .constants import param_query, params
 from pypeerassets import paproto
 
-def load_p2th_privkeys_into_node(provider, prod=True):
+def load_p2th_privkeys_into_local_node(provider, prod=True):
     '''load production p2th privkey into local node'''
 
     assert isinstance(provider, RpcNode), {"error": "You can load privkeys only into local node."}
