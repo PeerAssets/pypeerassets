@@ -45,6 +45,7 @@ def find_all_valid_decks(provider, prod=True) -> list:
 
     return decks
 
+
 def find_deck(provider, key: str, prod=True) -> list:
     '''
     Find specific deck by key, with key being:
@@ -81,6 +82,7 @@ def deck_spawn(deck: Deck, inputs: list, change_address: str) -> bytes:
 
     return transactions.make_raw_transaction(deck.network, inputs['utxos'], outputs)
 
+
 def deck_transfer(deck: Deck, inputs: list, change_address: str) -> bytes:
     '''
     The deck transfer transaction is a special case of the deck spawn transaction.
@@ -89,56 +91,6 @@ def deck_transfer(deck: Deck, inputs: list, change_address: str) -> bytes:
     '''
     raise NotImplementedError
 
-def postprocess_card(raw_card: dict, raw_tx: str, sender: str, vouts: list, deck: Deck) -> list:
-    '''Postprocessing of all the relevant card transfer information and creation of CardTransfer object.'''
-
-    nderror = {"error": "Number of decimals does not match."}
-
-    _card = {}
-    _card["version"] = raw_card["version"]
-    _card["number_of_decimals"] = raw_card["number_of_decimals"]
-    try: ## check if card number of decimals matches the deck atribute
-        assert _card["number_of_decimals"] == deck.number_of_decimals, nderror
-    except:
-        return
-
-    _card["deck"] = deck
-    _card["txid"] = raw_tx["txid"]
-    try:
-        _card["blockhash"] = raw_tx["blockhash"]
-    except KeyError:
-        _card["blockhash"] = 0
-    _card["timestamp"] = raw_tx["time"]
-    _card["sender"] = sender
-    _card["asset_specific_data"] = raw_card["asset_specific_data"]
-
-    if len(raw_card["amount"]) > 1: ## if card states multiple outputs:
-        cards = []
-        for am, v in zip(raw_card["amount"], vouts[2:]):
-            c = _card.copy()
-            c["amount"] = [am]
-            c["receiver"] = v["scriptPubKey"]["addresses"]
-            cards.append(CardTransfer(**c))
-        return cards
-    else:
-        _card["receiver"] = vouts[2]["scriptPubKey"]["addresses"]
-        _card["amount"] = raw_card["amount"]
-        return [CardTransfer(**_card)]
-
-def parse_card_transfer(args):
-    '''this function wraps all the card transfer parsing'''
-
-    provider = args[0]
-    deck = args[1]
-    raw_tx = args[2]
-
-    if validate_card_tx:
-        metainfo = parse_card_transfer_metainfo(read_tx_opreturn(provider, raw_tx["txid"]))
-        vouts = provider.getrawtransaction(raw_tx["txid"], 1)["vout"]
-        sender = find_tx_sender(provider, raw_tx["txid"])
-        card = postprocess_card(metainfo, raw_tx, sender, vouts, deck)
-
-    return card
 
 def find_card_transfers(provider, deck: Deck) -> list:
     '''find all <deck> card transfers'''
@@ -146,12 +98,28 @@ def find_card_transfers(provider, deck: Deck) -> list:
     cards = []
     card_transfers = provider.listtransactions(deck.name)
 
+    def card_parser(args) -> list:
+        '''this function wraps all the card transfer parsing'''
+
+        provider = args[0]
+        deck = args[1]
+        raw_tx = args[2]
+
+        if validate_card_tx:
+            metainfo = parse_card_transfer_metainfo(read_tx_opreturn(provider, raw_tx["txid"]))
+            vouts = provider.getrawtransaction(raw_tx["txid"], 1)["vout"]
+            sender = find_tx_sender(provider, raw_tx["txid"])
+            card = postprocess_card(metainfo, raw_tx, sender, vouts, deck)
+
+        return card
+
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as th:
-        for result in th.map(parse_card_transfer, [(provider, deck, i) for i in card_transfers]):
+        for result in th.map(card_parser, [(provider, deck, i) for i in card_transfers]):
             if result:
                 cards.extend(result)
 
     return cards
+
 
 def card_issue(deck: Deck, card_transfer: CardTransfer, inputs: list, change_address: str) -> bytes:
     '''Create card issue transaction.
@@ -188,6 +156,7 @@ def card_issue(deck: Deck, card_transfer: CardTransfer, inputs: list, change_add
 
     return transactions.make_raw_transaction(deck.network, inputs['utxos'], outputs)
 
+
 def card_burn(deck: Deck, card_transfer: CardTransfer, inputs: list, change_address: str) -> bytes:
     '''Create card burn transaction, cards are burned by sending the cards back to deck issuer.'''
 
@@ -217,6 +186,7 @@ def card_burn(deck: Deck, card_transfer: CardTransfer, inputs: list, change_addr
         })
 
     return transactions.make_raw_transaction(deck.network, inputs['utxos'], outputs)
+
 
 def card_transfer(deck: Deck, card_transfer: CardTransfer, inputs: list, change_address: str) -> bytes:
     '''Standard peer-to-peer card transfer.'''
