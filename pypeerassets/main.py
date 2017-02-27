@@ -9,17 +9,18 @@ from . import transactions
 from .constants import param_query, params
 from .networks import query, networks
 
+
 def find_all_valid_decks(provider, prod=True) -> list:
     '''
     Scan the blockchain for PeerAssets decks, returns list of deck objects.
-    :node - provider instance
+    :provider - provider instance
     :test True/False - test or production P2TH
     '''
 
     decks = []
-    deck_spawns = find_deck_spawns(provider) # find all deck_spawns on PAProd P2TH
+    deck_spawns = find_deck_spawns(provider)
 
-    for i in deck_spawns:
+    def deck_parser(i):
         try:
             validate_deckspawn_p2th(provider, i, prod=prod)
             if parse_deckspawn_metainfo(read_tx_opreturn(provider, i)):
@@ -36,6 +37,11 @@ def find_all_valid_decks(provider, prod=True) -> list:
 
         except AssertionError:
             pass
+
+    with concurrent.futures.ThreadPoolExecutor() as th:
+        for result in th.map(deck_parser, deck_spawns):
+            if result:
+                decks.append(result)
 
     return decks
 
