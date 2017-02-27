@@ -1,7 +1,5 @@
 """all things PeerAssets protocol."""
 
-__all__ = ['Deck', 'CardTransfer']
-
 import warnings
 from .kutil import Kutil
 from . import paproto
