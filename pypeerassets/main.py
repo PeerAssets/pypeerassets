@@ -18,17 +18,16 @@ def find_all_valid_decks(provider, prod=True) -> list:
     '''
 
     decks = []
-    deck_spawns = find_deck_spawns(provider)
+    deck_spawns = (provider.getrawtransaction(i, 1) for i in find_deck_spawns(provider))
 
-    def deck_parser(i):
+    def deck_parser(raw_tx):
         try:
-            validate_deckspawn_p2th(provider, i, prod=prod)
-            raw_tx = provider.getrawtransaction(i, 1)
+            validate_deckspawn_p2th(provider, raw_tx["txid"], prod=prod)
 
             if parse_deckspawn_metainfo(read_tx_opreturn(raw_tx)):
 
                 d = parse_deckspawn_metainfo(read_tx_opreturn(raw_tx))
-                d["asset_id"] = i
+                d["asset_id"] = raw_tx["txid"]
                 try:
                     d["time"] = raw_tx["blocktime"]
                 except KeyError:
