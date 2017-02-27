@@ -98,22 +98,21 @@ def find_card_transfers(provider, deck: Deck) -> list:
     '''find all <deck> card transfers'''
 
     cards = []
-    card_transfers = provider.listtransactions(deck.name)
+    card_transfers = (provider.getrawtransaction(i, 1) for i in provider.listtransactions(deck.name))
 
     def card_parser(args) -> list:
         '''this function wraps all the card transfer parsing'''
 
         provider = args[0]
         deck = args[1]
-        tx = args[2]
-        raw_tx = provider.getrawtransaction(tx["txid"], 1)
+        rawtx = args[2]
 
         try:
             validate_card_transfer_p2th(provider, deck, raw_tx)  # validate P2TH first
-            card_metainfo = parse_card_transfer_metainfo(read_tx_opreturn(provider, raw_tx["txid"]))
+            card_metainfo = parse_card_transfer_metainfo(read_tx_opreturn(raw_tx))
             vouts = raw_tx["vout"]
-            sender = find_tx_sender(provider, tx["txid"])
-            cards = postprocess_card(card_metainfo, tx, sender, vouts, deck)
+            sender = find_tx_sender(raw_tx["txid"])
+            cards = postprocess_card(card_metainfo, raw_tx, sender, vouts, deck)
 
         except AssertionError:
             return False
