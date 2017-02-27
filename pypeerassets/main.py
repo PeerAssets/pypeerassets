@@ -103,20 +103,25 @@ def find_card_transfers(provider, deck: Deck) -> list:
 
         provider = args[0]
         deck = args[1]
-        raw_tx = args[2]
+        tx = args[2]
+        raw_tx = provider.getrawtransaction(tx["txid"], 1)
 
-        if validate_card_tx:
-            metainfo = parse_card_transfer_metainfo(read_tx_opreturn(provider, raw_tx["txid"]))
-            vouts = provider.getrawtransaction(raw_tx["txid"], 1)["vout"]
-            sender = find_tx_sender(provider, raw_tx["txid"])
-            card = postprocess_card(metainfo, raw_tx, sender, vouts, deck)
+        try:
+            validate_card_transfer_p2th(provider, deck, raw_tx)  # validate P2TH first
+            card_metainfo = parse_card_transfer_metainfo(read_tx_opreturn(provider, raw_tx["txid"]))
+            vouts = raw_tx["vout"]
+            sender = find_tx_sender(provider, tx["txid"])
+            cards = postprocess_card(card_metainfo, tx, sender, vouts, deck)
 
-        return card
+        except AssertionError:
+            return False
+
+        return cards
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as th:
-        for result in th.map(card_parser, [(provider, deck, i) for i in card_transfers]):
+        for result in th.map(card_parser, ((provider, deck, i) for i in card_transfers)):
             if result:
-                cards.extend(result)
+                cards.extend([CardTransfer(**i) for i in result])
 
     return cards
 
