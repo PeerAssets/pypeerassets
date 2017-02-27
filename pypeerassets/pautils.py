@@ -24,13 +24,13 @@ def load_p2th_privkeys_into_local_node(provider, prod=True):
 
     assert check_addr["isvalid"] and check_addr["ismine"], error
 
-def find_tx_sender(provider, txid: str) -> str:
+def find_tx_sender(provider, raw_tx: dict) -> str:
     '''find transaction sender, vin[0] is used in this case.'''
 
-    vin = provider.getrawtransaction(txid, 1)["vin"][0]
+    vin = raw_tx["vin"][0]
     txid = vin["txid"]
     index = vin["vout"]
-    return provider.getrawtransaction(txid, 1)["vout"][index]["scriptPubKey"]["addresses"][0]
+    return raw_tx["vout"][index]["scriptPubKey"]["addresses"][0]
 
 def find_deck_spawns(provider, prod=True):
     '''find deck spawn transactions via provider,
