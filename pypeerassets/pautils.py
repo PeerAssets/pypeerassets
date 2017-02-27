@@ -15,12 +15,12 @@ def load_p2th_privkeys_into_node(provider, prod=True):
 
     if prod:
         provider.importprivkey(pa_params.P2TH_wif, "PAPROD")
-        check_addr = provider.validateaddress(pa_params.P2TH_addr)        
+        check_addr = provider.validateaddress(pa_params.P2TH_addr)
 
     else:
         provider.importprivkey(pa_params.test_P2TH_wif, "PATEST")
         check_addr = provider.validateaddress(pa_params.test_P2TH_addr)
-        
+
     assert check_addr["isvalid"] and check_addr["ismine"], error
 
 def find_tx_sender(provider, txid):
