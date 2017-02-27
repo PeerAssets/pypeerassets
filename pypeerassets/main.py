@@ -105,7 +105,7 @@ def find_card_transfers(provider, deck: Deck) -> list:
 
         provider = args[0]
         deck = args[1]
-        rawtx = args[2]
+        raw_tx = args[2]
 
         try:
             validate_card_transfer_p2th(provider, deck, raw_tx)  # validate P2TH first
