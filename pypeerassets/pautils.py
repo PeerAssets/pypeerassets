@@ -87,7 +87,8 @@ def validate_deckspawn_metainfo(deck, issue_modes: list) -> None:
     assert deck.name is not "", {"error": "Deck metainfo incomplete, Deck must have a name."}
     assert deck.issue_mode in issue_modes, {"error": "Deck metainfo incomplete, unknown issue mode."}
 
-def parse_deckspawn_metainfo(protobuf: bytes):
+
+def parse_deckspawn_metainfo(protobuf: bytes) -> dict:
     '''decode deck_spawn tx op_return protobuf message and validate it.'''
 
     deck = paproto.DeckSpawn()
@@ -102,6 +103,7 @@ def parse_deckspawn_metainfo(protobuf: bytes):
         "number_of_decimals": deck.number_of_decimals,
         "asset_specific_data": deck.asset_specific_data
     }
+
 
 def validate_deckspawn_p2th(provider, deck_id, prod=True):
     '''validate if deck spawn pays to p2th in vout[0] and if it correct P2TH address'''
