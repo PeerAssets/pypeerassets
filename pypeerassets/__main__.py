@@ -40,7 +40,7 @@ def find_all_valid_decks(provider, prod=True) -> list:
         except AssertionError:
             pass
 
-    with concurrent.futures.ThreadPoolExecutor() as th:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as th:
         for result in th.map(deck_parser, deck_spawns):
             if result:
                 decks.append(result)
