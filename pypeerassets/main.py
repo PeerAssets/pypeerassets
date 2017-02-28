@@ -111,7 +111,7 @@ def find_card_transfers(provider, deck: Deck) -> list:
             validate_card_transfer_p2th(deck, raw_tx)  # validate P2TH first
             card_metainfo = parse_card_transfer_metainfo(read_tx_opreturn(raw_tx))
             vouts = raw_tx["vout"]
-            sender = find_tx_sender(raw_tx["txid"])
+            sender = find_tx_sender(provider, raw_tx)
             cards = postprocess_card(card_metainfo, raw_tx, sender, vouts, deck)
 
         except AssertionError:
