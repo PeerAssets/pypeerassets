@@ -1,3 +1,3 @@
 from pypeerassets.kutil import Kutil
 from pypeerassets.provider import *
-from pypeerassets.main import *
+from pypeerassets.__main__ import *
