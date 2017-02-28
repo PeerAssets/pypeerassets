@@ -94,11 +94,13 @@ def deck_transfer(deck: Deck, inputs: list, change_address: str) -> bytes:
     raise NotImplementedError
 
 
-def find_card_transfers(provider, deck: Deck) -> list:
-    '''find all <deck> card transfers'''
+def find_card_transfers(provider, deck: Deck, since=0) -> list:
+    '''find all <deck> card transfers
+    :since - index of transactions list of this deck,
+    useful when you already have 200 transactions parsed and need only 200+'''
 
     cards = []
-    card_transfers = (provider.getrawtransaction(i["txid"], 1) for i in provider.listtransactions(deck.name))
+    card_transfers = (provider.getrawtransaction(i["txid"], 1) for i in provider.listtransactions(deck.name, 10000, since))
 
     def card_parser(args) -> list:
         '''this function wraps all the card transfer parsing'''
