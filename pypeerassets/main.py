@@ -98,7 +98,7 @@ def find_card_transfers(provider, deck: Deck) -> list:
     '''find all <deck> card transfers'''
 
     cards = []
-    card_transfers = (provider.getrawtransaction(i, 1) for i in provider.listtransactions(deck.name))
+    card_transfers = (provider.getrawtransaction(i["txid"], 1) for i in provider.listtransactions(deck.name))
 
     def card_parser(args) -> list:
         '''this function wraps all the card transfer parsing'''
