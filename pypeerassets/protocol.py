@@ -102,7 +102,6 @@ class CardTransfer:
         self.sender = sender
         self.timestamp = timestamp
         self.asset_specific_data = asset_specific_data
-        self.p2th_address = deck.p2th_address
         if not number_of_decimals:
             self.number_of_decimals = deck.number_of_decimals
         else:
