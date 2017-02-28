@@ -132,7 +132,7 @@ def load_deck_p2th_into_local_node(provider, deck) -> None:
     assert check_addr["isvalid"] and check_addr["ismine"], error
 
 
-def validate_card_transfer_p2th(provider, deck, raw_tx: dict) -> None:
+def validate_card_transfer_p2th(deck, raw_tx: dict) -> None:
     '''validate if card_transfer transaction pays to deck p2th in vout[0]'''
 
     error = {"error": "Card transfer is not properly tagged."}
