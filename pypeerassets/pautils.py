@@ -80,12 +80,12 @@ def read_tx_opreturn(raw_tx: dict) -> bytes:
         else:
             return binascii.unhexlify(data[:n])
 
+
 def validate_deckspawn_metainfo(deck, issue_modes: list) -> None:
     '''validate deck_spawn'''
 
     assert deck.version > 0, {"error": "Deck metainfo incomplete, version can't be 0."}
     assert deck.name is not "", {"error": "Deck metainfo incomplete, Deck must have a name."}
-    assert deck.issue_mode in issue_modes, {"error": "Deck metainfo incomplete, unknown issue mode."}
 
 
 def parse_deckspawn_metainfo(protobuf: bytes) -> dict:
