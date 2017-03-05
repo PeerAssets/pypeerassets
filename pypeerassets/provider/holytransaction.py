@@ -9,21 +9,26 @@ class Holy:
     '''
 
     @classmethod
-    def __init__(cls, network="peercoin"):
+    def __init__(cls, network: str):
         """
-        : network = peercoin, bitcoin ...
+        : network = peercoin, peercoin-testnet ...
         """
 
         cls.network = network
         cls.api = "https://{network}.holytransaction.com/api/".format(network=cls.network)
         cls.ext_api = "https://{network}.holytransaction.com/ext/".format(network=cls.network)
-        cls.api_methods = ("getdifficulty", "getrawtransaction","getblockcount", "getblockhash", "getblock")
+        cls.api_methods = ("getdifficulty", "getrawtransaction",
+                           "getblockcount", "getblockhash", "getblock")
         cls.ext_api_methods = ("getaddress", "getbalance")
 
     @property
     def is_testnet(self):
         '''testnet or not?'''
-        return False
+
+        if self.network == "peercoin":
+            return True
+        if self.network == "peercoin-testnet":
+            return False
 
     @property
     def network(self):
@@ -31,6 +36,9 @@ class Holy:
 
         if self.network == "peercoin":
             return "ppc"
+        if self.network == "peercoin-testnet":
+            return "tppc"
+
 
     @classmethod
     def req(cls, query: str, params: dict):
