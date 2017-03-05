@@ -14,9 +14,9 @@ class Holy:
         : network = peercoin, peercoin-testnet ...
         """
 
-        cls.network = network
-        cls.api = "https://{network}.holytransaction.com/api/".format(network=cls.network)
-        cls.ext_api = "https://{network}.holytransaction.com/ext/".format(network=cls.network)
+        cls.net = network
+        cls.api = "https://{network}.holytransaction.com/api/".format(network=cls.net)
+        cls.ext_api = "https://{network}.holytransaction.com/ext/".format(network=cls.net)
         cls.api_methods = ("getdifficulty", "getrawtransaction",
                            "getblockcount", "getblockhash", "getblock")
         cls.ext_api_methods = ("getaddress", "getbalance")
@@ -25,18 +25,18 @@ class Holy:
     def is_testnet(self):
         '''testnet or not?'''
 
-        if self.network == "peercoin":
+        if self.net == "peercoin":
             return True
-        if self.network == "peercoin-testnet":
+        if self.net == "peercoin-testnet":
             return False
 
     @property
     def network(self):
         '''which network is this running on?'''
 
-        if self.network == "peercoin":
+        if self.net == "peercoin":
             return "ppc"
-        if self.network == "peercoin-testnet":
+        if self.net == "peercoin-testnet":
             return "tppc"
 
 
@@ -83,4 +83,11 @@ class Holy:
     def getbalance(cls, address: str) -> float:
         """Returns current balance of given address."""
         return cls.req("getbalance", {"getbalance": address}).content.decode()
+
+    @classmethod
+    def listtransactions(cls, address: str) -> list:
+        """list transactions of this <address>"""
+
+        r = cls.getaddress(address)
+        return [i["addresses"] for i in r["last_txs"] if i["type"] == "vin"]
 
