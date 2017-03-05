@@ -20,6 +20,7 @@ class Holy:
         cls.api_methods = ("getdifficulty", "getrawtransaction",
                            "getblockcount", "getblockhash", "getblock")
         cls.ext_api_methods = ("getaddress", "getbalance")
+        cls.api_session = requests.Session()
 
     @property
     def is_testnet(self):
@@ -44,10 +45,10 @@ class Holy:
     def req(cls, query: str, params: dict):
 
         if query in cls.api_methods:
-            response = requests.get(cls.api + query, params=params)
+            response = cls.api_session.get(cls.api + query, params=params)
         if query in cls.ext_api_methods:
             query = query.join([k+"/"+v+"/" for k,v in params.items()])
-            response = requests.get(cls.ext_api + query)
+            response = cls.api_session.get(cls.ext_api + query)
 
         return response
 
