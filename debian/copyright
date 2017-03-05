@@ -1,0 +1,7 @@
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: pypeerassets
+Upstream-Contact: Peerchemist, <peerchemist@protonmail.ch>
+
+Files: *
+Copyright: 2017, PeerAssets developers
+License: BSD-3-Clause
