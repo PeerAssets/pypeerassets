@@ -2,7 +2,7 @@
 '''miscellaneous utilities.'''
 
 import binascii
-from pypeerassets.provider import RpcNode, Mintr
+from pypeerassets.provider import *
 from .constants import param_query, params
 from . import paproto
 
@@ -46,14 +46,21 @@ def find_deck_spawns(provider, prod=True):
         else:
             decks = (i["txid"] for i in provider.listtransactions("PATEST"))
 
-        return decks
-
     if isinstance(provider, Mintr):
 
         if prod:
             decks = (i["txid"] for i in provider.listtransactions(pa_params.P2TH_addr))
         else:
             raise NotImplementedError
+
+    if isinstance(provider, Holy):
+
+        if prod:
+            decks = (i for i in provider.listtransactions(pa_params.P2TH_addr))
+        else:
+            decks = (i for i in provider.listtransactions(pa_params.test_P2TH_addr))
+
+    return decks
 
 def tx_serialization_order(provider, blockid: str, txid: str) -> int:
     '''find index of this tx in the blockid'''
