@@ -95,6 +95,14 @@ def validate_deckspawn_metainfo(deck) -> None:
     assert deck.name is not "", {"error": "Deck metainfo incomplete, Deck must have a name."}
 
 
+def deck_issue_mode(deck):
+    '''interpret issue mode bitfeg'''
+
+    for mode in deck.MODE.keys():
+        if deck.issue_mode & deck.MODE.Value(mode):
+            yield mode
+
+
 def parse_deckspawn_metainfo(protobuf: bytes) -> dict:
     '''decode deck_spawn tx op_return protobuf message and validate it.'''
 
@@ -106,7 +114,7 @@ def parse_deckspawn_metainfo(protobuf: bytes) -> dict:
     return {
         "version": deck.version,
         "name": deck.name,
-        "issue_mode": deck.MODE.Name(deck.issue_mode),
+        "issue_mode": list(deck_issue_mode(deck)),
         "number_of_decimals": deck.number_of_decimals,
         "asset_specific_data": deck.asset_specific_data
     }
