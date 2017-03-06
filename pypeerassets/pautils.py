@@ -88,7 +88,7 @@ def read_tx_opreturn(raw_tx: dict) -> bytes:
             return binascii.unhexlify(data[:n])
 
 
-def validate_deckspawn_metainfo(deck, issue_modes: list) -> None:
+def validate_deckspawn_metainfo(deck) -> None:
     '''validate deck_spawn'''
 
     assert deck.version > 0, {"error": "Deck metainfo incomplete, version can't be 0."}
@@ -101,7 +101,7 @@ def parse_deckspawn_metainfo(protobuf: bytes) -> dict:
     deck = paproto.DeckSpawn()
     deck.ParseFromString(protobuf)
 
-    validate_deckspawn_metainfo(deck, deck.MODE.values())
+    validate_deckspawn_metainfo(deck)
 
     return {
         "version": deck.version,
