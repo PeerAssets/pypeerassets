@@ -3,7 +3,7 @@
 import warnings
 from .kutil import Kutil
 from . import paproto
-from .pautils import amount_to_exponent, exponent_to_amount
+from .pautils import amount_to_exponent, exponent_to_amount, issue_mode_to_enum
 
 class Deck:
 
@@ -49,7 +49,7 @@ class Deck:
         deck.version = self.version
         deck.name = self.name
         deck.number_of_decimals = self.number_of_decimals
-        deck.issue_mode = deck.MODE.Value(self.issue_mode)
+        deck.issue_mode = issue_mode_to_enum(deck, self.issue_mode)
         if not isinstance(self.asset_specific_data, bytes):
             deck.asset_specific_data = self.asset_specific_data.encode()
         else:

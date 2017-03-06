@@ -103,6 +103,20 @@ def deck_issue_mode(deck):
             yield mode
 
 
+def issue_mode_to_enum(deck, issue_mode) -> int:
+    '''encode issue mode(s) as bitfeg'''
+
+    # case where there are multiple issue modes specified
+    if isinstance(issue_mode, tuple) and len(issue_mode) > 1:
+        r = 0
+        for mode in issue_mode:
+            r += deck.MODE.Value(mode)
+        return r
+
+    if isinstance(issue_mode, str):  # if single issue mode
+        return deck.MODE.Value(issue_mode)
+
+
 def parse_deckspawn_metainfo(protobuf: bytes) -> dict:
     '''decode deck_spawn tx op_return protobuf message and validate it.'''
 
