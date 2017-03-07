@@ -192,7 +192,7 @@ def parse_card_transfer_metainfo(protobuf: bytes) -> dict:
     }
 
 
-def postprocess_card(raw_card: dict, raw_tx: str, sender: str, vouts: list, deck) -> dict:
+def postprocess_card(raw_card: dict, raw_tx: str, sender: str, vouts: list, blockseq: int, deck) -> dict:
     '''Postprocessing of all the relevant card transfer information and creation of CardTransfer object.'''
 
     nderror = {"error": "Number of decimals does not match."}
@@ -211,6 +211,8 @@ def postprocess_card(raw_card: dict, raw_tx: str, sender: str, vouts: list, deck
         _card["blockhash"] = raw_tx["blockhash"]
     except KeyError:
         _card["blockhash"] = 0
+    if blockseq:
+        _card["blockseq"] = blockseq
     _card["timestamp"] = raw_tx["time"]
     _card["sender"] = sender
     _card["asset_specific_data"] = raw_card["asset_specific_data"]
