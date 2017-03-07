@@ -110,14 +110,7 @@ class CardTransfer:
 
         self.receiver = receiver
         assert len(self.receiver) < 20, {"error": "Too many receivers."}
-        self.amount = []
-
-        for i in amount:
-            if not isinstance(i, float): # if not float, than it needs to be converted to float
-                self.amount.append(exponent_to_amount(i, self.number_of_decimals))
-            else:
-                assert str(i)[::-1].find('.') <= self.number_of_decimals, {"error": "Too many decimals."}
-                self.amount.append(i)
+        self.amount = amount
 
         if blockhash:
             self.blockhash = blockhash
