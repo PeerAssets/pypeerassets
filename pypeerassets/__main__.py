@@ -115,7 +115,10 @@ def find_card_transfers(provider, deck: Deck, since=0) -> list:
             card_metainfo = parse_card_transfer_metainfo(read_tx_opreturn(raw_tx))
             vouts = raw_tx["vout"]
             sender = find_tx_sender(provider, raw_tx)
-            blockseq = tx_serialization_order(provider, raw_tx["blockhash"], raw_tx["txid"])
+            try:  # try to get block seq number
+                blockseq = tx_serialization_order(provider, raw_tx["blockhash"], raw_tx["txid"])
+            except:
+                blockseq = None
             cards = postprocess_card(card_metainfo, raw_tx, sender, vouts, blockseq, deck)
 
         except AssertionError:
