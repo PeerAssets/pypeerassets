@@ -2,6 +2,7 @@
 '''Communicate with local or remote peercoin-daemon via JSON-RPC'''
 
 from operator import itemgetter
+from pypeerassets.constants import param_query, params
 
 try:
     from peercoin_rpc import Client
@@ -12,26 +13,33 @@ except:
 class RpcNode(Client):
     '''JSON-RPC connection to local Peercoin node'''
 
+    @property
+    def network_p2th(self):
+        return param_query(self.network)
+
     def select_inputs(self, total_amount, address=None):
         '''finds apropriate utxo's to include in rawtx, while being careful
         to never spend old transactions with a lot of coin age.
         Argument is intiger, returns list of apropriate UTXO's'''
 
         utxo = []
-        utxo_sum = float(-0.01) ## starts from negative due to minimal fee
+        utxo_sum = float(-0.01)  # starts from negative due to minimal fee
         for tx in sorted(self.listunspent(address=address), key=itemgetter('confirmations')):
 
-            utxo.append({
-                "txid": tx["txid"],
-                "vout": tx["vout"],
-                "scriptSig": "",
-                "amount": tx["amount"],
-                "address": tx["address"]
-            })
+            if tx["address"] not in (self.network_p2th.P2TH_addr,
+                                     self.network_p2th.test_P2TH_addr):
 
-            utxo_sum += float(tx["amount"])
-            if utxo_sum >= total_amount:
-                return {'utxos':utxo, 'total':utxo_sum}
+                utxo.append({
+                    "txid": tx["txid"],
+                    "vout": tx["vout"],
+                    "scriptSig": "",
+                    "amount": tx["amount"],
+                    "address": tx["address"]
+                })
+
+                utxo_sum += float(tx["amount"])
+                if utxo_sum >= total_amount:
+                    return {'utxos': utxo, 'total': utxo_sum}
 
         if utxo_sum < total_amount:
             raise ValueError("Insufficient funds.")
