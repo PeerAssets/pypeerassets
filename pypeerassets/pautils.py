@@ -95,6 +95,11 @@ def validate_deckspawn_metainfo(deck) -> None:
     assert deck.name is not "", {"error": "Deck metainfo incomplete, Deck must have a name."}
 
 
+def deck_issue_mode_logic_check(issue_mode):
+    '''verify do combined issue modes pass simple logic tests'''
+    raise NotImplementedError
+
+
 def deck_issue_mode(deck):
     '''interpret issue mode bitfeg'''
 
