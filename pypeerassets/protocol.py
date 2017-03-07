@@ -3,7 +3,7 @@
 import warnings
 from .kutil import Kutil
 from . import paproto
-from .pautils import amount_to_exponent, exponent_to_amount, issue_mode_to_enum
+from .pautils import amount_to_exponent, issue_mode_to_enum
 from operator import itemgetter
 
 class Deck:
@@ -186,7 +186,6 @@ class DeckState:
 
         sender = card["sender"]
         receivers = card["receiver"]
-        amount = amount_to_exponent(sum(card["amount"]), self.decimals)
 
         if 'CardIssue' not in ctype:
             balance_check = sender in self.balances and self.balances[sender] >= amount
@@ -209,7 +208,6 @@ class DeckState:
 
     def to_receivers(self, card, receivers):
         for i, receiver in enumerate(receivers):
-            amount = amount_to_exponent(card["amount"][i], self.decimals)
             try:
                 self.balances[receiver] += amount
             except KeyError:
@@ -226,7 +224,6 @@ class DeckState:
 
             txid = card["txid"]
             ctype = card["type"]
-            amount = amount_to_exponent(sum(card["amount"]),self.decimals)
             if ctype == 'CardIssue' and txid not in self.processed_issues:
                 validate = self.process(card, ctype)
                 self.total += amount * validate # This will set amount to 0 if validate is False
