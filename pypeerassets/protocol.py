@@ -132,9 +132,7 @@ class CardTransfer:
 
         card = paproto.CardTransfer()
         card.version = self.version
-        card.amount.extend(
-            [amount_to_exponent(i, self.number_of_decimals) for i in self.amount]
-            )
+        card.amount.extend(self.amount)
         card.number_of_decimals = self.number_of_decimals
         if not isinstance(self.asset_specific_data, bytes):
             card.asset_specific_data = self.asset_specific_data.encode()
