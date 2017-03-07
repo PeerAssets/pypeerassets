@@ -117,7 +117,7 @@ def find_card_transfers(provider, deck: Deck, since=0) -> list:
             sender = find_tx_sender(provider, raw_tx)
             try:  # try to get block seq number
                 blockseq = tx_serialization_order(provider, raw_tx["blockhash"], raw_tx["txid"])
-            except:
+            except KeyError:
                 blockseq = None
             cards = postprocess_card(card_metainfo, raw_tx, sender, vouts, blockseq, deck)
 
