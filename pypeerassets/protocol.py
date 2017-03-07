@@ -187,6 +187,7 @@ class DeckState:
         self.processed_burns = {}
 
         self.calc_state()
+        self.checksum = not bool(self.total - sum(self.balances.values()))
 
     def process(self, card, ctype):
 
