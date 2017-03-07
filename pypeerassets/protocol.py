@@ -173,9 +173,10 @@ def validate_card_issue_modes(deck: Deck, cards: list) -> list:
     if deck.issue_mode == "CUSTOM":  # custom issuance mode
         return cards # what to do with this?
 
+
 class DeckState:
 
-    def __init__(self,cards: list):
+    def __init__(self, cards: list):
         self.sort_cards(cards)
         self.decimals = self.cards[0]["number_of_decimals"]
         self.total = 0
@@ -186,35 +187,35 @@ class DeckState:
         self.processed_burns = {}
 
         self.calc_state()
-        
+
     def process(self, card, ctype):
 
         sender = card["sender"]
         receivers = card["receiver"]
-        amount = amount_to_exponent(sum(card["amount"]),self.decimals)
-        
+        amount = amount_to_exponent(sum(card["amount"]), self.decimals)
+
         if 'CardIssue' not in ctype:
             balance_check = sender in self.balances and self.balances[sender] >= amount
-            
+
             if balance_check:
                 self.balances[sender] -= amount
-                
+
                 if 'CardBurn' not in ctype:
                     self.to_receivers(card, receivers)
-                    
+
                 return True
-            
+
             return False
-        
+
         if 'CardIssue' in ctype:
             self.to_receivers(card, receivers)
             return True
-        
+
         return False
-    
-    def to_receivers(self,card, receivers):
-        for i,receiver in enumerate(receivers):
-            amount = amount_to_exponent(card["amount"][i],self.decimals)
+
+    def to_receivers(self, card, receivers):
+        for i, receiver in enumerate(receivers):
+            amount = amount_to_exponent(card["amount"][i], self.decimals)
             try:
                 self.balances[receiver] += amount
             except KeyError:
@@ -222,8 +223,8 @@ class DeckState:
 
 
     def sort_cards(self, cards ):
-        self.cards = sorted([card.__dict__ for card in cards],key=itemgetter('timestamp')) # Will need to change this to Blocknumber
-        self.cards = sorted([card.__dict__ for card in cards],key=itemgetter('blockseq'))
+        self.cards = sorted([card.__dict__ for card in cards], key=itemgetter('timestamp')) # Will need to change this to Blocknumber
+        self.cards = sorted([card.__dict__ for card in cards], key=itemgetter('blockseq'))
 
     def calc_state(self):
 
@@ -234,7 +235,7 @@ class DeckState:
             amount = amount_to_exponent(sum(card["amount"]),self.decimals)
             if ctype == 'CardIssue' and txid not in self.processed_issues:
                 validate = self.process(card, ctype)
-                self.total +=  amount * validate # This will set amount to 0 if validate is False
+                self.total += amount * validate # This will set amount to 0 if validate is False
                 self.processed_issues[txid] = card["timestamp"]
 
             if ctype == 'CardTransfer' and txid not in self.processed_transfers:
@@ -247,3 +248,4 @@ class DeckState:
                 self.total -= amount * validate
                 self.burned += amount * validate
                 self.processed_burns[txid] = card["timestamp"]
+
