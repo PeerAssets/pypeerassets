@@ -62,10 +62,12 @@ def find_deck_spawns(provider, prod=True):
 
     return decks
 
-def tx_serialization_order(provider, blockid: str, txid: str) -> int:
+
+def tx_serialization_order(provider, blockhash: str, txid: str) -> int:
     '''find index of this tx in the blockid'''
 
-    return provider.getblock(blockid)["tx"].index(txid)
+    return provider.getblock(blockhash)["tx"].index(txid)
+
 
 def read_tx_opreturn(raw_tx: dict) -> bytes:
     '''Decode OP_RETURN message from raw_tx'''
