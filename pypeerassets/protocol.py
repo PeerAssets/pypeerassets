@@ -169,7 +169,6 @@ class DeckState:
 
     def __init__(self, cards: list):
         self.sort_cards(cards)
-        self.decimals = self.cards[0]["number_of_decimals"]
         self.total = 0
         self.burned = 0
         self.balances = {}
