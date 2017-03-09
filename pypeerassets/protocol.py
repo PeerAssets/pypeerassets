@@ -154,6 +154,11 @@ class CardTransfer:
 def validate_card_issue_modes(deck: Deck, cards: list) -> list:
     """validate card transfer against deck issue mode"""
 
+    error = {"error": "Invalid issue mode."}
+
+    if "ONCE" and "MULTI" in deck.issue_mode:
+        return error
+
     # first card is single and amount is 1 for SINGLET
     if deck.issue_mode == "SINGLET":
         c = next(i for i in cards if i.type == "CardIssue")
@@ -173,7 +178,7 @@ def validate_card_issue_modes(deck: Deck, cards: list) -> list:
         return cards # what to do with this?
 
     else:
-        return {"error": "Invalid issue mode."}
+        return error
 
 
 class DeckState:
