@@ -162,11 +162,15 @@ def validate_card_issue_modes(deck: Deck, cards: list) -> list:
             return cards[0]
     # only first is valid for ONCE
     if deck.issue_mode == "ONCE":
+        return next(i for i in cards if i.type == "CardIssue")
         return cards[0]
     if deck.issue_mode == "MULTI":  # everything goes for multi
         return cards
     if deck.issue_mode == "CUSTOM":  # custom issuance mode
         return cards # what to do with this?
+
+    else:
+        return {"error": "Invalid issue mode."}
 
 
 class DeckState:
