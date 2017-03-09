@@ -69,6 +69,12 @@ def tx_serialization_order(provider, blockhash: str, txid: str) -> int:
     return provider.getblock(blockhash)["tx"].index(txid)
 
 
+def get_block_info(provider, blockchash: str) -> int:
+    '''get block info'''
+
+    return provider.getblock(blockchash)
+
+
 def read_tx_opreturn(raw_tx: dict) -> bytes:
     '''Decode OP_RETURN message from raw_tx'''
 
@@ -194,7 +200,8 @@ def parse_card_transfer_metainfo(protobuf: bytes) -> dict:
     }
 
 
-def postprocess_card(raw_card: dict, raw_tx: str, sender: str, vouts: list, blockseq: int, deck) -> dict:
+def postprocess_card(raw_card: dict, raw_tx: str, sender: str, vouts: list,
+                     blockseq: int, blocknum:int, deck) -> dict:
     '''Postprocessing of all the relevant card transfer information and creation of CardTransfer object.'''
 
     nderror = {"error": "Number of decimals does not match."}
@@ -215,6 +222,8 @@ def postprocess_card(raw_card: dict, raw_tx: str, sender: str, vouts: list, bloc
         _card["blockhash"] = 0
     if blockseq:
         _card["blockseq"] = blockseq
+    if blocknum:
+        _card["blocknum"] = blocknum
     _card["timestamp"] = raw_tx["time"]
     _card["sender"] = sender
     _card["asset_specific_data"] = raw_card["asset_specific_data"]
@@ -230,7 +239,9 @@ def postprocess_card(raw_card: dict, raw_tx: str, sender: str, vouts: list, bloc
     else:
         _card["receiver"] = vouts[2]["scriptPubKey"]["addresses"]
         _card["amount"] = raw_card["amount"]
-        return [_card]
+
+    return [_card]
+
 
 def amount_to_exponent(amount: float, number_of_decimals: int) -> int:
     '''encode amount integer as exponent'''

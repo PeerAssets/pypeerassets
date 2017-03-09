@@ -115,11 +115,17 @@ def find_card_transfers(provider, deck: Deck, since=0) -> list:
             card_metainfo = parse_card_transfer_metainfo(read_tx_opreturn(raw_tx))
             vouts = raw_tx["vout"]
             sender = find_tx_sender(provider, raw_tx)
+
             try:  # try to get block seq number
                 blockseq = tx_serialization_order(provider, raw_tx["blockhash"], raw_tx["txid"])
             except KeyError:
                 blockseq = None
-            cards = postprocess_card(card_metainfo, raw_tx, sender, vouts, blockseq, deck)
+            try:  # try to get block number of block when this tx was written
+                blocknum = get_block_info(provider, raw_tx["blockhash"])["height"]
+            except KeyError:
+                blocknum = None
+
+            cards = postprocess_card(card_metainfo, raw_tx, sender, vouts, blockseq, blocknum, deck)
 
         except AssertionError:
             return False
