@@ -156,17 +156,20 @@ def validate_card_issue_modes(deck: Deck, cards: list) -> list:
 
     # first card is single and amount is 1 for SINGLET
     if deck.issue_mode == "SINGLET":
-        if cards[0].amounts[0] != 1:
+        c = next(i for i in cards if i.type == "CardIssue")
+        if c.amounts[0] != 1:
             return None
         else:
-            return cards[0]
+            return c
+
     # only first is valid for ONCE
-    if deck.issue_mode == "ONCE":
+    if "ONCE" in deck.issue_mode:
         return next(i for i in cards if i.type == "CardIssue")
-        return cards[0]
-    if deck.issue_mode == "MULTI":  # everything goes for multi
+
+    if "MULTI" in deck.issue_mode:  # everything goes for multi
         return cards
-    if deck.issue_mode == "CUSTOM":  # custom issuance mode
+
+    if "CUSTOM" deck.issue_mode:  # custom issuance mode
         return cards # what to do with this?
 
     else:
