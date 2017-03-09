@@ -78,7 +78,7 @@ class Deck:
 class CardTransfer:
 
     def __init__(self, deck: Deck, receiver=[], amount=[], version=1, txid=None, sender=None, blockhash=0,
-                 blockseq=None, timestamp=None, asset_specific_data="", number_of_decimals=None):
+                 blockseq=None, asset_specific_data="", number_of_decimals=None):
         '''CardTransfer object, used when parsing card_transfers from the blockchain
         or when sending out new card_transfer.
         It can be initialized by passing the **kwargs and it will do the parsing,
@@ -101,7 +101,6 @@ class CardTransfer:
         self.deck_id = deck.asset_id
         self.txid = txid
         self.sender = sender
-        self.timestamp = timestamp
         self.asset_specific_data = asset_specific_data
         if not number_of_decimals:
             self.number_of_decimals = deck.number_of_decimals
