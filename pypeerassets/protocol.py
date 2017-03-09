@@ -218,7 +218,7 @@ class DeckState:
 
 
     def sort_cards(self, cards ):
-        self.cards = sorted([card.__dict__ for card in cards], key=itemgetter('timestamp')) # Will need to change this to Blocknumber
+        self.cards = sorted([card.__dict__ for card in cards], key=itemgetter('blocknum')) # Will need to change this to Blocknumber
         self.cards = sorted([card.__dict__ for card in cards], key=itemgetter('blockseq'))
 
     def calc_state(self):
