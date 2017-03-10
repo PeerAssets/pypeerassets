@@ -158,7 +158,7 @@ def validate_card_issue_modes(deck: Deck, cards: list) -> list:
 
     error = {"error": "Invalid issue mode."}
 
-    if ("ONCE","MULTI") in deck.issue_mode:
+    if ("ONCE", "MULTI") in deck.issue_mode:
         return error
 
     # first card is single and amount is 1 for SINGLET
