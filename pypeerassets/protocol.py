@@ -176,8 +176,8 @@ def validate_card_issue_modes(deck: Deck, cards: list) -> list:
     if "MULTI" in deck.issue_mode:  # everything goes for multi
         return cards
 
-    if "CUSTOM" deck.issue_mode:  # custom issuance mode
-        return cards # what to do with this?
+    if "CUSTOM" in deck.issue_mode:  # custom issuance mode
+        return cards  # what to do with this?
 
     else:
         return error
