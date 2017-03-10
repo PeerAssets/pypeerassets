@@ -8,10 +8,12 @@ from operator import itemgetter
 
 class Deck:
 
-    def __init__(self, name: str, number_of_decimals: int, issue_mode: str, network: str, production: bool, version=1,
+    def __init__(self, name: str, number_of_decimals: int, issue_mode: str,
+                 network: str, production: bool, version=1,
                  asset_specific_data="", issuer="", time=None, asset_id=None):
         '''
-        Initialize deck object, load from dictionary Deck(**dict) or initilize with kwargs Deck("deck", 3, "ONCE")
+        Initialize deck object, load from dictionary Deck(**dict) or initilize
+        with kwargs Deck("deck", 3, "ONCE")
         '''
 
         self.version = version # protocol version
