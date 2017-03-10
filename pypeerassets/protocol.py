@@ -167,11 +167,11 @@ def validate_card_issue_modes(deck: Deck, cards: list) -> list:
         if c.amounts[0] != 1:
             return None
         else:
-            return c
+            return [c]
 
     # only first is valid for ONCE
     if "ONCE" in deck.issue_mode:
-        return next(i for i in cards if i.type == "CardIssue")
+        return [next(i for i in cards if i.type == "CardIssue")]
 
     if "MULTI" in deck.issue_mode:  # everything goes for multi
         return cards
