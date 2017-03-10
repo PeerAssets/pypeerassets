@@ -211,7 +211,7 @@ def postprocess_card(raw_card: dict, raw_tx: str, sender: str, vouts: list,
     _card["number_of_decimals"] = raw_card["number_of_decimals"]
     try: ## check if card number of decimals matches the deck atribute
         assert _card["number_of_decimals"] == deck.number_of_decimals, nderror
-    except:
+    except AssertionError:
         return
 
     _card["deck"] = deck
