@@ -241,22 +241,21 @@ class DeckState:
 
         for card in self.cards:
 
-            txid = card["txid"]
+            cid = card["txid"] + card["cardseq"]
             ctype = card["type"]
             amount = sum(card["amount"])
-            if ctype == 'CardIssue' and txid not in self.processed_issues:
+            if ctype == 'CardIssue' and cid not in self.processed_issues:
                 validate = self.process(card, ctype)
                 self.total += amount * validate # This will set amount to 0 if validate is False
-                self.processed_issues[txid] = card["timestamp"]
+                self.processed_issues[cid] = card["timestamp"]
 
-            if ctype == 'CardTransfer' and txid not in self.processed_transfers:
+            if ctype == 'CardTransfer' and cid not in self.processed_transfers:
                 self.process(card, ctype)
-                self.processed_transfers[txid] = card["timestamp"]
+                self.processed_transfers[cid] = card["timestamp"]
 
-            if ctype == 'CardBurn' and txid not in self.processed_burns:
+            if ctype == 'CardBurn' and cid not in self.processed_burns:
                 validate = self.process(card, ctype)
 
                 self.total -= amount * validate
                 self.burned += amount * validate
-                self.processed_burns[txid] = card["timestamp"]
-
+                self.processed_burns[cid] = card["timestamp"]
