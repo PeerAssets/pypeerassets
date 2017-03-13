@@ -125,7 +125,8 @@ def find_card_transfers(provider, deck: Deck, since=0) -> list:
             except KeyError:
                 blocknum = None
 
-            cards = postprocess_card(card_metainfo, raw_tx, sender, vouts, blockseq, blocknum, deck)
+            cards = postprocess_card(card_metainfo, raw_tx, sender,
+                                     vouts, blockseq, blocknum, deck)
 
         except AssertionError:
             return False
