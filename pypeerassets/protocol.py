@@ -241,7 +241,7 @@ class DeckState:
 
         for card in self.cards:
 
-            cid = card["txid"] + card["cardseq"]
+            cid = card["txid"] + str(card["cardseq"])
             ctype = card["type"]
             amount = sum(card["amount"])
             if ctype == 'CardIssue' and cid not in self.processed_issues:
