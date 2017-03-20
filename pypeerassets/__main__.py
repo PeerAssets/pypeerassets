@@ -17,7 +17,6 @@ def find_all_valid_decks(provider, prod=True) -> list:
     :test True/False - test or production P2TH
     '''
 
-    decks = []
     deck_spawns = (provider.getrawtransaction(i, 1) for i in find_deck_spawns(provider))
 
     def deck_parser(raw_tx):
@@ -35,7 +34,7 @@ def find_all_valid_decks(provider, prod=True) -> list:
                 d["issuer"] = find_tx_sender(provider, raw_tx)
                 d["network"] = provider.network
                 d["production"] = prod
-                decks.append(Deck(**d))
+                return Deck(**d)
 
         except AssertionError:
             pass
@@ -43,9 +42,7 @@ def find_all_valid_decks(provider, prod=True) -> list:
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as th:
         for result in th.map(deck_parser, deck_spawns):
             if result:
-                decks.append(result)
-
-    return decks
+                yield result
 
 
 def find_deck(provider, key: str, prod=True) -> list:
