@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='0005-on-chain-voting-transaction-specification.proto',
   package='',
   syntax='proto3',
-  serialized_pb=_b('\n40005-on-chain-voting-transaction-specification.proto\"\x7f\n\x04Vote\x12\x0f\n\x07version\x18\x01 \x01(\r\x12\x12\n\ncount_mode\x18\x02 \x01(\r\x12\x0f\n\x07\x63hoices\x18\x03 \x03(\t\"A\n\x04MODE\x12\n\n\x06SIMPLE\x10\x00\x12\x14\n\x10WEIGHT_CARD_DAYS\x10\x01\x12\x17\n\x13WEIGHT_CARD_BALANCE\x10\x02\x62\x06proto3')
+  serialized_pb=_b('\n40005-on-chain-voting-transaction-specification.proto\"\xa6\x01\n\x04Vote\x12\x0f\n\x07version\x18\x01 \x01(\r\x12\x12\n\ncount_mode\x18\x02 \x01(\r\x12\x0f\n\x07\x63hoices\x18\x03 \x03(\t\x12\x1b\n\x13\x61sset_specific_data\x18\x04 \x01(\x0c\"K\n\x04MODE\x12\x08\n\x04NONE\x10\x00\x12\n\n\x06SIMPLE\x10\x01\x12\x17\n\x13WEIGHT_CARD_BALANCE\x10\x03\x12\x14\n\x10WEIGHT_CARD_DAYS\x10\x07\x62\x06proto3')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -32,22 +32,26 @@ _VOTE_MODE = _descriptor.EnumDescriptor(
   file=DESCRIPTOR,
   values=[
     _descriptor.EnumValueDescriptor(
-      name='SIMPLE', index=0, number=0,
+      name='NONE', index=0, number=0,
       options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='WEIGHT_CARD_DAYS', index=1, number=1,
+      name='SIMPLE', index=1, number=1,
       options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='WEIGHT_CARD_BALANCE', index=2, number=2,
+      name='WEIGHT_CARD_BALANCE', index=2, number=3,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='WEIGHT_CARD_DAYS', index=3, number=7,
       options=None,
       type=None),
   ],
   containing_type=None,
   options=None,
-  serialized_start=118,
-  serialized_end=183,
+  serialized_start=148,
+  serialized_end=223,
 )
 _sym_db.RegisterEnumDescriptor(_VOTE_MODE)
 
@@ -80,6 +84,13 @@ _VOTE = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
+    _descriptor.FieldDescriptor(
+      name='asset_specific_data', full_name='Vote.asset_specific_data', index=3,
+      number=4, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b(""),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
   ],
   extensions=[
   ],
@@ -93,8 +104,8 @@ _VOTE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=56,
-  serialized_end=183,
+  serialized_start=57,
+  serialized_end=223,
 )
 
 _VOTE_MODE.containing_type = _VOTE
