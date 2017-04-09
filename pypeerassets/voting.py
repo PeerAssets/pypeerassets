@@ -101,6 +101,11 @@ def vote_init(vote: Vote, deck: Deck, inputs: list, change_address: str) -> byte
     return transactions.make_raw_transaction(deck.network, inputs['utxos'], outputs)
 
 
+def find_vote_init(provider, deck):
+    '''find vote_inits on this deck'''
+    pass
+
+
 def vote_cast(deck: Deck, deck_vote_tag: str, vote: Vote, inputs: list,
               change_address: str) -> bytes:
     '''vote cast transaction'''
