@@ -16,10 +16,12 @@ def deck_vote_tag(deck):
 
 class Vote:
 
-    def __init__(self, version: int, count_mode: str, choices=[], metainfo=None):
+    def __init__(self, version: int, description: str, count_mode: str,
+                 choices=[], metainfo=None):
         '''initialize vote object'''
 
         self.version = version
+        self.description = description
         self.choices = choices
         self.count_mode = count_mode
         self.metainfo = metainfo
@@ -30,6 +32,7 @@ class Vote:
 
         vote = pavoteproto.Vote()
         vote.version = self.version
+        vote.description = self.description
         vote.count_mode = vote.MODE.Value(self.count_mode)
         vote.choices.extend(self.choices)
 
@@ -51,6 +54,7 @@ class Vote:
 
         return {
             "version": self.version,
+            "description": self.description,
             "count_mode": self.count_mode,
             "choices": self.choices
         }
