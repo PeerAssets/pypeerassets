@@ -19,13 +19,16 @@ def deck_vote_tag(deck):
 class Vote:
 
     def __init__(self, version: int, description: str, count_mode: str,
-                 choices=[], vote_metainfo=""):
+                 start_block: int, end_block: int, choices=[],
+                 vote_metainfo=""):
         '''initialize vote object'''
 
         self.version = version
         self.description = description
         self.choices = choices
         self.count_mode = count_mode
+        self.start_block = start_block  # at which block does vote start
+        self.end_block = end_block  # at which block does vote end
         self.vote_metainfo = vote_metainfo  # any extra info describing the vote
 
     @property
@@ -36,6 +39,8 @@ class Vote:
         vote.version = self.version
         vote.description = self.description
         vote.count_mode = vote.MODE.Value(self.count_mode)
+        vote.start_block = self.start_block
+        vote.end_block = self.end_block
         vote.choices.extend(self.choices)
 
         if not isinstance(self.vote_metainfo, bytes):
@@ -58,6 +63,8 @@ class Vote:
             "version": self.version,
             "description": self.description,
             "count_mode": self.count_mode,
+            "start_block": self.start_block,
+            "end_block": self.end_block,
             "choices": self.choices
         }
 
@@ -75,6 +82,8 @@ def parse_vote_info(protobuf: bytes) -> dict:
         "description": vote.description,
         "count_mode": vote.MODE.Name(vote.count_mode),
         "choices": vote.choices,
+        "start_block": vote.start_block,
+        "end_block": vote.end_block,
         "metainfo": vote.vote_metainfo
     }
 
