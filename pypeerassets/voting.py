@@ -60,6 +60,23 @@ class Vote:
         }
 
 
+def parse_vote_info(protobuf: bytes) -> dict:
+    '''decode vote init tx op_return protobuf message and validate it.'''
+
+    vote = pavoteproto.Vote()
+    vote.ParseFromString(protobuf)
+
+    assert vote.version > 0, {"error": "Vote info incomplete, version can't be 0."}
+
+    return {
+        "version": vote.version,
+        "description": vote.description,
+        "count_mode": vote.MODE.Name(vote.count_mode),
+        "choices": vote.choices,
+        "metainfo": vote.vote_metainfo
+    }
+
+
 def vote_init(self):
     '''initialize vote transaction'''
     pass
