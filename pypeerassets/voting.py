@@ -4,12 +4,14 @@ from pypeerassets.protocol import Deck
 from pypeerassets import pavoteproto
 from hashlib import sha256
 from binascii import unhexlify
+from pypeerassets import transactions
+from .networks import query, networks
 
 
 def deck_vote_tag(deck):
     '''deck vote tag address'''
 
-    deck_vote_tag_privkey = sha256(deck.asset_id + b"vote_init").hexdigest()
+    deck_vote_tag_privkey = sha256(unhexlify(deck.asset_id) + b"vote_init").hexdigest()
     deck_vote_tag_address = Kutil(deck.network, privkey=deck_vote_tag_privkey)
     return deck_vote_tag_address.address
 
@@ -17,7 +19,7 @@ def deck_vote_tag(deck):
 class Vote:
 
     def __init__(self, version: int, description: str, count_mode: str,
-                 choices=[], vote_metainfo=None):
+                 choices=[], vote_metainfo=""):
         '''initialize vote object'''
 
         self.version = version
@@ -77,9 +79,26 @@ def parse_vote_info(protobuf: bytes) -> dict:
     }
 
 
-def vote_init(self):
-    '''initialize vote transaction'''
-    pass
+def vote_init(vote: Vote, deck: Deck, inputs: list, change_address: str) -> bytes:
+    '''initialize vote transaction, must be signed by the deck_issuer privkey'''
+
+    network_params = query(deck.network)
+    deck_vote_tag_address = deck_vote_tag(deck)
+
+    tx_fee = network_params.min_tx_fee  # settle for min tx fee for now
+
+    for utxo in inputs['utxos']:
+        utxo['txid'] = unhexlify(utxo['txid'])
+        utxo['scriptSig'] = unhexlify(utxo['scriptSig'])
+
+    outputs = [
+        {"redeem": 0.01, "outputScript": transactions.monosig_script(deck_vote_tag_address)},
+        {"redeem": 0, "outputScript": transactions.op_return_script(vote.vote_info_to_protobuf)},
+        {"redeem": float(inputs['total']) - float(tx_fee) - float(0.01),
+         "outputScript": transactions.monosig_script(change_address)
+         }]
+
+    return transactions.make_raw_transaction(deck.network, inputs['utxos'], outputs)
 
 
 def vote_cast(deck: Deck, deck_vote_tag: str, vote: Vote, inputs: list,
