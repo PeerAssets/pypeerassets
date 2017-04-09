@@ -26,7 +26,7 @@ class Vote:
         self.description = description
         self.choices = choices
         self.count_mode = count_mode
-        self.vote_metainfo = vote_metainfo
+        self.vote_metainfo = vote_metainfo  # any extra info describing the vote
 
     @property
     def vote_info_to_protobuf(self):
