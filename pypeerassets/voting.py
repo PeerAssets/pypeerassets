@@ -17,14 +17,14 @@ def deck_vote_tag(deck):
 class Vote:
 
     def __init__(self, version: int, description: str, count_mode: str,
-                 choices=[], metainfo=None):
+                 choices=[], vote_metainfo=None):
         '''initialize vote object'''
 
         self.version = version
         self.description = description
         self.choices = choices
         self.count_mode = count_mode
-        self.metainfo = metainfo
+        self.vote_metainfo = vote_metainfo
 
     @property
     def vote_info_to_protobuf(self):
@@ -36,10 +36,10 @@ class Vote:
         vote.count_mode = vote.MODE.Value(self.count_mode)
         vote.choices.extend(self.choices)
 
-        if not isinstance(self.asset_specific_data, bytes):
-            vote.metainfo = self.metainfo.encode()
+        if not isinstance(self.vote_metainfo, bytes):
+            vote.vote_metainfo = self.vote_metainfo.encode()
         else:
-            vote.metainfo = self.metainfo
+            vote.vote_metainfo = self.vote_metainfo
 
         proto = vote.SerializeToString()
 
