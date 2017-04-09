@@ -5,6 +5,7 @@ import concurrent.futures
 from binascii import unhexlify
 from .protocol import *
 from .pautils import *
+from .voting import *
 from . import transactions
 from .constants import param_query, params
 from .networks import query, networks
