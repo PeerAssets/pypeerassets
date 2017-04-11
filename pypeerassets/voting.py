@@ -5,6 +5,7 @@ from pypeerassets import pavoteproto
 from hashlib import sha256
 from binascii import unhexlify
 from pypeerassets import transactions
+from pypeerassets.pautils import read_tx_opreturn
 from .networks import query, networks
 
 
@@ -42,6 +43,7 @@ class Vote:
         vote.start_block = self.start_block
         vote.end_block = self.end_block
         vote.choices.extend(self.choices)
+        vote.vote_metainfo = self.vote_metainfo
 
         if not isinstance(self.vote_metainfo, bytes):
             vote.vote_metainfo = self.vote_metainfo.encode()
@@ -65,7 +67,8 @@ class Vote:
             "count_mode": self.count_mode,
             "start_block": self.start_block,
             "end_block": self.end_block,
-            "choices": self.choices
+            "choices": self.choices,
+            "vote_metainfo": self.vote_metainfo
         }
 
 
@@ -84,7 +87,7 @@ def parse_vote_info(protobuf: bytes) -> dict:
         "choices": vote.choices,
         "start_block": vote.start_block,
         "end_block": vote.end_block,
-        "metainfo": vote.vote_metainfo
+        "vote_metainfo": vote.vote_metainfo
     }
 
 
@@ -110,10 +113,13 @@ def vote_init(vote: Vote, deck: Deck, inputs: list, change_address: str) -> byte
     return transactions.make_raw_transaction(deck.network, inputs['utxos'], outputs)
 
 
-def find_vote_init(provider, deck):
+def find_vote_inits(provider, deck):
     '''find vote_inits on this deck'''
 
-    vote_ints = (i["txid"] for i in provider.listtransactions(deck_vote_tag(deck)))
+    vote_ints = (provider.getrawtransaction(i) for i in provider.listtransactions(deck_vote_tag(deck)))
+
+    for v in vote_ints:
+        yield Vote(**parse_vote_info(read_tx_opreturn(v)))
 
 
 def vote_cast(deck: Deck, deck_vote_tag: str, vote: Vote, inputs: list,
