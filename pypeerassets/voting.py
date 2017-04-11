@@ -20,7 +20,7 @@ def deck_vote_tag(deck):
 class Vote:
 
     def __init__(self, version: int, description: str, count_mode: str,
-                 start_block: int, end_block: int, choices=[], vote_id: str,
+                 start_block: int, end_block: int, vote_id: str, choices=[],
                  vote_metainfo=""):
         '''initialize vote object'''
 
@@ -117,10 +117,13 @@ def vote_init(vote: Vote, deck: Deck, inputs: list, change_address: str) -> byte
 def find_vote_inits(provider, deck):
     '''find vote_inits on this deck'''
 
-    vote_ints = (provider.getrawtransaction(i) for i in provider.listtransactions(deck_vote_tag(deck)))
+    vote_ints = provider.listtransactions(deck_vote_tag(deck))
 
-    for v in vote_ints:
-        yield Vote(**parse_vote_info(read_tx_opreturn(v)))
+    for txid in vote_ints:
+        raw_vote = provider.getrawtransaction(txid)
+        vote = parse_vote_info(read_tx_opreturn(raw_vote))
+        vote["vote_id"] = txid
+        yield Vote(**vote)
 
 
 def vote_cast(deck: Deck, vote: Vote, inputs: list, change_address: str) -> bytes:
