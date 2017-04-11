@@ -128,6 +128,27 @@ def find_vote_inits(provider, deck):
         yield Vote(**vote)
 
 
-def vote_cast(deck: Deck, vote: Vote, inputs: list, change_address: str) -> bytes:
+def vote_cast(deck: Deck, vote: Vote, choice_index: int, inputs: list,
+              change_address: str) -> bytes:
     '''vote cast transaction'''
-    pass
+
+    network_params = query(deck.network)
+
+    vote_init_txid = unhexlify(vote.vote_id)
+    vote_cast_privkey = sha256(vote_init_txid + bytes(choice_index)).hexdigest()
+    vote_cast_address = Kutil(network=deck.network, privkey=vote_cast_privkey).address
+
+    tx_fee = network_params.min_tx_fee  # settle for min tx fee for now
+
+    for utxo in inputs['utxos']:
+        utxo['txid'] = unhexlify(utxo['txid'])
+        utxo['scriptSig'] = unhexlify(utxo['scriptSig'])
+
+    outputs = [
+        {"redeem": 0.01, "outputScript": transactions.monosig_script(vote_cast_address)},
+        {"redeem": float(inputs['total']) - float(tx_fee) - float(0.01),
+         "outputScript": transactions.monosig_script(change_address)
+         }]
+
+    return transactions.make_raw_transaction(deck.network, inputs['utxos'], outputs)
+
