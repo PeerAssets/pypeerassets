@@ -74,6 +74,21 @@ class Vote:
         }
 
 
+def vote_cast_address(deck: Deck, vote: Vote):
+    '''calculate vote_cast addresses for the Vote'''
+
+    addresses = []
+    vote_init_txid = unhexlify(vote.vote_id)
+
+    for choice in vote.choices:
+        vote_cast_privkey = sha256(vote_init_txid + bytes(
+                                   list(vote.choices).index(choice))
+                                   ).hexdigest()
+        addresses.append(Kutil(network=deck.network, privkey=vote_cast_privkey).address)
+
+    return addresses
+
+
 def parse_vote_info(protobuf: bytes) -> dict:
     '''decode vote init tx op_return protobuf message and validate it.'''
 
@@ -151,4 +166,9 @@ def vote_cast(deck: Deck, vote: Vote, choice_index: int, inputs: list,
          }]
 
     return transactions.make_raw_transaction(deck.network, inputs['utxos'], outputs)
+
+
+def find_vote_casts(vote: Vote, deck: Deck):
+    '''find all the votes casted for this Vote'''
+    pass
 
