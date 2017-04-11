@@ -5,7 +5,7 @@ from pypeerassets import pavoteproto
 from hashlib import sha256
 from binascii import unhexlify
 from pypeerassets import transactions
-from pypeerassets.pautils import read_tx_opreturn
+from pypeerassets.pautils import read_tx_opreturn, find_tx_sender
 from .networks import query, networks
 
 
@@ -20,8 +20,8 @@ def deck_vote_tag(deck):
 class Vote:
 
     def __init__(self, version: int, description: str, count_mode: str,
-                 start_block: int, end_block: int, vote_id: str, choices=[],
-                 vote_metainfo=""):
+                 start_block: int, end_block: int, vote_id: str, sender: str,
+                 choices=[], vote_metainfo=""):
         '''initialize vote object'''
 
         self.version = version
@@ -32,6 +32,7 @@ class Vote:
         self.end_block = end_block  # at which block does vote end
         self.vote_id = vote_id
         self.vote_metainfo = vote_metainfo  # any extra info describing the vote
+        self.sender = sender
 
     @property
     def vote_info_to_protobuf(self):
@@ -123,6 +124,7 @@ def find_vote_inits(provider, deck):
         raw_vote = provider.getrawtransaction(txid)
         vote = parse_vote_info(read_tx_opreturn(raw_vote))
         vote["vote_id"] = txid
+        vote["sender"] = find_tx_sender(provider, raw_vote)
         yield Vote(**vote)
 
 
