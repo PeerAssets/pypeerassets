@@ -20,7 +20,7 @@ def deck_vote_tag(deck):
 class Vote:
 
     def __init__(self, version: int, description: str, count_mode: str,
-                 start_block: int, end_block: int, choices=[],
+                 start_block: int, end_block: int, choices=[], vote_id: str,
                  vote_metainfo=""):
         '''initialize vote object'''
 
@@ -30,6 +30,7 @@ class Vote:
         self.count_mode = count_mode
         self.start_block = start_block  # at which block does vote start
         self.end_block = end_block  # at which block does vote end
+        self.vote_id = vote_id
         self.vote_metainfo = vote_metainfo  # any extra info describing the vote
 
     @property
