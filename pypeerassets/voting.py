@@ -112,7 +112,8 @@ def vote_init(vote: Vote, deck: Deck, inputs: list, change_address: str) -> byte
 
 def find_vote_init(provider, deck):
     '''find vote_inits on this deck'''
-    pass
+
+    vote_ints = (i["txid"] for i in provider.listtransactions(deck_vote_tag(deck)))
 
 
 def vote_cast(deck: Deck, deck_vote_tag: str, vote: Vote, inputs: list,

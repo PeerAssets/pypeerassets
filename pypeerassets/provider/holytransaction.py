@@ -90,5 +90,5 @@ class Holy:
         """list transactions of this <address>"""
 
         r = cls.getaddress(address)
-        return [i["addresses"] for i in r["last_txs"] if i["type"] == "vin"]
+        return [i["addresses"] for i in r["last_txs"]]
 
