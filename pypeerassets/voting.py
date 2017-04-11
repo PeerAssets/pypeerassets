@@ -122,8 +122,6 @@ def find_vote_inits(provider, deck):
         yield Vote(**parse_vote_info(read_tx_opreturn(v)))
 
 
-def vote_cast(deck: Deck, deck_vote_tag: str, vote: Vote, inputs: list,
-              change_address: str) -> bytes:
+def vote_cast(deck: Deck, vote: Vote, inputs: list, change_address: str) -> bytes:
     '''vote cast transaction'''
     pass
-
