@@ -5,7 +5,7 @@ from pypeerassets import pavoteproto
 from hashlib import sha256
 from binascii import unhexlify
 from pypeerassets import transactions
-from pypeerassets.pautils import read_tx_opreturn, find_tx_sender
+from pypeerassets.pautils import read_tx_opreturn, find_tx_sender, get_block_info
 from .networks import query, networks
 
 
@@ -168,7 +168,26 @@ def vote_cast(deck: Deck, vote: Vote, choice_index: int, inputs: list,
     return transactions.make_raw_transaction(deck.network, inputs['utxos'], outputs)
 
 
-def find_vote_casts(vote: Vote, deck: Deck):
-    '''find all the votes casted for this Vote'''
-    pass
+class VoteCast:
+    '''vote cast object, internal represtentation of the vote_cast transaction'''
+
+    def __init__(self, vote, sender, blocknum, confirmations, timestamp):
+        self.vote = vote
+        self.sender = sender
+        self.blocknum = blocknum
+        self.confirmations = confirmations
+        self.timestamp = timestamp
+
+    @property
+    def is_valid(self):
+        '''check if VoteCast is valid'''
+
+        if not (self.blocknum >= self.vote.start_block and
+                self.blocknum <= self.vote.end_block):
+            return False
+
+        if not self.confirmations >= 6:
+            return False
+
+        return True
 
