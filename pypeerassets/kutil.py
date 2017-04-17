@@ -1,7 +1,7 @@
+import random
 from . import networks
 from .ecdsa import ECDSA
 from .base58 import b58encode, b58decode
-from random import SystemRandom
 from hashlib import sha256, new
 from binascii import hexlify, unhexlify
 
@@ -23,9 +23,10 @@ class Kutil:
             network = key['net_prefix']
             
         if privkey == seed == wif == None:
-            self.privkey = '{:0>64x}'.format(SystemRandom().getrandbits(256))
+            self.privkey = '{:0>64x}'.format(random.SystemRandom().getrandbits(256))
 
         self._privkey = int(self.privkey,16)
+        self.privkey = self.privkey.encode()
         self.pubkey = ECDSA(self._privkey).pubkey()
         self.load_network_parameters(network)
 
@@ -64,7 +65,7 @@ class Kutil:
     def wif(self):
         '''convert raw private key to WIF'''
 
-        extkey = unhexlify(self.wif_prefix + self.privkey.encode() + b'01') # compressed by default
+        extkey = unhexlify(self.wif_prefix + self.privkey + b'01') # compressed by default
         extcheck = extkey + sha256(sha256(extkey).digest()).digest()[0:4]
         wif = b58encode(extcheck)
         
