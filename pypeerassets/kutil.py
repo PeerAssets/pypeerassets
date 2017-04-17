@@ -23,7 +23,7 @@ class Kutil:
             network = key['net_prefix']
             
         if privkey == seed == wif == None:
-            self.privkey = '{:0>64x}'.format(random.getrandbits(256))
+            self.privkey = '{:0>64x}'.format(random.SystemRandom().getrandbits(256))
 
         self._privkey = int(self.privkey,16)
         self.pubkey = ECDSA(self._privkey).pubkey()
@@ -69,4 +69,3 @@ class Kutil:
         wif = b58encode(extcheck)
         
         return wif.encode()
-    
