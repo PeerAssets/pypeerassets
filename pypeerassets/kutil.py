@@ -43,9 +43,9 @@ class Kutil:
         b58_wif = b58decode(wif)
 
         if len(wif) == 51:
-            return {'privkey': hexlify(b58_wif[1:-4]), 'net_prefix': hexlify(b58_wif[0:1])}
+            return {'privkey': hexlify(b58_wif[1:-4]).decode(), 'net_prefix': hexlify(b58_wif[0:1])}
         if len(wif) == 52:
-            return {'privkey': hexlify(b58_wif[1:-5]), 'net_prefix': hexlify(b58_wif[0:1])}
+            return {'privkey': hexlify(b58_wif[1:-5]).decode(), 'net_prefix': hexlify(b58_wif[0:1])}
         else:
             return 'Invalid WIF length'
     
