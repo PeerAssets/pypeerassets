@@ -8,8 +8,6 @@ from binascii import hexlify, unhexlify
 
 class Kutil:
     def __init__(self, privkey=None, seed=None, wif=None, network=None):
-        
-        assert network is not None, "network parameter required"
 
         if privkey is not None:
             self.privkey = privkey
@@ -25,6 +23,8 @@ class Kutil:
         if privkey == seed == wif == None:
             self.privkey = '{:0>64x}'.format(SystemRandom().getrandbits(256))
 
+        assert network is not None, "network parameter required"
+        
         self._privkey = int(self.privkey,16)
         self.privkey = self.privkey.encode()
         self.pubkey = ECDSA(self._privkey).pubkey()
