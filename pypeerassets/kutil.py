@@ -53,7 +53,7 @@ class Kutil:
     def address(self):
         '''generate an address from pubkey'''
 
-        key = self.pubkey # compressed pubkey as default
+        key = unhexlify(self.pubkey) # compressed pubkey as default
 
         keyhash = unhexlify(self.pubkeyhash + hexlify(new('ripemd160', sha256(key).digest()).digest()))
 
