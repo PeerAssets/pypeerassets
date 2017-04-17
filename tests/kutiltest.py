@@ -48,7 +48,7 @@ class KutilTestCase(unittest.TestCase):
     def test_wif_import(self):
         '''test improting WIF privkey'''
 
-        mykey = Kutil(wif="7A6cFXZSZnNUzutCMcuE1hyqDPtysH2LrSA9i5sqP2BPCLrAvZM", network="ppc")
+        mykey = Kutil(wif="7A6cFXZSZnNUzutCMcuE1hyqDPtysH2LrSA9i5sqP2BPCLrAvZM")
 
         self.assertEqual(mykey.address, b'PJxwxuBqjpHhhdpV6KY1pXxUSUNb6omyNW')
         self.assertEqual(mykey.pubkey, b'02a119079ef5be1032bed61cc295cdccde58bf70e0dd982399c024d1263740f398')
