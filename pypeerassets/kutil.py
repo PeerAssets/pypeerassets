@@ -1,7 +1,7 @@
-import random
 from . import networks
 from .ecdsa import ECDSA
 from .base58 import b58encode, b58decode
+from random import SystemRandom
 from hashlib import sha256, new
 from binascii import hexlify, unhexlify
 
@@ -23,7 +23,7 @@ class Kutil:
             network = key['net_prefix']
             
         if privkey == seed == wif == None:
-            self.privkey = '{:0>64x}'.format(random.SystemRandom().getrandbits(256))
+            self.privkey = '{:0>64x}'.format(SystemRandom().getrandbits(256))
 
         self._privkey = int(self.privkey,16)
         self.privkey = self.privkey.encode()
