@@ -31,13 +31,13 @@ class Kutil:
         self.pubkey = ECDSA(self._privkey).pubkey()
         self.load_network_parameters(network)
 
-    def load_network_parameters(self, query):
+    def load_network_parameters(self, query: str):
         '''loads network parameters and sets class variables'''
 
         for field, var in zip(networks.query(query)._fields, networks.query(query)):
             setattr(self, field, var)
 
-    def wif_to_privkey(self, wif):
+    def wif_to_privkey(self, wif: str) -> bytes:
         '''import WIF'''
 
         b58_wif = b58decode(wif)
@@ -50,7 +50,7 @@ class Kutil:
             return 'Invalid WIF length'
 
     @property
-    def address(self):
+    def address(self) -> str:
         '''generate an address from pubkey'''
 
         key = unhexlify(self.pubkey)  # compressed pubkey as default
@@ -63,7 +63,7 @@ class Kutil:
         return b58encode(address)
 
     @property
-    def wif(self):
+    def wif(self) -> str:
         '''convert raw private key to WIF'''
 
         extkey = unhexlify(self.wif_prefix + self.privkey + b'01')  # compressed by default
