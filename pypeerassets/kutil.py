@@ -70,4 +70,4 @@ class Kutil:
         extcheck = extkey + sha256(sha256(extkey).digest()).digest()[0:4]
         wif = b58encode(extcheck)
 
-        return wif.encode()
+        return wif
