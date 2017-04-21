@@ -60,7 +60,7 @@ class Kutil:
 
         checksum = sha256(sha256(keyhash).digest()).digest()[0:4]
         address = keyhash + checksum
-        return b58encode(address).encode()
+        return b58encode(address)
 
     @property
     def wif(self):
