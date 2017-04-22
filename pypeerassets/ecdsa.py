@@ -105,8 +105,8 @@ class ECDSA:
         return z
     
     def sign_message(self, message):
-        message = unhexlify(message)
-        z = self.hash_message(message)
+        ''' takes message input as string '''
+        z = self.hash_message(message.encode())
     
         r = 0
         s = 0
@@ -120,6 +120,28 @@ class ECDSA:
             s = ((z + r * self.k) * self.modinv( K, self.n)) % self.n
     
         return (r, s)
+    
+    def verify_signature(self, message, signature, pubkey = None):
+        ''' takes message input as string and signature input as tuple ( r, s ) '''
+        
+        z = self.hash_message(message.encode())
+        
+        if pubkey is None:
+            pubkey = self.pubkey(compressed=False)
+        
+        r, s = signature
+    
+        w = self.modinv(s, self.n)
+        u1 = (z * w) % self.n
+        u2 = (r * w) % self.n
+    
+        x, y = self.point_add(self.scalar_mult(u1, self.g),
+                         self.scalar_mult(u2, pubkey))
+    
+        if (r % self.n) == (x % self.n):
+            return True
+        else:
+            return False
     
     def pubkey(self, compressed=True):
         
