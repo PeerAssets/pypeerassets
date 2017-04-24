@@ -205,7 +205,7 @@ class DeckState:
         sender = card["sender"]
         receivers = card["receiver"]
         amount = sum(card["amount"])
-        
+
         if 'CardIssue' not in ctype:
             balance_check = sender in self.balances and self.balances[sender] >= amount
 
