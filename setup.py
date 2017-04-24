@@ -9,5 +9,5 @@ setup(name='pypeerassets',
       author_email='peerchemist@protonmail.ch',
       license='GPL',
       packages=['pypeerassets', 'pypeerassets.provider'],
-      install_requires=['requests', 'secp256k1', 'protobuf', 'peercoin_rpc'],
+      install_requires=['requests', 'protobuf', 'peercoin_rpc'],
       zip_safe=True)
