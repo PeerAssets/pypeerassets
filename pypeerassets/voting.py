@@ -191,11 +191,3 @@ class VoteCast:
 
         return True
 
-
-def find_vote_cast(provider, deck, vote):
-
-    raw_tx = provider.getrawtransaction(provider, tx)
-    sender = pa.find_tx_sender(provider, rawtx)
-    confirmations = raw_tx["confirmations"]
-    blocknum = pa.get_block_info(provider, raw_tx["blockhash"])["height"]
-    vote_cast = VoteCast(vote, sender, blocknum, confirmations, timestamp)
