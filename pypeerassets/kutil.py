@@ -70,7 +70,7 @@ class Kutil:
     def wif(self) -> str:
         '''convert raw private key to WIF'''
 
-        extkey = unhexlify(self.wif_prefix + self.privkey + b'01')  # compressed by default
+        extkey = unhexlify(self.wif_prefix + self._privkey + b'01')  # compressed by default
         extcheck = extkey + sha256(sha256(extkey).digest()).digest()[0:4]
         wif = b58encode(extcheck)
 
