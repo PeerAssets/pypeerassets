@@ -13,7 +13,7 @@ def deck_vote_tag(deck):
     '''deck vote tag address'''
 
     deck_vote_tag_privkey = sha256(unhexlify(deck.asset_id) + b"vote_init").hexdigest()
-    deck_vote_tag_address = Kutil(deck.network, privkey=deck_vote_tag_privkey)
+    deck_vote_tag_address = Kutil(network=deck.network, privkey=deck_vote_tag_privkey)
     return deck_vote_tag_address.address
 
 
@@ -204,4 +204,3 @@ def find_vote_casts(provider, vote: Vote, choice_index: int):
         confirmations = raw_tx["confirmations"]
         blocknum = get_block_info(provider, raw_tx["blockhash"])["height"]
         yield VoteCast(vote, sender, blocknum, confirmations, raw_tx["blocktime"])
-
