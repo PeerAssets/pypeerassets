@@ -183,7 +183,7 @@ def unpack_txn_buffer(buffer: Tx_buffer, network: str) -> dict:
 
     return txn
 
-def unpack_raw_transaction(rawtx: bytes) -> dict:
+def unpack_raw_transaction(rawtx: bytes, network: str) -> dict:
     '''unpacks raw transactions, returns dictionary'''
 
-    return unpack_txn_buffer(Tx_buffer(rawtx))
+    return unpack_txn_buffer(Tx_buffer(rawtx), network)
