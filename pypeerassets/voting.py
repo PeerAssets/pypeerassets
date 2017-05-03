@@ -19,7 +19,7 @@ def deck_vote_tag(deck):
 
 class Vote:
 
-    def __init__(self, version: int, description: str, count_mode: str,
+    def __init__(self, deck: Deck, version: int, description: str, count_mode: str,
                  start_block: int, end_block: int, vote_id: str, sender: str,
                  choices=[], vote_metainfo=""):
         '''initialize vote object'''
@@ -30,9 +30,10 @@ class Vote:
         self.count_mode = count_mode
         self.start_block = start_block  # at which block does vote start
         self.end_block = end_block  # at which block does vote end
-        self.vote_id = vote_id
+        self.vote_id = vote_id  # vote_init txid
         self.vote_metainfo = vote_metainfo  # any extra info describing the vote
         self.sender = sender
+        self.deck = deck
 
     @property
     def vote_info_to_protobuf(self):
@@ -73,20 +74,21 @@ class Vote:
             "vote_metainfo": self.vote_metainfo
         }
 
+    @property
+    def vote_choice_address(self):
+        '''calculate the addresses on which the vote is casted.'''
 
-def vote_cast_address(deck: Deck, vote: Vote):
-    '''calculate vote_cast addresses for the Vote'''
+        addresses = []
+        vote_init_txid = unhexlify(self.vote_id)
 
-    addresses = []
-    vote_init_txid = unhexlify(vote.vote_id)
+        for choice in self.choices:
+            vote_cast_privkey = sha256(vote_init_txid + bytes(
+                                    list(self.choices).index(choice))
+                                    ).hexdigest()
+            addresses.append(Kutil(network=self.deck.network,
+                                   privkey=vote_cast_privkey).address)
 
-    for choice in vote.choices:
-        vote_cast_privkey = sha256(vote_init_txid + bytes(
-                                   list(vote.choices).index(choice))
-                                   ).hexdigest()
-        addresses.append(Kutil(network=deck.network, privkey=vote_cast_privkey).address)
-
-    return addresses
+        return addresses
 
 
 def parse_vote_info(protobuf: bytes) -> dict:
@@ -108,11 +110,11 @@ def parse_vote_info(protobuf: bytes) -> dict:
     }
 
 
-def vote_init(vote: Vote, deck: Deck, inputs: list, change_address: str) -> bytes:
+def vote_init(vote: Vote, inputs: list, change_address: str) -> bytes:
     '''initialize vote transaction, must be signed by the deck_issuer privkey'''
 
-    network_params = query(deck.network)
-    deck_vote_tag_address = deck_vote_tag(deck)
+    network_params = query(vote.deck.network)
+    deck_vote_tag_address = deck_vote_tag(vote.deck)
 
     tx_fee = network_params.min_tx_fee  # settle for min tx fee for now
 
@@ -127,7 +129,7 @@ def vote_init(vote: Vote, deck: Deck, inputs: list, change_address: str) -> byte
          "outputScript": transactions.monosig_script(change_address)
          }]
 
-    return transactions.make_raw_transaction(deck.network, inputs['utxos'], outputs)
+    return transactions.make_raw_transaction(vote.deck.network, inputs['utxos'], outputs)
 
 
 def find_vote_inits(provider, deck):
@@ -140,18 +142,16 @@ def find_vote_inits(provider, deck):
         vote = parse_vote_info(read_tx_opreturn(raw_vote))
         vote["vote_id"] = txid
         vote["sender"] = find_tx_sender(provider, raw_vote)
+        vote["deck"] = deck
         yield Vote(**vote)
 
 
-def vote_cast(deck: Deck, vote: Vote, choice_index: int, inputs: list,
+def vote_cast(vote: Vote, choice_index: int, inputs: list,
               change_address: str) -> bytes:
     '''vote cast transaction'''
 
-    network_params = query(deck.network)
-
-    vote_init_txid = unhexlify(vote.vote_id)
-    vote_cast_privkey = sha256(vote_init_txid + bytes(choice_index)).hexdigest()
-    vote_cast_address = Kutil(network=deck.network, privkey=vote_cast_privkey).address
+    network_params = query(vote.deck.network)
+    vote_cast_addr = vote.vote_choice_address[choice_index]
 
     tx_fee = network_params.min_tx_fee  # settle for min tx fee for now
 
@@ -160,18 +160,19 @@ def vote_cast(deck: Deck, vote: Vote, choice_index: int, inputs: list,
         utxo['scriptSig'] = unhexlify(utxo['scriptSig'])
 
     outputs = [
-        {"redeem": 0.01, "outputScript": transactions.monosig_script(vote_cast_address)},
+        {"redeem": 0.01, "outputScript": transactions.monosig_script(vote_cast_addr)},
         {"redeem": float(inputs['total']) - float(tx_fee) - float(0.01),
          "outputScript": transactions.monosig_script(change_address)
          }]
 
-    return transactions.make_raw_transaction(deck.network, inputs['utxos'], outputs)
+    return transactions.make_raw_transaction(vote.deck.network, inputs['utxos'], outputs)
 
 
 class VoteCast:
     '''vote cast object, internal represtentation of the vote_cast transaction'''
 
-    def __init__(self, vote, sender, blocknum, confirmations, timestamp):
+    def __init__(self, vote: Vote, sender: str, blocknum: int,
+                 confirmations: int, timestamp: int):
         self.vote = vote
         self.sender = sender
         self.blocknum = blocknum
@@ -192,10 +193,15 @@ class VoteCast:
         return True
 
 
-def find_vote_cast(provider, deck, vote):
+def find_vote_casts(provider, vote: Vote, choice_index: int):
+    '''find and verify vote_casts on this vote_choice_address'''
 
-    raw_tx = provider.getrawtransaction(provider, tx)
-    sender = pa.find_tx_sender(provider, rawtx)
-    confirmations = raw_tx["confirmations"]
-    blocknum = pa.get_block_info(provider, raw_tx["blockhash"])["height"]
-    vote_cast = VoteCast(vote, sender, blocknum, confirmations, timestamp)
+    vote_casts = provider.listtransactions(vote.vote_choice_address[choice_index])
+    for tx in vote_casts:
+        raw_tx = provider.getrawtransaction(tx, 1)
+
+        sender = find_tx_sender(provider, raw_tx)
+        confirmations = raw_tx["confirmations"]
+        blocknum = get_block_info(provider, raw_tx["blockhash"])["height"]
+        yield VoteCast(vote, sender, blocknum, confirmations, raw_tx["blocktime"])
+
