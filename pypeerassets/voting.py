@@ -20,8 +20,8 @@ def deck_vote_tag(deck):
 class Vote:
 
     def __init__(self, version: int, description: str, count_mode: str,
-                 start_block: int, end_block: int, sender: str, deck: Deck,
-                 choices=[], vote_metainfo="", vote_id=None):
+                 start_block: int, end_block: int, deck: Deck,
+                 choices=[], vote_metainfo="", vote_id=None, sender=None):
         '''initialize vote object'''
 
         self.version = version
