@@ -36,7 +36,7 @@ class Vote:
         self.deck = deck
 
     @property
-    def vote_info_to_protobuf(self):
+    def to_protobuf(self):
         '''encode vote into protobuf'''
 
         vote = pavoteproto.Vote()
@@ -60,7 +60,7 @@ class Vote:
         return proto
 
     @property
-    def vote_info_to_dict(self):
+    def to_dict(self):
         '''vote info as dict'''
 
         return {
