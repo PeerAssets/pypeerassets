@@ -45,7 +45,6 @@ class Vote:
         vote.start_block = self.start_block
         vote.end_block = self.end_block
         vote.choices.extend(self.choices)
-        vote.vote_metainfo = self.vote_metainfo
 
         if not isinstance(self.vote_metainfo, bytes):
             vote.vote_metainfo = self.vote_metainfo.encode()
