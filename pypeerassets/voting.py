@@ -123,7 +123,7 @@ def vote_init(vote: Vote, inputs: list, change_address: str) -> bytes:
 
     outputs = [
         {"redeem": 0.01, "outputScript": transactions.monosig_script(deck_vote_tag_address)},
-        {"redeem": 0, "outputScript": transactions.op_return_script(vote.vote_info_to_protobuf)},
+        {"redeem": 0, "outputScript": transactions.op_return_script(vote.to_protobuf)},
         {"redeem": float(inputs['total']) - float(tx_fee) - float(0.01),
          "outputScript": transactions.monosig_script(change_address)
          }]
