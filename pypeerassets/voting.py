@@ -19,9 +19,9 @@ def deck_vote_tag(deck):
 
 class Vote:
 
-    def __init__(self, deck: Deck, version: int, description: str, count_mode: str,
-                 start_block: int, end_block: int, vote_id: str, sender: str,
-                 choices=[], vote_metainfo=""):
+    def __init__(self, version: int, description: str, count_mode: str,
+                 start_block: int, end_block: int, sender: str,
+                 choices=[], vote_metainfo="", vote_id=None):
         '''initialize vote object'''
 
         self.version = version
