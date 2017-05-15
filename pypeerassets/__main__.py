@@ -18,7 +18,14 @@ def find_all_valid_decks(provider, prod=True) -> list:
     :test True/False - test or production P2TH
     '''
 
-    deck_spawns = (provider.getrawtransaction(i, 1) for i in find_deck_spawns(provider))
+    if isinstance(provider, RpcNode):
+        deck_spawns = (provider.getrawtransaction(i, 1) for i in find_deck_spawns(provider))
+    else:
+        pa_params = param_query(provider.network)
+        if prod:
+            deck_spawns = (provider.listtransactions(pa_params.P2TH_addr))
+        if not prod:
+            deck_spawns = (provider.listtransactions(pa_params.test_P2TH_addr))
 
     def deck_parser(raw_tx):
         try:
