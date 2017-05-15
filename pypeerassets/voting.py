@@ -97,6 +97,7 @@ def parse_vote_info(protobuf: bytes) -> dict:
     vote.ParseFromString(protobuf)
 
     assert vote.version > 0, {"error": "Vote info incomplete, version can't be 0."}
+    assert vote.start_block < vote.end_block, {"error": "vote can't end in the past."}
 
     return {
         "version": vote.version,
@@ -137,12 +138,15 @@ def find_vote_inits(provider, deck):
     vote_ints = provider.listtransactions(deck_vote_tag(deck))
 
     for txid in vote_ints:
-        raw_vote = provider.getrawtransaction(txid)
-        vote = parse_vote_info(read_tx_opreturn(raw_vote))
-        vote["vote_id"] = txid
-        vote["sender"] = find_tx_sender(provider, raw_vote)
-        vote["deck"] = deck
-        yield Vote(**vote)
+        try:
+            raw_vote = provider.getrawtransaction(txid)
+            vote = parse_vote_info(read_tx_opreturn(raw_vote))
+            vote["vote_id"] = txid
+            vote["sender"] = find_tx_sender(provider, raw_vote)
+            vote["deck"] = deck
+            yield Vote(**vote)
+        except AssertionError:
+            pass
 
 
 def vote_cast(vote: Vote, choice_index: int, inputs: list,
