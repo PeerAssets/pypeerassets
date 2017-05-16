@@ -105,8 +105,12 @@ def find_card_transfers(provider, deck: Deck) -> list:
     '''find all <deck> card transfers'''
 
     cards = []
-    card_transfers = (provider.getrawtransaction(i["txid"], 1) for i in
-                      provider.listtransactions(deck.name))
+    if isinstance(provider, RpcNode):
+        card_transfers = (provider.getrawtransaction(i["txid"], 1) for i in
+                          provider.listtransactions(deck.name))
+    else:
+        card_transfers = (provider.getrawtransaction(i) for i in
+                          provider.listtransactions(deck.p2th_address))
 
     def card_parser(args) -> list:
         '''this function wraps all the card transfer parsing'''
