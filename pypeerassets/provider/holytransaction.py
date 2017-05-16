@@ -94,7 +94,12 @@ class Holy:
     @classmethod
     def getrawtransaction(cls, txid: str, decrypt=1) -> dict:
         """Returns raw transaction representation for given transaction id. decrypt can be set to 0(false) or 1(true)."""
-        return cls.req("getrawtransaction", {"txid": txid, "decrypt": decrypt}).json()
+
+        res = cls.req("getrawtransaction", {"txid": txid, "decrypt": decrypt})
+        if decrypt:
+            return res.json()
+        else:
+            return res.content
 
     @classmethod
     def getaddress(cls, address: str) -> dict:
