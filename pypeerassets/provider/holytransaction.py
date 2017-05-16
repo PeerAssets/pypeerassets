@@ -14,9 +14,10 @@ class Holy:
         : network = peercoin, peercoin-testnet ...
         """
 
-        cls.net = network
-        cls.api = "https://{network}.holytransaction.com/api/".format(network=cls.net)
-        cls.ext_api = "https://{network}.holytransaction.com/ext/".format(network=cls.net)
+        cls.net = cls.network_long_to_short(network)
+        cls.netname = cls.network_short_to_long(cls.net)
+        cls.api = "https://{network}.holytransaction.com/api/".format(network=cls.netname)
+        cls.ext_api = "https://{network}.holytransaction.com/ext/".format(network=cls.netname)
         cls.api_methods = ("getdifficulty", "getrawtransaction",
                            "getblockcount", "getblockhash", "getblock")
         cls.ext_api_methods = ("getaddress", "getbalance")
@@ -31,15 +32,35 @@ class Holy:
         if self.net == "peercoin-testnet":
             return False
 
+    @staticmethod
+    def network_long_to_short(name):
+        '''convert long network name like "peercoin" to "ppc"'''
+
+        if len(name) < 3:
+            if name == "peercoin":
+                return "ppc"
+            if name == "peercoin-testnet":
+                return "tppc"
+
+        return name
+
+    @staticmethod
+    def network_short_to_long(name):
+        '''convert short network name like "ppc" to "peercoin"'''
+
+        if len(name) > 3:
+            if name == "ppc":
+                return "peercoin"
+            if name == "tppc":
+                return "peercoin-testnet"
+
+        return name
+
     @property
-    def network(self):
+    def network(cls):
         '''which network is this running on?'''
 
-        if self.net == "peercoin":
-            return "ppc"
-        if self.net == "peercoin-testnet":
-            return "tppc"
-
+        return cls.net
 
     @classmethod
     def req(cls, query: str, params: dict):
