@@ -23,9 +23,11 @@ def find_all_valid_decks(provider, prod=True) -> list:
     else:
         pa_params = param_query(provider.network)
         if prod:
-            deck_spawns = (provider.listtransactions(pa_params.P2TH_addr))
+            deck_spawns = (provider.getrawtransaction(i) for i in
+                           provider.listtransactions(pa_params.P2TH_addr))
         if not prod:
-            deck_spawns = (provider.listtransactions(pa_params.test_P2TH_addr))
+            deck_spawns = (provider.getrawtransaction(i) for i in
+                           provider.listtransactions(pa_params.test_P2TH_addr))
 
     def deck_parser(raw_tx):
         try:
