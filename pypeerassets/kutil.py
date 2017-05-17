@@ -1,6 +1,9 @@
-from . import networks
-from .ecdsa import ECDSA
-from .base58 import b58encode, b58decode
+from pypeerassets import networks
+try:
+    from coincurve import PrivateKey
+except ImportError:
+    from pypeerassets.ecdsa import ECDSA
+from pypeerassets.base58 import b58encode, b58decode
 from random import SystemRandom
 from hashlib import sha256, new
 from binascii import hexlify, unhexlify
@@ -9,26 +12,27 @@ from binascii import hexlify, unhexlify
 class Kutil:
 
     def __init__(self, privkey=None, seed=None, wif=None, network=None):
+        '''wif=<WIF> import private key from your wallet in WIF format
+           privkey=<privkey> import private key in binary format
+           network=<network> specify network [ppc, tppc, btc]
+           seed=<seed> specify seed (string) to make the privkey from'''
 
         if privkey is not None:
-            self.privkey = privkey
+            self.keypair = PrivateKey(unhexlify(privkey))
 
         if seed is not None:
-            self.privkey = sha256(seed.encode()).hexdigest()
+            self.keypair = PrivateKey(sha256(seed.encode()).hexdigest())
 
         if wif is not None:
             key = self.wif_to_privkey(wif)
-            self.privkey = key["privkey"]
+            self.keypair = PrivateKey(key["privkey"])
             network = key['net_prefix']
 
         if privkey == seed == wif == None:
-            self.privkey = '{:0>64x}'.format(SystemRandom().getrandbits(256))
+            self.keypair = PrivateKey()
 
-        assert network is not None, "network parameter required"
-
-        self._privkey = int(self.privkey, 16)
-        self.privkey = self.privkey.encode()
-        self.pubkey = ECDSA(self._privkey).pubkey()
+        self._privkey = self.keypair.to_hex().encode()
+        self.pubkey = hexlify(self.keypair.public_key.format())
         self.load_network_parameters(network)
 
     def load_network_parameters(self, query: str):
@@ -39,15 +43,11 @@ class Kutil:
 
     def wif_to_privkey(self, wif: str) -> bytes:
         '''import WIF'''
+        if 51 < len(wif) < 52:
+            return 'Invalid WIF length'
 
         b58_wif = b58decode(wif)
-
-        if len(wif) == 51:
-            return {'privkey': hexlify(b58_wif[1:-4]).decode(), 'net_prefix': hexlify(b58_wif[0:1])}
-        if len(wif) == 52:
-            return {'privkey': hexlify(b58_wif[1:-5]).decode(), 'net_prefix': hexlify(b58_wif[0:1])}
-        else:
-            return 'Invalid WIF length'
+        return {'privkey': b58_wif, 'net_prefix': hexlify(b58_wif[0:1])}
 
     @property
     def address(self) -> str:
@@ -66,7 +66,7 @@ class Kutil:
     def wif(self) -> str:
         '''convert raw private key to WIF'''
 
-        extkey = unhexlify(self.wif_prefix + self.privkey + b'01')  # compressed by default
+        extkey = unhexlify(self.wif_prefix + self._privkey + b'01')  # compressed by default
         extcheck = extkey + sha256(sha256(extkey).digest()).digest()[0:4]
         wif = b58encode(extcheck)
 

@@ -18,7 +18,16 @@ def find_all_valid_decks(provider, prod=True) -> list:
     :test True/False - test or production P2TH
     '''
 
-    deck_spawns = (provider.getrawtransaction(i, 1) for i in find_deck_spawns(provider))
+    if isinstance(provider, RpcNode):
+        deck_spawns = (provider.getrawtransaction(i, 1) for i in find_deck_spawns(provider))
+    else:
+        pa_params = param_query(provider.network)
+        if prod:
+            deck_spawns = (provider.getrawtransaction(i, 1) for i in
+                           provider.listtransactions(pa_params.P2TH_addr))
+        if not prod:
+            deck_spawns = (provider.getrawtransaction(i, 1) for i in
+                           provider.listtransactions(pa_params.test_P2TH_addr))
 
     def deck_parser(raw_tx):
         try:
@@ -96,8 +105,12 @@ def find_card_transfers(provider, deck: Deck) -> list:
     '''find all <deck> card transfers'''
 
     cards = []
-    card_transfers = (provider.getrawtransaction(i["txid"], 1) for i in
-                      provider.listtransactions(deck.name))
+    if isinstance(provider, RpcNode):
+        card_transfers = (provider.getrawtransaction(i["txid"], 1) for i in
+                          provider.listtransactions(deck.name))
+    else:
+        card_transfers = (provider.getrawtransaction(i, 1) for i in
+                          provider.listtransactions(deck.p2th_address))
 
     def card_parser(args) -> list:
         '''this function wraps all the card transfer parsing'''
