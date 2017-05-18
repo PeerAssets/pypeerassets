@@ -6,9 +6,9 @@ from pypeerassets.kutil import Kutil
 
 class Holy:
 
-    '''API wrapper for holytransaction.com blockexplorer,
+    """API wrapper for holytransaction.com blockexplorer,
     it only implements queries relevant to peerassets.
-    '''
+    """
 
     @classmethod
     def __init__(cls, network: str, keysJson: str=""):
@@ -33,7 +33,7 @@ class Holy:
 
     @property
     def is_testnet(self):
-        '''testnet or not?'''
+        """testnet or not?"""
 
         if self.net == "peercoin":
             return True
@@ -42,7 +42,7 @@ class Holy:
 
     @staticmethod
     def network_long_to_short(name):
-        '''convert long network name like "peercoin" to "ppc"'''
+        """convert long network name like "peercoin" to "ppc"."""
 
         if len(name) < 3:
             if name == "peercoin":
@@ -54,7 +54,7 @@ class Holy:
 
     @staticmethod
     def network_short_to_long(name):
-        '''convert short network name like "ppc" to "peercoin"'''
+        """convert short network name like "ppc" to "peercoin". """
 
         if len(name) > 3:
             if name == "ppc":
@@ -66,13 +66,12 @@ class Holy:
 
     @property
     def network(cls):
-        '''which network is this running on?'''
-
+        """which network is this running on?"""
         return cls.net
 
     @classmethod
     def req(cls, query: str, params: dict):
-
+        """Send request, return response."""
         if query in cls.api_methods:
             response = cls.api_session.get(cls.api + query, params=params)
         if query in cls.ext_api_methods:
@@ -83,10 +82,12 @@ class Holy:
 
     @classmethod
     def getdifficulty(cls) -> dict:
+        """Returns current difficulty."""
         return cls.req("getdifficulty", {}).json()
 
     @classmethod
     def getblockcount(cls) -> int:
+        """Returns block count."""
         return cls.req("getblockcount", {}).content.decode()
 
     @classmethod
@@ -102,8 +103,8 @@ class Holy:
     @classmethod
     def getrawtransaction(cls, txid: str, decrypt=1) -> dict:
         """Returns raw transaction representation for given transaction id. decrypt can be set to 0(false) or 1(true)."""
-
         res = cls.req("getrawtransaction", {"txid": txid, "decrypt": decrypt})
+
         if decrypt:
             return res.json()
         else:
@@ -122,7 +123,6 @@ class Holy:
     @classmethod
     def listtransactions(cls, address: str) -> list:
         """list transactions of this <address>"""
-
         r = cls.getaddress(address)
         return [i["addresses"] for i in r["last_txs"]]
 
