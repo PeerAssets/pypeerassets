@@ -147,12 +147,11 @@ def parse_deckspawn_metainfo(protobuf: bytes) -> dict:
     }
 
 
-def validate_deckspawn_p2th(provider, deck_id, prod=True):
+def validate_deckspawn_p2th(provider, raw_tx, prod=True):
     '''validate if deck spawn pays to p2th in vout[0] and if it correct P2TH address'''
 
     pa_params = param_query(provider.network)
-    raw = provider.getrawtransaction(deck_id, 1)
-    vout = raw["vout"][0]["scriptPubKey"].get("addresses")[0]
+    vout = raw_tx["vout"][0]["scriptPubKey"].get("addresses")[0]
     error = {"error": "This deck is not properly tagged."}
 
     if prod:

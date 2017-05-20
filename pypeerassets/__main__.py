@@ -22,7 +22,7 @@ def find_all_valid_decks(provider, prod=True) -> list:
 
     def deck_parser(raw_tx):
         try:
-            validate_deckspawn_p2th(provider, raw_tx["txid"], prod=prod)
+            validate_deckspawn_p2th(provider, raw_tx, prod=prod)
 
             if parse_deckspawn_metainfo(read_tx_opreturn(raw_tx)):
 
@@ -37,7 +37,7 @@ def find_all_valid_decks(provider, prod=True) -> list:
                 d["production"] = prod
                 return Deck(**d)
 
-        except AssertionError:
+        except (AssertionError, TypeError) as err:
             pass
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as th:
