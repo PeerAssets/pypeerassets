@@ -8,7 +8,9 @@ class Holy:
 
     """API wrapper for holytransaction.com blockexplorer,
     it only implements queries relevant to peerassets.
-    """
+    Please note that holytransactions will only provide last 100k indexed
+    transactions for each address.
+    """ 
 
     @classmethod
     def __init__(cls, network: str, keysJson: str=""):
