@@ -1,5 +1,4 @@
 import requests
-from pprint import pprint
 from pypeerassets.kutil import Kutil
 
 # https://peercoin.holytransaction.com/info
@@ -13,25 +12,19 @@ class Holy:
     """ 
 
     @classmethod
-    def __init__(cls, network: str, keysJson: str=""):
+    def __init__(self, network: str):
         """
         : network = peercoin, peercoin-testnet ...
         """
 
-        cls.net = cls.network_long_to_short(network)
-        cls.netname = cls.network_short_to_long(cls.net)
-        cls.api = "https://{network}.holytransaction.com/api/".format(network=cls.netname)
-        cls.ext_api = "https://{network}.holytransaction.com/ext/".format(network=cls.netname)
-        cls.api_methods = ("getdifficulty", "getrawtransaction",
+        self.net = self.network_long_to_short(network)
+        self.netname = self.network_short_to_long(self.net)
+        self.api = "https://{network}.holytransaction.com/api/".format(network=self.netname)
+        self.ext_api = "https://{network}.holytransaction.com/ext/".format(network=self.netname)
+        self.api_methods = ("getdifficulty", "getrawtransaction",
                            "getblockcount", "getblockhash", "getblock")
-        cls.ext_api_methods = ("getaddress", "getbalance")
-        cls.api_session = requests.Session()
-
-        if keysJson != "":
-            cls.privkeys = eval(keysJson)
-        else:
-            cls.privkeys = {}
-
+        self.ext_api_methods = ("getaddress", "getbalance")
+        self.api_session = requests.Session()
 
     @property
     def is_testnet(self):
@@ -67,45 +60,45 @@ class Holy:
         return name
 
     @property
-    def network(cls):
+    def network(self):
         """which network is this running on?"""
-        return cls.net
+        return self.net
 
     @classmethod
-    def req(cls, query: str, params: dict):
+    def req(self, query: str, params: dict):
         """Send request, return response."""
-        if query in cls.api_methods:
-            response = cls.api_session.get(cls.api + query, params=params)
-        if query in cls.ext_api_methods:
+        if query in self.api_methods:
+            response = self.api_session.get(self.api + query, params=params)
+        if query in self.ext_api_methods:
             query = query.join([k+"/"+v+"/" for k,v in params.items()])
-            response = cls.api_session.get(cls.ext_api + query)
+            response = self.api_session.get(self.ext_api + query)
 
         return response
 
     @classmethod
-    def getdifficulty(cls) -> dict:
+    def getdifficulty(self) -> dict:
         """Returns current difficulty."""
-        return cls.req("getdifficulty", {}).json()
+        return self.req("getdifficulty", {}).json()
 
     @classmethod
-    def getblockcount(cls) -> int:
+    def getblockcount(self) -> int:
         """Returns block count."""
-        return cls.req("getblockcount", {}).content.decode()
+        return self.req("getblockcount", {}).content.decode()
 
     @classmethod
-    def getblockhash(cls, blocknum: int) -> str:
+    def getblockhash(self, blocknum: int) -> str:
         """Returns the hash of the block at ; index 0 is the genesis block."""
-        return cls.req("getblockhash", {"index": blocknum}).content.decode()
+        return self.req("getblockhash", {"index": blocknum}).content.decode()
 
     @classmethod
-    def getblock(cls, hash: str) -> dict:
+    def getblock(self, hash: str) -> dict:
         """Returns information about the block with the given hash."""
-        return cls.req("getblock", {"hash": hash}).json()
+        return self.req("getblock", {"hash": hash}).json()
 
     @classmethod
-    def getrawtransaction(cls, txid: str, decrypt=1) -> dict:
+    def getrawtransaction(self, txid: str, decrypt=1) -> dict:
         """Returns raw transaction representation for given transaction id. decrypt can be set to 0(false) or 1(true)."""
-        res = cls.req("getrawtransaction", {"txid": txid, "decrypt": decrypt})
+        res = self.req("getrawtransaction", {"txid": txid, "decrypt": decrypt})
 
         if decrypt:
             return res.json()
@@ -113,41 +106,17 @@ class Holy:
             return res.content
 
     @classmethod
-    def getaddress(cls, address: str) -> dict:
+    def getaddress(self, address: str) -> dict:
         """Returns information for given address."""
-        return cls.req("getaddress", {"getaddress": address}).json()
+        return self.req("getaddress", {"getaddress": address}).json()
 
     @classmethod
-    def getbalance(cls, address: str) -> float:
+    def getbalance(self, address: str) -> float:
         """Returns current balance of given address."""
-        return cls.req("getbalance", {"getbalance": address}).content.decode()
+        return self.req("getbalance", {"getbalance": address}).content.decode()
 
     @classmethod
-    def listtransactions(cls, address: str) -> list:
+    def listtransactions(self, address: str) -> list:
         """list transactions of this <address>"""
-        r = cls.getaddress(address)
+        r = self.getaddress(address)
         return [i["addresses"] for i in r["last_txs"]]
-
-    @classmethod
-    def importprivkey(cls, privkey: str, label: str) -> int:
-        """import <privkey> with <label>"""
-        mykey = Kutil(wif=privkey)
-
-        if label not in cls.privkeys.keys():
-            cls.privkeys[label] = []
-
-        if mykey._privkey not in [key['privkey'] for key in cls.privkeys[label]]:
-            cls.privkeys[label].append({"privkey":mykey._privkey,"address":mykey.address})
-
-    @classmethod
-    def getaddressesbyaccount(cls, label: str) -> list:
-        if label in cls.privkeys.keys():
-            return [key["address"] for key in cls.privkeys[label]]
-
-    @classmethod
-    def listaccounts(cls) -> dict:
-        return {key:0 for key in cls.privkeys.keys()}
-
-    @classmethod
-    def dumpprivkeys(cls) -> dict:
-        return cls.privkeys
