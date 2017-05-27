@@ -41,13 +41,13 @@ class Kutil:
         for field, var in zip(networks.query(query)._fields, networks.query(query)):
             setattr(self, field, var)
 
-    def wif_to_privkey(self, wif: str) -> bytes:
+    def wif_to_privkey(self, wif: str):
         '''import WIF'''
-        if 51 < len(wif) < 52:
+        if not 51 <= len(wif) <= 52:
             return 'Invalid WIF length'
 
         b58_wif = b58decode(wif)
-        return {'privkey': b58_wif, 'net_prefix': hexlify(b58_wif[0:1])}
+        return {'privkey': b58_wif[1:33], 'net_prefix': hexlify(b58_wif[0:1])}
 
     @property
     def address(self) -> str:
