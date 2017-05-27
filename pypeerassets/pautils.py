@@ -10,19 +10,13 @@ from . import paproto
 def load_p2th_privkeys_into_local_node(provider, prod=True):
     '''load production p2th privkey into local node'''
 
-    assert isinstance(provider, RpcNode), {"error": "You can load privkeys only into local node."}
     error = {"error": "Loading P2TH privkey failed."}
     pa_params = param_query(provider.network)
 
     if prod:
         provider.importprivkey(pa_params.P2TH_wif, "PAPROD")
-        check_addr = provider.validateaddress(pa_params.P2TH_addr)
-
     else:
         provider.importprivkey(pa_params.test_P2TH_wif, "PATEST")
-        check_addr = provider.validateaddress(pa_params.test_P2TH_addr)
-
-    assert check_addr["isvalid"] and check_addr["ismine"], error
 
 def find_tx_sender(provider, raw_tx: dict) -> str:
     '''find transaction sender, vin[0] is used in this case.'''
