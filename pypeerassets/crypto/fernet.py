@@ -1,4 +1,4 @@
-from cryptography.fernet import Fernet as F
+from .fernet import Fernet as F
 from base64 import b64encode
 
 class Fernet:
