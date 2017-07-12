@@ -5,7 +5,7 @@ try:
     is_ecdsa = False
 except ImportError:
     is_ecdsa = True
-    from crypto.ecdsa import PrivateKey
+    from .crypto.ecdsa import PrivateKey
 
 from pypeerassets.base58 import b58encode, b58decode
 from random import SystemRandom
