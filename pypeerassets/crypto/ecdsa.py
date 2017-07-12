@@ -2,6 +2,7 @@ from hashlib import sha256
 from random import SystemRandom, randrange
 from binascii import hexlify, unhexlify
 
+
 class PrivateKey:
 
     def __init__(self, privkey = None):
