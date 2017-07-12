@@ -1,10 +1,12 @@
 from pypeerassets import networks
+
 try:
     from coincurve import PrivateKey
     is_ecdsa = False
 except ImportError:
     is_ecdsa = True
     from crypto.ecdsa import PrivateKey
+
 from pypeerassets.base58 import b58encode, b58decode
 from random import SystemRandom
 from hashlib import sha256, new
@@ -43,7 +45,6 @@ class Kutil:
         self.load_network_parameters(network)
 
     def load_network_parameters(self, query: str):
-        import networks
         '''loads network parameters and sets class variables'''
 
         for field, var in zip(networks.query(query)._fields, networks.query(query)):
