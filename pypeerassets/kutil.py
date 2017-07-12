@@ -1,8 +1,10 @@
 from pypeerassets import networks
 try:
     from coincurve import PrivateKey
+    is_ecdsa = False
 except ImportError:
-    from pypeerassets.ecdsa import ECDSA
+    is_ecdsa = True
+    from crypto.ecdsa import PrivateKey
 from pypeerassets.base58 import b58encode, b58decode
 from random import SystemRandom
 from hashlib import sha256, new
@@ -30,12 +32,18 @@ class Kutil:
 
         if privkey == seed == wif == None:
             self.keypair = PrivateKey()
-
-        self._privkey = self.keypair.to_hex().encode()
-        self.pubkey = hexlify(self.keypair.public_key.format())
+        
+        if not is_ecdsa:
+            self._privkey = self.keypair.to_hex().encode()
+            self.pubkey = hexlify(self.keypair.public_key.format())
+        else:
+            self._privkey = self.keypair.private_key
+            self.pubkey = self.keypair.public_key
+        
         self.load_network_parameters(network)
 
     def load_network_parameters(self, query: str):
+        import networks
         '''loads network parameters and sets class variables'''
 
         for field, var in zip(networks.query(query)._fields, networks.query(query)):
