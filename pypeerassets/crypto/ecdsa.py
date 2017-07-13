@@ -1,4 +1,5 @@
 from hashlib import sha256
+from binascii import hexlify
 from random import SystemRandom, randrange
 
 
@@ -17,10 +18,14 @@ class PrivateKey:
             self.private_key = '{:0>64x}'.format(self.privkey).encode()
 
         else:
-            if not isinstance(privkey,str):
-                privkey = privkey.decode()
-            self.privkey = int(privkey,16)
-        
+            if isinstance(privkey, bytes):
+                self.privkey = int.from_bytes(privkey,byteorder='big')
+                try:
+                    int(privkey.decode(),16)
+                    self.private_key = privkey
+                except:
+                    self.private_key = hexlify(privkey)
+
         self.public_key = self.pubkey()
 
     def hash_message(self, message):
