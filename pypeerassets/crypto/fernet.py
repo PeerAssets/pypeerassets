@@ -1,4 +1,4 @@
-from .fernet import Fernet as F
+from cryptography.fernet import Fernet as F
 
 
 class Fernet:

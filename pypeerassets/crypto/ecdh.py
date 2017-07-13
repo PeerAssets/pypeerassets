@@ -1,4 +1,4 @@
-from ecdsa import scalar_mult
+from .ecdsa import scalar_mult
 from base64 import b64encode
 
 
