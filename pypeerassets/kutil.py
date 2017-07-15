@@ -32,16 +32,16 @@ class Kutil:
             self.keypair = PrivateKey(key["privkey"])
             network = key['net_prefix']
 
-        if privkey == seed == wif == None:
+        if privkey == seed == wif is None:
             self.keypair = PrivateKey()
-        
+
         if not is_ecdsa:
             self._privkey = self.keypair.to_hex().encode()
             self.pubkey = hexlify(self.keypair.public_key.format())
         else:
             self._privkey = self.keypair.private_key
             self.pubkey = self.keypair.public_key
-        
+
         self.load_network_parameters(network)
 
     def load_network_parameters(self, query: str):
