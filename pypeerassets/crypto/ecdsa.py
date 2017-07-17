@@ -5,7 +5,7 @@ from random import SystemRandom, randrange
 
 class PrivateKey:
 
-    def __init__(self, privkey = None):
+    def __init__(self, privkey=None):
 
         self.p = 0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f
         self.n = 0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141
@@ -14,12 +14,12 @@ class PrivateKey:
         self.g = (Gx, Gy)
 
         if privkey is None:
-            self.privkey = SystemRandom().randrange(1,self.n)
+            self.privkey = SystemRandom().randrange(1, self.n)
             self.private_key = '{:0>64x}'.format(self.privkey).encode()
 
         else:
             if isinstance(privkey, bytes):
-                self.privkey = int.from_bytes(privkey,byteorder='big')
+                self.privkey = int.from_bytes(privkey, byteorder='big')
                 try:
                     int(privkey.decode(),16)
                     self.private_key = privkey
@@ -36,57 +36,58 @@ class PrivateKey:
             z = e >> (e.bit_length() - self.n.bit_length())
         else:
             z = e << (self.n.bit_length() - e.bit_length())
-            
+
         assert z.bit_length() <= self.n.bit_length()
-    
+
         return z
-    
+
     def sign_message(self, message):
         ''' takes message input as string '''
+
         if isinstance(message, str):
             message = message.encode()
 
         z = self.hash_message(message)
-    
+
         r = 0
         s = 0
-    
+
         while not r or not s:
-            
+
             privkey = randrange(1, self.n)
             x, y = scalar_mult(privkey, self.g, self.p, self.n)
-    
+
             r = x % self.n
-            s = ((z + r * self.privkey) * inverse_mod( privkey, self.n)) % self.n
-    
+            s = ((z + r * self.privkey) * inverse_mod(privkey, self.n)) % self.n
+
         return (r, s)
-    
-    def verify_signature(self, message, signature, pubkey = None):
-        ''' takes message input as string and signature input as tuple ( r, s ) '''
-        
+
+    def verify_signature(self, message, signature, pubkey=None):
+        ''' takes message input as string and signature input as tuple ( r, s )'''
+
         z = self.hash_message(message.encode())
-        
+
         if pubkey is None:
             pubkey = self.pubkey(compressed=False)
-        
+
         r, s = signature
-    
+
         w = inverse_mod(s, self.n)
         u1 = (z * w) % self.n
         u2 = (r * w) % self.n
-    
+
         x, y = point_add(scalar_mult(u1, self.g,self.p, self.n),
                          scalar_mult(u2, pubkey, self.p, self.n), self.p)
-    
+
         if (r % self.n) == (x % self.n):
             return True
         else:
             return False
-    
+
     def pubkey(self, compressed=True):
-        
+
         x, y = scalar_mult(self.privkey, self.g, self.p, self.n)
-        
+
         if not compressed:
             return (x, y)
 
@@ -96,18 +97,18 @@ class PrivateKey:
             prefix = b'02'
         else:
             prefix = b'03'
-            
+
         return prefix + x 
 
     def make_keypair(self):
         """Generates a random private-public key pair."""
-        self.privkey = SystemRandom().randrange(1,self.n)
+        self.privkey = SystemRandom().randrange(1, self.n)
 
         self.public_key = self.pubkey()
         self.g = self.pubkey(compressed=False)
         self.private_key = '{:0>64x}'.format(self.privkey).encode()
 
-        return {"private_key":self.private_key,"public_key": self.public_key}
+        return {"private_key": self.private_key, "public_key": self.public_key}
 
 
 def is_on_curve(point, p):
@@ -119,6 +120,7 @@ def is_on_curve(point, p):
 
     return (y * y - x * x * x - 7) % p == 0
 
+
 def point_neg(point, p):
 
     if point is None:
@@ -129,12 +131,12 @@ def point_neg(point, p):
 
     return result
 
-def point_add(point1, point2, p):
 
+def point_add(point1, point2, p):
 
     if point1 is None:
         return point2
-    
+
     if point2 is None:
         return point1
 
@@ -146,17 +148,18 @@ def point_add(point1, point2, p):
 
     if x1 == x2:
         m = (3 * x1 * x1) * inverse_mod(2 * y1, p)
-        
+
     else:
         m = (y1 - y2) * inverse_mod(x1 - x2, p)
 
     x3 = m * m - x1 - x2
     y3 = y1 + m * (x3 - x1)
     result = (x3 % p, -y3 % p)
-    
+
     return result
-    
-def inverse_mod( privkey, p):
+
+
+def inverse_mod(privkey, p):
 
     if privkey == 0:
         raise ZeroDivisionError('division by zero')
@@ -181,8 +184,8 @@ def inverse_mod( privkey, p):
 
     return x % p
 
-def scalar_mult(privkey, point, p, n):
 
+def scalar_mult(privkey, point, p, n):
 
     assert is_on_curve(point, p)
 
