@@ -1,21 +1,19 @@
-from pypeerassets import networks
+from pypeerassets.networks import query
 
 try:
     from coincurve import PrivateKey
     is_ecdsa = False
 except ImportError:
     is_ecdsa = True
-    from .crypto.ecdsa import PrivateKey
-
+    from pypeerassets.crypto.ecdsa import PrivateKey
 from pypeerassets.base58 import b58encode, b58decode
-from random import SystemRandom
 from hashlib import sha256, new
 from binascii import hexlify, unhexlify
 
 
 class Kutil:
 
-    def __init__(self, privkey=None, seed=None, wif=None, network=None):
+    def __init__(self, network: str, privkey=None, seed=None, wif=None):
         '''wif=<WIF> import private key from your wallet in WIF format
            privkey=<privkey> import private key in binary format
            network=<network> specify network [ppc, tppc, btc]
@@ -44,10 +42,10 @@ class Kutil:
 
         self.load_network_parameters(network)
 
-    def load_network_parameters(self, query: str):
+    def load_network_parameters(self, network: str):
         '''loads network parameters and sets class variables'''
 
-        for field, var in zip(networks.query(query)._fields, networks.query(query)):
+        for field, var in zip(query(network)._fields, query(network)):
             setattr(self, field, var)
 
     def wif_to_privkey(self, wif: str):
