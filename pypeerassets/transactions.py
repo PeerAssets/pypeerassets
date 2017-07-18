@@ -19,6 +19,7 @@ OP_3 = b'\x53'
 OP_CHECKMULTISIG = b'\xae'
 OP_EQUAL = b'\x87'
 
+
 class Tx_buffer:
     '''helper class for unpacking binary data'''
 
@@ -65,6 +66,7 @@ def get_hash160(address):
 
     return b58decode(address)[1:-4]
 
+
 def op_push(n: int) -> bytes:
 
     if n < 0x4c:
@@ -75,6 +77,7 @@ def op_push(n: int) -> bytes:
         return b'\x4d' + (n).to_bytes(2, byteorder='little')    # OP_PUSHDATA2
     else:
         return b'\x4e' + (n).to_bytes(4, byteorder='little')    # OP_PUSHDATA4
+
 
 def var_int(i: int) -> bytes:
 
@@ -87,11 +90,13 @@ def var_int(i: int) -> bytes:
     else:
         return b'\xff' + (i).to_bytes(8, byteorder='little')
 
+
 def pack_uint64(i: int) -> bytes:
     upper = int(i / 4294967296)
     lower = i - upper * 4294967296
 
     return struct.pack('<L', lower) + struct.pack('<L', upper)
+
 
 def monosig_script(address: str) -> bytes:
     '''returns a mono-signature output script'''
@@ -101,12 +106,14 @@ def monosig_script(address: str) -> bytes:
     script = OP_DUP + OP_HASH160 + op_push(n) + hash160 + OP_EQUALVERIFY + OP_CHECKSIG
     return script
 
+
 def op_return_script(data: bytes) -> bytes:
     '''returns a single OP_RETURN output script'''
 
     data = hexlify(data)
     script = hexlify(OP_RETURN + op_push(len(data)//2)) + data
     return unhexlify(script)
+
 
 def make_raw_transaction(network: str, inputs: list, outputs: list,
                          sequence_number=b'\xff\xff\xff\xff', lock_time=b'\x00\x00\x00\x00') -> bytes:
@@ -139,6 +146,7 @@ def make_raw_transaction(network: str, inputs: list, outputs: list,
     raw_tx += lock_time # nLockTime
 
     return raw_tx
+
 
 def unpack_txn_buffer(buffer: Tx_buffer, network: str) -> dict:
 
