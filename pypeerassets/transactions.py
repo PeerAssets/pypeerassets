@@ -23,7 +23,7 @@ OP_EQUAL = b'\x87'
 class Tx_buffer:
     '''helper class for unpacking binary data'''
 
-    def __init__(self, data, ptr=0):
+    def __init__(self, data: bytes, ptr=0):
         self.data = data
         self.len = len(data)
         self.ptr = ptr
