@@ -42,13 +42,13 @@ class Kutil:
 
         self.load_network_parameters(network)
 
-    def load_network_parameters(self, network: str):
+    def load_network_parameters(self, network: str) -> None:
         '''loads network parameters and sets class variables'''
 
         for field, var in zip(query(network)._fields, query(network)):
             setattr(self, field, var)
 
-    def wif_to_privkey(self, wif: str):
+    def wif_to_privkey(self, wif: str) -> dict:
         '''import WIF'''
         if not 51 <= len(wif) <= 52:
             return 'Invalid WIF length'
