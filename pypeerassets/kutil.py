@@ -34,10 +34,10 @@ class Kutil:
             self.keypair = PrivateKey()
 
         if not is_ecdsa:
-            self._privkey = self.keypair.to_hex().encode()
+            self.privkey = self.keypair.to_hex().encode()
             self.pubkey = hexlify(self.keypair.public_key.format())
         else:
-            self._privkey = self.keypair.private_key
+            self.privkey = self.keypair.private_key
             self.pubkey = self.keypair.public_key
 
         self.load_network_parameters(network)
@@ -73,7 +73,7 @@ class Kutil:
     def wif(self) -> str:
         '''convert raw private key to WIF'''
 
-        extkey = unhexlify(self.wif_prefix + self._privkey + b'01')  # compressed by default
+        extkey = unhexlify(self.wif_prefix + self.privkey + b'01')  # compressed by default
         extcheck = extkey + sha256(sha256(extkey).digest()).digest()[0:4]
         wif = b58encode(extcheck)
 
