@@ -20,11 +20,10 @@ class PrivateKey:
         else:
             if isinstance(privkey, bytes):
                 self.privkey = int.from_bytes(privkey, byteorder='big')
-                try:
-                    int(privkey.decode(),16)
-                    self.private_key = privkey
-                except:
-                    self.private_key = hexlify(privkey)
+                self.private_key = hexlify(privkey)
+            if isinstance(privkey, str):
+                self.privkey = int(privkey, 16)
+                self.private_key = privkey.encode()
 
         self.public_key = self.pubkey()
 
