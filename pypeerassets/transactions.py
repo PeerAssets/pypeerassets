@@ -3,7 +3,7 @@
 
 from pypeerassets.base58 import b58decode
 from binascii import hexlify, unhexlify
-from .networks import query, networks
+from .networks import query
 from time import time
 import struct
 
