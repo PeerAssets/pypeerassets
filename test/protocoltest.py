@@ -25,3 +25,28 @@ def test_deck_object():
     assert deck.metainfo_to_protobuf == b'\x08\x01\x12\x05decky\x18\x02 \x04*\rJust testing.'
 
     assert deck.metainfo_to_dict == {'issue_mode': 'MULTI', 'name': 'decky', 'number_of_decimals': 2, 'version': 1}
+
+
+def test_card_transfer_object():
+
+    card_transfer = protocol.CardTransfer(deck=deck,
+                                          receiver=["PDZ9MPBPPjtT6qdJm98PhLVY9gNtFUoSLT"],
+                                          amount=[1], version=1)
+
+    assert card_transfer.metainfo_to_protobuf == b'\x08\x01\x12\x01\x01\x18\x02'
+
+    assert card_transfer.__dict__ == {'amount': [1],
+                                      'asset_specific_data': '',
+                                      'blockhash': 0,
+                                      'blocknum': 0,
+                                      'blockseq': 0,
+                                      'cardseq': 0,
+                                      'deck_id': None,
+                                      'number_of_decimals': 2,
+                                      'receiver': ['PDZ9MPBPPjtT6qdJm98PhLVY9gNtFUoSLT'],
+                                      'sender': None,
+                                      'timestamp': 0,
+                                      'txid': None,
+                                      'type': 'CardTransfer',
+                                      'version': 1
+                                      }
