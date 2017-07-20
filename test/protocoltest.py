@@ -21,3 +21,7 @@ def test_deck_object():
                              'testnet': False,
                              'version': 1
                              }
+
+    assert deck.metainfo_to_protobuf == b'\x08\x01\x12\x05decky\x18\x02 \x04*\rJust testing.'
+
+    assert deck.metainfo_to_dict == {'issue_mode': 'MULTI', 'name': 'decky', 'number_of_decimals': 2, 'version': 1}
