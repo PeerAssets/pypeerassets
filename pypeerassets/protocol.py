@@ -157,7 +157,7 @@ class CardTransfer:
 
 
 def validate_card_issue_modes(deck: Deck, cards: list) -> list:
-    """validate card transfer against deck issue mode"""
+    """validate card transfers against deck issue mode"""
 
     error = {"error": "Invalid issue mode."}
 
