@@ -1,5 +1,6 @@
 import requests
 
+
 class Mintr:
 
     '''API wrapper for mintr.org blockexplorer,
@@ -7,10 +8,9 @@ class Mintr:
     This wrapper does some tweaks to output to match original RPC response.'''
 
     @classmethod
-    def __init__(cls, network="peercoin"):
+    def __init__(cls):
 
-        cls.net = network
-        cls.api = "https://{0}.mintr.org/api/".format(cls.net)
+        cls.api = "https://peercoin.mintr.org/api/"
 
     @property
     def is_testnet(self):
@@ -20,9 +20,7 @@ class Mintr:
     @property
     def network(self):
         '''which network is this running on?'''
-
-        if self.network == "peercoin":
-            return "ppc"
+        return "ppc"
 
     @classmethod
     def get(cls, query):
@@ -87,4 +85,3 @@ class Mintr:
             txid.append(t)
 
         return txid
-
