@@ -29,6 +29,11 @@ def test_deck_object():
 
 def test_card_transfer_object():
 
+    deck = protocol.Deck(name="decky", number_of_decimals=2, issue_mode="MULTI",
+                         network="ppc", production=True,
+                         asset_specific_data="Just testing.")
+
+
     card_transfer = protocol.CardTransfer(deck=deck,
                                           receiver=["PDZ9MPBPPjtT6qdJm98PhLVY9gNtFUoSLT"],
                                           amount=[1], version=1)
