@@ -89,8 +89,8 @@ class CardTransfer:
         or it can be initialized with passed arguments.
 
         * deck - instance of Deck object
-        * receivers - list of receivers
-        * amounts - list of amounts to be sent, must be float
+        * receiver - list of receivers
+        * amount - list of amounts to be sent, must be float
         * version - protocol version, default 1
         * txid - transaction ID of CardTransfer
         * sender - transaction sender
