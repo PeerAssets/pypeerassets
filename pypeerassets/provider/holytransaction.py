@@ -35,9 +35,9 @@ class Holy:
         """testnet or not?"""
 
         if self.net == "peercoin":
-            return True
-        if self.net == "peercoin-testnet":
             return False
+        if self.net == "peercoin-testnet":
+            return True
 
     @staticmethod
     def network_long_to_short(name):
