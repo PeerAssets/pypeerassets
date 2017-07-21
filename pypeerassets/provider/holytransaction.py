@@ -1,7 +1,11 @@
-import requests
-from pypeerassets.kutil import Kutil
 
-# https://peercoin.holytransaction.com/info
+'''
+API wrapper for holytransaction blockexplorer.
+See https://peercoin.holytransaction.com/info for more information.
+'''
+
+import requests
+
 
 class Holy:
 
@@ -9,7 +13,7 @@ class Holy:
     it only implements queries relevant to peerassets.
     Please note that holytransactions will only provide last 100k indexed
     transactions for each address.
-    """ 
+    """
 
     @classmethod
     def __init__(self, network: str):
