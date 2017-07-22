@@ -87,7 +87,7 @@ class Holy:
     @classmethod
     def getblockcount(self) -> int:
         """Returns block count."""
-        return self.req("getblockcount", {}).content.decode()
+        return int(self.req("getblockcount", {}).content.decode())
 
     @classmethod
     def getblockhash(self, blocknum: int) -> str:
