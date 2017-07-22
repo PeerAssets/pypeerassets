@@ -119,7 +119,8 @@ class Holy:
     @classmethod
     def getbalance(self, address: str) -> float:
         """Returns current balance of given address."""
-        return self.req("getbalance", {"getbalance": address}).content.decode()
+
+        return float(self.req("getbalance", {"getbalance": address}).content.decode())
 
     @classmethod
     def listtransactions(self, address: str) -> list:
