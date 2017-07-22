@@ -101,7 +101,9 @@ class Holy:
 
     @classmethod
     def getrawtransaction(self, txid: str, decrypt=1) -> dict:
-        """Returns raw transaction representation for given transaction id. decrypt can be set to 0(false) or 1(true)."""
+        """Returns raw transaction representation for given transaction id.
+        decrypt can be set to 0(false) or 1(true)."""
+
         res = self.req("getrawtransaction", {"txid": txid, "decrypt": decrypt})
 
         if decrypt:
