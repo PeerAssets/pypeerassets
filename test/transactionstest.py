@@ -79,7 +79,7 @@ def test_op_return_script():
     assert op_return_script("kokolomoj".encode()) == b'j\tkokolomoj'
 
 
-def test_transaction_dissasembly_test():
+def test_transaction_dissasembly():
     '''verifies that transaction dissasembly is in order'''
 
     tx = "10060b0349d3c84a7d88bd396a703d6df39c587bf8169fef73db46e7b346efe5"
@@ -107,26 +107,25 @@ def test_transaction_dissasembly_test():
 
     assert unpack_raw_transaction(rawtx=rawtx, network="ppc") == decoded_raw_tx
 
-"""
-    def test_transaction_assembly_test(self):
-        '''verifies that transaction assembly is functioning properly'''
 
-        prev_txid = unhexlify('4fe5233fe5b25047730e41fc2fcdbaf270aa01a35c6292f13ab7432529d6d293')
+def test_transaction_assembly():
+    '''verifies that transaction assembly is functioning properly'''
 
-        inputs = [{'txid': prev_txid,
-                   'vout':2,
-                   'scriptSig': unhexlify('483045022057a5995013c8c55a16c1f692d91881fef443a467316d73a15abd65b6ca6c77dd022100f349283acebe70c2be16dcfd7860aa530e920e74f7a4afeb905d58d73e381ce2012103cd1236a7327457047f596e621b7dfa4a923cfdafffd6094e12db09f0f5695b4d')}]
+    prev_txid = unhexlify('4fe5233fe5b25047730e41fc2fcdbaf270aa01a35c6292f13ab7432529d6d293')
 
-        outputs = [{'redeem': 123,
-                    'outputScript': unhexlify('76a9141e667ee94ea8e62c63fe59a0269bb3c091c86ca388ac')}]
+    inputs = [{'txid': prev_txid,
+                'vout':2,
+                'scriptSig': unhexlify('483045022057a5995013c8c55a16c1f692d91881fef443a467316d73a15abd65b6ca6c77dd022100f349283acebe70c2be16dcfd7860aa530e920e74f7a4afeb905d58d73e381ce2012103cd1236a7327457047f596e621b7dfa4a923cfdafffd6094e12db09f0f5695b4d')}]
 
-        raw_tx = make_raw_transaction(inputs, outputs, network='ppc')
+    outputs = [{'redeem': 123,
+                'outputScript': unhexlify('76a9141e667ee94ea8e62c63fe59a0269bb3c091c86ca388ac')}]
 
-        # split on vin[0] txid to make test time independent
-        split = raw_tx.split(prev_txid[::-1]) # txid is stored reversed
+    raw_tx = make_raw_transaction(inputs=inputs, outputs=outputs, network='ppc')
 
-        self.assertTrue(len(split) > 1, msg='Failed to find vin[0] txid in raw_tx')
+    # split on vin[0] txid to make test time independent
+    split = raw_tx.split(prev_txid[::-1]) # txid is stored reversed
 
-        # Match the remainder
-        self.assertEqual(hexlify(split[1]), b'020000006b483045022057a5995013c8c55a16c1f692d91881fef443a467316d73a15abd65b6ca6c77dd022100f349283acebe70c2be16dcfd7860aa530e920e74f7a4afeb905d58d73e381ce2012103cd1236a7327457047f596e621b7dfa4a923cfdafffd6094e12db09f0f5695b4dffffffff01c0d45407000000001976a9141e667ee94ea8e62c63fe59a0269bb3c091c86ca388ac00000000')
-"""
+    assert len(split) > 1, 'Failed to find vin[0] txid in raw_tx'
+
+    # Match the remainder
+    assert hexlify(split[1]) == b'020000006b483045022057a5995013c8c55a16c1f692d91881fef443a467316d73a15abd65b6ca6c77dd022100f349283acebe70c2be16dcfd7860aa530e920e74f7a4afeb905d58d73e381ce2012103cd1236a7327457047f596e621b7dfa4a923cfdafffd6094e12db09f0f5695b4dffffffff01c0d45407000000001976a9141e667ee94ea8e62c63fe59a0269bb3c091c86ca388ac00000000'
