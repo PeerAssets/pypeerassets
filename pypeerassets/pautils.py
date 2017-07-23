@@ -2,21 +2,26 @@
 '''miscellaneous utilities.'''
 
 import binascii
+from pypeerassets import RpcNode
 from pypeerassets.provider import *
 from .constants import param_query, params
 from . import paproto
 
 
-def load_p2th_privkeys_into_local_node(provider, prod=True):
+def load_p2th_privkeys_into_local_node(provider: RpcNode, prod=True) -> None:
     '''load production p2th privkey into local node'''
 
+    assert isinstance(provider, RpcNode), {"error": "Import only works with local node."}
     error = {"error": "Loading P2TH privkey failed."}
     pa_params = param_query(provider.network)
 
     if prod:
         provider.importprivkey(pa_params.P2TH_wif, "PAPROD")
+        assert isinstance(provider.listtransactions("PAPROD"), list), error
     else:
         provider.importprivkey(pa_params.test_P2TH_wif, "PATEST")
+        assert isinstance(provider.listtransactions("PATEST"), list), error
+
 
 def find_tx_sender(provider, raw_tx: dict) -> str:
     '''find transaction sender, vin[0] is used in this case.'''
