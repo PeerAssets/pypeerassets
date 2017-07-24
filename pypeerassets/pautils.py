@@ -2,7 +2,6 @@
 '''miscellaneous utilities.'''
 
 import binascii
-from pypeerassets import RpcNode
 from pypeerassets.provider import *
 from .constants import param_query, params
 from . import paproto
@@ -30,6 +29,7 @@ def find_tx_sender(provider, raw_tx: dict) -> str:
     txid = vin["txid"]
     index = vin["vout"]
     return provider.getrawtransaction(txid, 1)["vout"][index]["scriptPubKey"]["addresses"][0]
+
 
 def find_deck_spawns(provider, prod=True):
     '''find deck spawn transactions via provider,
@@ -160,6 +160,7 @@ def validate_deckspawn_p2th(provider, raw_tx, prod=True):
         assert vout == pa_params.test_P2TH_addr, error
         return True
 
+
 def load_deck_p2th_into_local_node(provider, deck) -> None:
     '''
     load deck p2th into local node,
@@ -249,8 +250,8 @@ def amount_to_exponent(amount: float, number_of_decimals: int) -> int:
 
     return int(amount * 10**number_of_decimals)
 
+
 def exponent_to_amount(exponent: int, number_of_decimals: int) -> float:
     '''exponent to integer to be written on the chain'''
 
     return exponent / 10**number_of_decimals
-
