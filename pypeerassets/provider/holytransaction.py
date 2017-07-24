@@ -125,5 +125,9 @@ class Holy:
     @classmethod
     def listtransactions(self, address: str) -> list:
         """list transactions of this <address>"""
+
         r = self.getaddress(address)
-        return [i["addresses"] for i in r["last_txs"]]
+        try:
+            return [i["addresses"] for i in r["last_txs"]]
+        except KeyError:
+            print({'error': 'Address not found.'})
