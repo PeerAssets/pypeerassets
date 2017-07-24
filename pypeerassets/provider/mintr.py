@@ -92,3 +92,25 @@ class Mintr:
             txid.append(t)
 
         return txid
+
+    @classmethod
+    def getblock(cls, blockhash: str) -> dict:
+        '''get full block data, query by <blockhash>'''
+
+        def _wrapper(raw):
+
+            raw["tx"] = []
+
+            for t in raw["transactions"]:
+                raw["tx"].append(t["tx_hash"])
+
+            raw.pop("transactions")
+
+            return raw
+
+        resp = cls.get("block/height/" + blockhash + "/full")
+
+        if resp != {'error': 'Could not decode hash'}:
+            return _wrapper(resp)
+        else:
+            return resp
