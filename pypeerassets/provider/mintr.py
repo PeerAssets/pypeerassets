@@ -47,10 +47,17 @@ class Mintr:
             for v in raw["vout"]:
                 v["scriptPubKey"] = {"asm": v["asm"], "hex": v["hex"],
                                      "type": v["type"], "reqSigs": v["reqsigs"],
-                                     "address": [v["address"]]
+                                     "addresses": [v["address"]]
                                     }
                 for k in ("address", "asm", "hex", "reqsigs", "type"):
                     v.pop(k)
+
+            for i in raw["vin"]:
+                i["txid"] = i["output_txid"]
+                i["addresses"] = i["address"]
+                i["vout"] = int(i["vout"])
+                i.pop("output_txid")
+                i.pop("address")
 
             return raw
 
