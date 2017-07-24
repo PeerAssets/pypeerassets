@@ -104,6 +104,7 @@ class Mintr:
             for t in raw["transactions"]:
                 raw["tx"].append(t["tx_hash"])
 
+            raw["height"] = int(raw["height"])
             raw.pop("transactions")
 
             return raw
