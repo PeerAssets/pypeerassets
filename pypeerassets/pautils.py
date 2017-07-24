@@ -68,12 +68,6 @@ def tx_serialization_order(provider, blockhash: str, txid: str) -> int:
     return provider.getblock(blockhash)["tx"].index(txid)
 
 
-def get_block_info(provider, blockchash: str) -> int:
-    '''get block info'''
-
-    return provider.getblock(blockchash)
-
-
 def read_tx_opreturn(raw_tx: dict) -> bytes:
     '''Decode OP_RETURN message from raw_tx'''
 

@@ -130,7 +130,7 @@ def find_card_transfers(provider, deck: Deck) -> list:
             except KeyError:
                 blockseq = None
             try:  # try to get block number of block when this tx was written
-                blocknum = get_block_info(provider, raw_tx["blockhash"])["height"]
+                blocknum = provider.getblock(raw_tx["blockhash"])["height"]
             except KeyError:
                 blocknum = None
 
