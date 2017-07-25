@@ -143,14 +143,18 @@ def make_raw_transaction(network: str, inputs: list, outputs: list,
     return raw_tx
 
 def script_asm( script ):
-
+    ''' Converts hex to assembly in Bitcoin's Script Language '''
+    
+    # Script types and the OP_CODES they use
     P2PK = ['CHECKSIG']
     P2PKH = ['DUP','HASH160','CHECKSIG']
     P2SH = ['HASH160','EQUAL']
-
+    
+    # List of Values and Keys from supported OP_CODES
     vals = list(OP.values())
     keys = list(OP.keys())
 
+    # Setup empty list to append identified OP_CODES
     op_codes = []
     _script = hexlify(script).decode()
     n = len(_script)
@@ -159,22 +163,32 @@ def script_asm( script ):
     reqSigs = 1
 
     for i,v in enumerate( script ):
+        # Evaluate each byte of the script
         byte = (v).to_bytes(1,'big')
         if byte in vals:
+            # Check for match in supported OP_CODE values
             op_codes.append( keys[ vals.index( byte ) ] )
+            
     if all( i in op_codes for i in P2PK):
+        # Pay-to-PubKey
         stype = "pubkey"
         asm = _script[2:n-2] + " OP_CHECKSIG"
+        return {"hex": _script, "asm": asm , "type": stype, "reqSigs": reqSigs}
 
     if all( i in op_codes for i in P2PKH):
+        # Pay-to-PubKeyHash
         stype = "pubkeyhash"
         asm = "OP_DUP OP_HASH160 " + _script[6:n-4] + " OP_EQUALVERIFY" + " OP_CHECKSIG"
+        return {"hex": _script, "asm": asm , "type": stype, "reqSigs": reqSigs}
     
     if all( i in op_codes for i in P2SH):
+        # Pay-to-ScriptHash
         stype = "scripthash"
         asm = "OP_HASH160 " + _script[2:n-2] + " OP_EQUAL"
+        return {"hex": _script, "asm": asm , "type": stype, "reqSigs": reqSigs}
 
     if _script[:2] == '6a':
+        # Nulldata / OP_RETURN Script
         stype = "nulldata"
         n = 4
         if _script[2:4] == '4c':
@@ -184,10 +198,7 @@ def script_asm( script ):
         if _script[2:4] == '4e':
             n += 6
         asm = "OP_RETURN " + _script[n:]
-        
         return {"hex": _script, "asm": asm , "type": stype}
-
-    return {"hex": _script, "asm": asm , "type": stype, "reqSigs": reqSigs}
     
 def unpack_txn_buffer(buffer: Tx_buffer, network: str) -> dict:
 
