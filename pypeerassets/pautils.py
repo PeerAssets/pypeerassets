@@ -92,7 +92,6 @@ def read_tx_opreturn(raw_tx: dict) -> bytes:
 def validate_deckspawn_metainfo(deck) -> None:
     '''validate deck_spawn'''
 
-    assert deck.version > 0, {"error": "Deck metainfo incomplete, version can't be 0."}
     assert deck.name is not "", {"error": "Deck metainfo incomplete, Deck must have a name."}
 
 
