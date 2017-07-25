@@ -142,7 +142,7 @@ def make_raw_transaction(network: str, inputs: list, outputs: list,
 
     return raw_tx
 
-def script_asm( script ):
+def script_asm( script: bytes ) -> dict:
     ''' Converts hex to assembly in Bitcoin's Script Language '''
     
     # Script types and the OP_CODES they use
