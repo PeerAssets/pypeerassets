@@ -50,7 +50,12 @@ def test_mintr_getrawtransaction():
                                       ]
                                     }
 
-    assert Mintr().getrawtransaction("147c4daf47293fb670efd97dd7f9f6e964f515e6478e0cc3a668e4330f12ad6f") == tx
+    assert isinstance(Mintr().getrawtransaction("147c4daf47293fb670efd97dd7f9f6e964f515e6478e0cc3a668e4330f12ad6f"), dict)
+
+
+def test_mintr_getblock():
+
+    assert isinstance(Mintr().getblock('be48bcf5155b4650d75d600bf1e9f37a5a049c2905542c6ced43ec0cb57673e8'), dict)
 
 
 def test_mintr_listtransaction():
