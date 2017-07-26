@@ -2,8 +2,9 @@
 '''miscellaneous utilities.'''
 
 import binascii
-from pypeerassets.provider import *
+from .provider import *
 from .constants import param_query, params
+#from .protocol import Deck
 from . import paproto
 
 
@@ -100,11 +101,11 @@ def deck_issue_mode_logic_check(issue_mode):
     raise NotImplementedError
 
 
-def deck_issue_mode(deck):
+def deck_issue_mode(proto):
     '''interpret issue mode bitfeg'''
 
-    for mode in deck.MODE.keys():
-        if deck.issue_mode & deck.MODE.Value(mode):
+    for mode in proto.MODE.keys():
+        if proto.issue_mode & proto.MODE.Value(mode):
             yield mode
 
 
