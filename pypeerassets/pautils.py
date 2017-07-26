@@ -4,7 +4,8 @@
 import binascii
 from .provider import *
 from .constants import param_query, params
-#from .protocol import Deck
+from typing import Iterator
+from .paproto import DeckSpawn
 from . import paproto
 
 
@@ -101,7 +102,7 @@ def deck_issue_mode_logic_check(issue_mode):
     raise NotImplementedError
 
 
-def deck_issue_mode(proto):
+def deck_issue_mode(proto: DeckSpawn) -> Iterator[str]:
     '''interpret issue mode bitfeg'''
 
     for mode in proto.MODE.keys():
