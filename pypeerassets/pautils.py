@@ -5,7 +5,7 @@ import binascii
 from .provider import *
 from .constants import param_query, params
 from typing import Iterator
-from .paproto import DeckSpawn
+from .paproto import DeckSpawn, CardTransfer
 from . import paproto
 
 
@@ -191,16 +191,26 @@ def parse_card_transfer_metainfo(protobuf: bytes) -> dict:
     }
 
 
-def postprocess_card(raw_card: dict, raw_tx: str, sender: str, vouts: list,
-                     blockseq: int, blocknum: int, deck) -> dict:
-    '''Postprocessing of all the relevant card transfer information and creation of CardTransfer object.'''
+def postprocess_card(card_metainfo: CardTransfer, raw_tx: dict, sender: str,
+                     vout: list, blockseq: int, blocknum: int, deck) -> list:
+    '''Postprocessing of all the relevant card transfer information and
+    the creation of CardTransfer object.
 
+    : card_metainfo: card_transfer protobuf
+    : raw_tx: raw transaction
+    : sender: tx sender
+    : vout: tx vout
+    : blockseq: tx block sequence number
+    : blocknum: block number
+    : deck: deck object this card transfer belongs to'''
+
+    card_metainfo = parse_card_transfer_metainfo(card_metainfo)
     nderror = {"error": "Number of decimals does not match."}
 
     _card = {}
-    _card["version"] = raw_card["version"]
-    _card["number_of_decimals"] = raw_card["number_of_decimals"]
-    try: ## check if card number of decimals matches the deck atribute
+    _card["version"] = card_metainfo["version"]
+    _card["number_of_decimals"] = card_metainfo["number_of_decimals"]
+    try:  # check if card number of decimals matches the deck atribute
         assert _card["number_of_decimals"] == deck.number_of_decimals, nderror
     except AssertionError:
         return
@@ -217,21 +227,21 @@ def postprocess_card(raw_card: dict, raw_tx: str, sender: str, vouts: list,
         _card["blocknum"] = blocknum
     _card["timestamp"] = raw_tx["time"]
     _card["sender"] = sender
-    _card["asset_specific_data"] = raw_card["asset_specific_data"]
+    _card["asset_specific_data"] = card_metainfo["asset_specific_data"]
 
-    if len(raw_card["amount"]) > 1:  # if card states multiple outputs:
+    if len(card_metainfo["amount"]) > 1:  # if card states multiple outputs:
         cards = []
-        for am, v in zip(raw_card["amount"], vouts[2:]):
+        for am, v in zip(card_metainfo["amount"], vout[2:]):
             c = _card.copy()
             c["amount"] = [am]
             c["receiver"] = v["scriptPubKey"]["addresses"]
-            c["cardseq"] = vouts[2:].index(v)
+            c["cardseq"] = vout[2:].index(v)
 
             cards.append(c)
         return cards
     else:
-        _card["receiver"] = vouts[2]["scriptPubKey"]["addresses"]
-        _card["amount"] = raw_card["amount"]
+        _card["receiver"] = vout[2]["scriptPubKey"]["addresses"]
+        _card["amount"] = card_metainfo["amount"]
         _card["cardseq"] = 0
 
     return [_card]
