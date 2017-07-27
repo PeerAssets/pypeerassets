@@ -91,12 +91,6 @@ def read_tx_opreturn(raw_tx: dict) -> bytes:
             return binascii.unhexlify(data[:n])
 
 
-def validate_deckspawn_metainfo(deck) -> None:
-    '''validate deck_spawn'''
-
-    assert deck.name is not "", {"error": "Deck metainfo incomplete, Deck must have a name."}
-
-
 def deck_issue_mode_logic_check(issue_mode):
     '''verify do combined issue modes pass simple logic tests'''
     raise NotImplementedError
@@ -133,7 +127,7 @@ def parse_deckspawn_metainfo(protobuf: bytes) -> dict:
     deck = paproto.DeckSpawn()
     deck.ParseFromString(protobuf)
 
-    validate_deckspawn_metainfo(deck)
+    assert deck.name is not "", {"error": "Deck metainfo incomplete, Deck must have a name."}
 
     return {
         "version": deck.version,
