@@ -1,7 +1,11 @@
-import requests
-from pypeerassets.kutil import Kutil
 
-# https://peercoin.holytransaction.com/info
+'''
+API wrapper for holytransaction blockexplorer.
+See https://peercoin.holytransaction.com/info for more information.
+'''
+
+import requests
+
 
 class Holy:
 
@@ -9,7 +13,7 @@ class Holy:
     it only implements queries relevant to peerassets.
     Please note that holytransactions will only provide last 100k indexed
     transactions for each address.
-    """ 
+    """
 
     @classmethod
     def __init__(self, network: str):
@@ -31,9 +35,9 @@ class Holy:
         """testnet or not?"""
 
         if self.net == "peercoin":
-            return True
-        if self.net == "peercoin-testnet":
             return False
+        if self.net == "peercoin-testnet":
+            return True
 
     @staticmethod
     def network_long_to_short(name):
@@ -83,7 +87,7 @@ class Holy:
     @classmethod
     def getblockcount(self) -> int:
         """Returns block count."""
-        return self.req("getblockcount", {}).content.decode()
+        return int(self.req("getblockcount", {}).content.decode())
 
     @classmethod
     def getblockhash(self, blocknum: int) -> str:
@@ -97,7 +101,9 @@ class Holy:
 
     @classmethod
     def getrawtransaction(self, txid: str, decrypt=1) -> dict:
-        """Returns raw transaction representation for given transaction id. decrypt can be set to 0(false) or 1(true)."""
+        """Returns raw transaction representation for given transaction id.
+        decrypt can be set to 0(false) or 1(true)."""
+
         res = self.req("getrawtransaction", {"txid": txid, "decrypt": decrypt})
 
         if decrypt:
@@ -113,10 +119,15 @@ class Holy:
     @classmethod
     def getbalance(self, address: str) -> float:
         """Returns current balance of given address."""
-        return self.req("getbalance", {"getbalance": address}).content.decode()
+
+        return float(self.req("getbalance", {"getbalance": address}).content.decode())
 
     @classmethod
     def listtransactions(self, address: str) -> list:
         """list transactions of this <address>"""
+
         r = self.getaddress(address)
-        return [i["addresses"] for i in r["last_txs"]]
+        try:
+            return [i["addresses"] for i in r["last_txs"]]
+        except KeyError:
+            print({'error': 'Address not found.'})

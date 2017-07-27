@@ -2,21 +2,27 @@
 '''miscellaneous utilities.'''
 
 import binascii
-from pypeerassets.provider import *
+from .provider import *
 from .constants import param_query, params
+from typing import Iterator
+from .paproto import DeckSpawn, CardTransfer
 from . import paproto
 
 
-def load_p2th_privkeys_into_local_node(provider, prod=True):
+def load_p2th_privkeys_into_local_node(provider: RpcNode, prod=True) -> None:
     '''load production p2th privkey into local node'''
 
+    assert isinstance(provider, RpcNode), {"error": "Import only works with local node."}
     error = {"error": "Loading P2TH privkey failed."}
     pa_params = param_query(provider.network)
 
     if prod:
         provider.importprivkey(pa_params.P2TH_wif, "PAPROD")
+        assert isinstance(provider.listtransactions("PAPROD"), list), error
     else:
         provider.importprivkey(pa_params.test_P2TH_wif, "PATEST")
+        assert isinstance(provider.listtransactions("PATEST"), list), error
+
 
 def find_tx_sender(provider, raw_tx: dict) -> str:
     '''find transaction sender, vin[0] is used in this case.'''
@@ -25,6 +31,7 @@ def find_tx_sender(provider, raw_tx: dict) -> str:
     txid = vin["txid"]
     index = vin["vout"]
     return provider.getrawtransaction(txid, 1)["vout"][index]["scriptPubKey"]["addresses"][0]
+
 
 def find_deck_spawns(provider, prod=True):
     '''find deck spawn transactions via provider,
@@ -63,12 +70,6 @@ def tx_serialization_order(provider, blockhash: str, txid: str) -> int:
     return provider.getblock(blockhash)["tx"].index(txid)
 
 
-def get_block_info(provider, blockchash: str) -> int:
-    '''get block info'''
-
-    return provider.getblock(blockchash)
-
-
 def read_tx_opreturn(raw_tx: dict) -> bytes:
     '''Decode OP_RETURN message from raw_tx'''
 
@@ -90,31 +91,24 @@ def read_tx_opreturn(raw_tx: dict) -> bytes:
             return binascii.unhexlify(data[:n])
 
 
-def validate_deckspawn_metainfo(deck) -> None:
-    '''validate deck_spawn'''
-
-    assert deck.version > 0, {"error": "Deck metainfo incomplete, version can't be 0."}
-    assert deck.name is not "", {"error": "Deck metainfo incomplete, Deck must have a name."}
-
-
 def deck_issue_mode_logic_check(issue_mode):
     '''verify do combined issue modes pass simple logic tests'''
     raise NotImplementedError
 
 
-def deck_issue_mode(deck):
+def deck_issue_mode(proto: DeckSpawn) -> Iterator[str]:
     '''interpret issue mode bitfeg'''
 
-    for mode in deck.MODE.keys():
-        if deck.issue_mode & deck.MODE.Value(mode):
+    for mode in proto.MODE.keys():
+        if proto.issue_mode & proto.MODE.Value(mode):
             yield mode
 
 
-def issue_mode_to_enum(deck, issue_mode) -> int:
+def issue_mode_to_enum(deck: DeckSpawn, issue_mode: list) -> int:
     '''encode issue mode(s) as bitfeg'''
 
     # case where there are multiple issue modes specified
-    if isinstance(issue_mode, tuple) and len(issue_mode) > 1:
+    if isinstance(issue_mode, list) and len(issue_mode) > 1:
         r = 0
         for mode in issue_mode:
             r += deck.MODE.Value(mode)
@@ -123,6 +117,9 @@ def issue_mode_to_enum(deck, issue_mode) -> int:
     if isinstance(issue_mode, str):  # if single issue mode
         return deck.MODE.Value(issue_mode)
 
+    else:
+        return {'error': 'issue_mode given in wrong format.'}
+
 
 def parse_deckspawn_metainfo(protobuf: bytes) -> dict:
     '''decode deck_spawn tx op_return protobuf message and validate it.'''
@@ -130,7 +127,7 @@ def parse_deckspawn_metainfo(protobuf: bytes) -> dict:
     deck = paproto.DeckSpawn()
     deck.ParseFromString(protobuf)
 
-    validate_deckspawn_metainfo(deck)
+    assert deck.name is not "", {"error": "Deck metainfo incomplete, Deck must have a name."}
 
     return {
         "version": deck.version,
@@ -154,6 +151,7 @@ def validate_deckspawn_p2th(provider, raw_tx, prod=True):
     else:
         assert vout == pa_params.test_P2TH_addr, error
         return True
+
 
 def load_deck_p2th_into_local_node(provider, deck) -> None:
     '''
@@ -193,16 +191,26 @@ def parse_card_transfer_metainfo(protobuf: bytes) -> dict:
     }
 
 
-def postprocess_card(raw_card: dict, raw_tx: str, sender: str, vouts: list,
-                     blockseq: int, blocknum: int, deck) -> dict:
-    '''Postprocessing of all the relevant card transfer information and creation of CardTransfer object.'''
+def postprocess_card(card_metainfo: CardTransfer, raw_tx: dict, sender: str,
+                     vout: list, blockseq: int, blocknum: int, deck) -> list:
+    '''Postprocessing of all the relevant card transfer information and
+    the creation of CardTransfer object.
 
+    : card_metainfo: card_transfer protobuf
+    : raw_tx: raw transaction
+    : sender: tx sender
+    : vout: tx vout
+    : blockseq: tx block sequence number
+    : blocknum: block number
+    : deck: deck object this card transfer belongs to'''
+
+    card_metainfo = parse_card_transfer_metainfo(card_metainfo)
     nderror = {"error": "Number of decimals does not match."}
 
     _card = {}
-    _card["version"] = raw_card["version"]
-    _card["number_of_decimals"] = raw_card["number_of_decimals"]
-    try: ## check if card number of decimals matches the deck atribute
+    _card["version"] = card_metainfo["version"]
+    _card["number_of_decimals"] = card_metainfo["number_of_decimals"]
+    try:  # check if card number of decimals matches the deck atribute
         assert _card["number_of_decimals"] == deck.number_of_decimals, nderror
     except AssertionError:
         return
@@ -219,21 +227,21 @@ def postprocess_card(raw_card: dict, raw_tx: str, sender: str, vouts: list,
         _card["blocknum"] = blocknum
     _card["timestamp"] = raw_tx["time"]
     _card["sender"] = sender
-    _card["asset_specific_data"] = raw_card["asset_specific_data"]
+    _card["asset_specific_data"] = card_metainfo["asset_specific_data"]
 
-    if len(raw_card["amount"]) > 1:  # if card states multiple outputs:
+    if len(card_metainfo["amount"]) > 1:  # if card states multiple outputs:
         cards = []
-        for am, v in zip(raw_card["amount"], vouts[2:]):
+        for am, v in zip(card_metainfo["amount"], vout[2:]):
             c = _card.copy()
             c["amount"] = [am]
             c["receiver"] = v["scriptPubKey"]["addresses"]
-            c["cardseq"] = vouts[2:].index(v)
+            c["cardseq"] = vout[2:].index(v)
 
             cards.append(c)
         return cards
     else:
-        _card["receiver"] = vouts[2]["scriptPubKey"]["addresses"]
-        _card["amount"] = raw_card["amount"]
+        _card["receiver"] = vout[2]["scriptPubKey"]["addresses"]
+        _card["amount"] = card_metainfo["amount"]
         _card["cardseq"] = 0
 
     return [_card]
@@ -244,8 +252,8 @@ def amount_to_exponent(amount: float, number_of_decimals: int) -> int:
 
     return int(amount * 10**number_of_decimals)
 
+
 def exponent_to_amount(exponent: int, number_of_decimals: int) -> float:
     '''exponent to integer to be written on the chain'''
 
     return exponent / 10**number_of_decimals
-
