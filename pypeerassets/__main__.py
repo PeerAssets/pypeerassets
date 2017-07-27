@@ -121,7 +121,7 @@ def find_card_transfers(provider, deck: Deck) -> list:
 
         try:
             validate_card_transfer_p2th(deck, raw_tx)  # validate P2TH first
-            card_metainfo = parse_card_transfer_metainfo(read_tx_opreturn(raw_tx))
+            card_metainfo = read_tx_opreturn(raw_tx)
             vouts = raw_tx["vout"]
             sender = find_tx_sender(provider, raw_tx)
 
