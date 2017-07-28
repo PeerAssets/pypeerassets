@@ -3,9 +3,7 @@ import requests
 
 class Cryptoid:
 
-    '''API wrapper for mintr.org blockexplorer,
-    it only implements queries relevant to peerassets.
-    This wrapper does some tweaks to output to match original RPC response.'''
+    '''API wrapper for http://chainz.cryptoid.info blockexplorer.'''
 
     @classmethod
     def __init__(self, network: str):
