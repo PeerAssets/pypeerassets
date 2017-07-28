@@ -20,7 +20,7 @@ class Cryptoid:
     @classmethod
     def req(self, query: str):
 
-        addr = 'http://chainz.cryptoid.info/{0}/api.dws'.format(self.net)
+        addr = 'https://chainz.cryptoid.info/{0}/api.dws'.format(self.net)
         query = addr + "?q=" + query
         if (p in self.private for p in query):
             query += "&key=" + self.key
