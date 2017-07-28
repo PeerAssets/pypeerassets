@@ -7,17 +7,19 @@ from .networks import query
 from time import time
 import struct
 
-OP_RETURN = b'\x6a'
-OP_PUSHDATA1 = b'\x4c'
-OP_DUP = b'\x76'
-OP_HASH160 = b'\xa9'
-OP_EQUALVERIFY = b'\x88'
-OP_CHECKSIG = b'\xac'
-OP_1 = b'\x51'
-OP_2 = b'\x52'
-OP_3 = b'\x53'
-OP_CHECKMULTISIG = b'\xae'
-OP_EQUAL = b'\x87'
+OP = {
+"RETURN" : b'\x6a',
+"PUSHDATA1" : b'\x4c',
+"DUP" : b'\x76',
+"HASH160" : b'\xa9',
+"EQUALVERIFY" : b'\x88',
+"CHECKSIG" : b'\xac',
+"1" : b'\x51',
+"2" : b'\x52',
+"3" : b'\x53',
+"CHECKMULTISIG" : b'\xae',
+"EQUAL" : b'\x87'
+}
 
 
 class Tx_buffer:
@@ -103,7 +105,7 @@ def monosig_script(address: str) -> bytes:
 
     hash160 = get_hash160(address)
     n = len(hash160)
-    script = OP_DUP + OP_HASH160 + op_push(n) + hash160 + OP_EQUALVERIFY + OP_CHECKSIG
+    script = OP['DUP'] + OP['HASH160'] + op_push(n) + hash160 + OP['EQUALVERIFY'] + OP['CHECKSIG']
     return script
 
 
@@ -148,6 +150,65 @@ def make_raw_transaction(network: str, inputs: list, outputs: list,
     return raw_tx
 
 
+def script_asm( script: bytes ) -> dict:
+    ''' Converts hex to assembly in Bitcoin's Script Language '''
+    
+    # Script types and the OP_CODES they use
+    P2PK = ['CHECKSIG']
+    P2PKH = ['DUP','HASH160','CHECKSIG']
+    P2SH = ['HASH160','EQUAL']
+    
+    # List of Values and Keys from supported OP_CODES
+    vals = list(OP.values())
+    keys = list(OP.keys())
+
+    # Setup empty list to append identified OP_CODES
+    op_codes = []
+    _script = hexlify(script).decode()
+    n = len(_script)
+    stype = ""
+    asm = ""
+    reqSigs = 1
+
+    for i,v in enumerate( script ):
+        # Evaluate each byte of the script
+        byte = (v).to_bytes(1,'big')
+        if byte in vals:
+            # Check for match in supported OP_CODE values
+            op_codes.append( keys[ vals.index( byte ) ] )
+            
+    if all( i in op_codes for i in P2PK):
+        # Pay-to-PubKey
+        stype = "pubkey"
+        asm = _script[2:n-2] + " OP_CHECKSIG"
+        return {"hex": _script, "asm": asm , "type": stype, "reqSigs": reqSigs}
+
+    if all( i in op_codes for i in P2PKH):
+        # Pay-to-PubKeyHash
+        stype = "pubkeyhash"
+        asm = "OP_DUP OP_HASH160 " + _script[6:n-4] + " OP_EQUALVERIFY" + " OP_CHECKSIG"
+        return {"hex": _script, "asm": asm , "type": stype, "reqSigs": reqSigs}
+    
+    if all( i in op_codes for i in P2SH):
+        # Pay-to-ScriptHash
+        stype = "scripthash"
+        asm = "OP_HASH160 " + _script[2:n-2] + " OP_EQUAL"
+        return {"hex": _script, "asm": asm , "type": stype, "reqSigs": reqSigs}
+
+    if _script[:2] == '6a':
+        # Nulldata / OP_RETURN Script
+        stype = "nulldata"
+        n = 4
+        if _script[2:4] == '4c':
+            n += 2
+        if _script[2:4] == '4d':
+            n += 4
+        if _script[2:4] == '4e':
+            n += 6
+        asm = "OP_RETURN " + _script[n:]
+        return {"hex": _script, "asm": asm , "type": stype}
+    
+
 def unpack_txn_buffer(buffer: Tx_buffer, network: str) -> dict:
 
     txn = {
@@ -169,7 +230,8 @@ def unpack_txn_buffer(buffer: Tx_buffer, network: str) -> dict:
         _input['txid'] = hexlify(buffer.shift(32)[::-1]).decode()
         _input['vout'] = buffer.shift_unpack(4, '<L')
         length = buffer.shift_varint()
-        _input['scriptSig'] = hexlify(buffer.shift(length)).decode()
+        script = buffer.shift(length)
+        _input['scriptSig'] = script_asm( script )
         _input['sequence'] = buffer.shift_unpack(4, '<L')
 
         txn['vin'].append(_input)
