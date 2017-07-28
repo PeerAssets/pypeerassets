@@ -3,7 +3,7 @@
 
 from pypeerassets.base58 import b58decode
 from binascii import hexlify, unhexlify
-from .networks import query, networks
+from .networks import query
 from time import time
 import struct
 
@@ -21,10 +21,11 @@ OP = {
 "EQUAL" : b'\x87'
 }
 
+
 class Tx_buffer:
     '''helper class for unpacking binary data'''
 
-    def __init__(self, data, ptr=0):
+    def __init__(self, data: bytes, ptr=0):
         self.data = data
         self.len = len(data)
         self.ptr = ptr
@@ -62,10 +63,11 @@ class Tx_buffer:
         return max(self.len - self.ptr, 0)
 
 
-def get_hash160(address):
+def get_hash160(address: str) -> bytes:
     '''return ripemd160 hash of the pubkey form the address'''
 
     return b58decode(address)[1:-4]
+
 
 def op_push(n: int) -> bytes:
 
@@ -78,6 +80,7 @@ def op_push(n: int) -> bytes:
     else:
         return b'\x4e' + (n).to_bytes(4, byteorder='little')    # OP_PUSHDATA4
 
+
 def var_int(i: int) -> bytes:
 
     if i < 0xfd:
@@ -89,11 +92,13 @@ def var_int(i: int) -> bytes:
     else:
         return b'\xff' + (i).to_bytes(8, byteorder='little')
 
+
 def pack_uint64(i: int) -> bytes:
     upper = int(i / 4294967296)
     lower = i - upper * 4294967296
 
     return struct.pack('<L', lower) + struct.pack('<L', upper)
+
 
 def monosig_script(address: str) -> bytes:
     '''returns a mono-signature output script'''
@@ -103,12 +108,14 @@ def monosig_script(address: str) -> bytes:
     script = OP['DUP'] + OP['HASH160'] + op_push(n) + hash160 + OP['EQUALVERIFY'] + OP['CHECKSIG']
     return script
 
+
 def op_return_script(data: bytes) -> bytes:
     '''returns a single OP_RETURN output script'''
 
     data = hexlify(data)
-    script = hexlify(OP['RETURN'] + op_push(len(data)//2)) + data
+    script = hexlify(OP_RETURN + op_push(len(data) // 2)) + data
     return unhexlify(script)
+
 
 def make_raw_transaction(network: str, inputs: list, outputs: list,
                          sequence_number=b'\xff\xff\xff\xff', lock_time=b'\x00\x00\x00\x00') -> bytes:
@@ -141,6 +148,7 @@ def make_raw_transaction(network: str, inputs: list, outputs: list,
     raw_tx += lock_time # nLockTime
 
     return raw_tx
+
 
 def script_asm( script: bytes ) -> dict:
     ''' Converts hex to assembly in Bitcoin's Script Language '''
@@ -200,6 +208,7 @@ def script_asm( script: bytes ) -> dict:
         asm = "OP_RETURN " + _script[n:]
         return {"hex": _script, "asm": asm , "type": stype}
     
+
 def unpack_txn_buffer(buffer: Tx_buffer, network: str) -> dict:
 
     txn = {

@@ -13,12 +13,9 @@ iseq = lambda s: s
 bseq = bytes
 buffer = lambda s: s.buffer
 
-def b58encode(v):
-    '''Encode a string using Base58'''
 
-    if not isinstance(v, bytes):
-        raise TypeError("a bytes-like object is required, not '%s'" %
-                        type(v).__name__)
+def b58encode(v: bytes) -> str:
+    '''Encode a string using Base58'''
 
     origlen = len(v)
     v = v.lstrip(b'\0')
@@ -37,11 +34,8 @@ def b58encode(v):
     return (result + alphabet[0] * (origlen - newlen))[::-1]
 
 
-def b58decode(v):
+def b58decode(v: str) -> bytes:
     '''Decode a Base58 encoded string'''
-
-    if not isinstance(v, str):
-        v = v.decode('ascii')
 
     origlen = len(v)
     v = v.lstrip(alphabet[0])
@@ -60,14 +54,14 @@ def b58decode(v):
     return (bseq(result) + b'\0' * (origlen - newlen))[::-1]
 
 
-def b58encode_check(v):
+def b58encode_check(v: bytes) -> str:
     '''Encode a string using Base58 with a 4 character checksum'''
 
     digest = sha256(sha256(v).digest()).digest()
     return b58encode(v + digest[:4])
 
 
-def b58decode_check(v):
+def b58decode_check(v: str) -> bytes:
     '''Decode and verify the checksum of a Base58 encoded string'''
 
     result = b58decode(v)
@@ -78,4 +72,3 @@ def b58decode_check(v):
         raise ValueError("Invalid checksum")
 
     return result
-

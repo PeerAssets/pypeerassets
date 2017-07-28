@@ -5,7 +5,7 @@ from pypeerassets import pavoteproto
 from hashlib import sha256
 from binascii import unhexlify
 from pypeerassets import transactions
-from pypeerassets.pautils import read_tx_opreturn, find_tx_sender, get_block_info
+from pypeerassets.pautils import read_tx_opreturn, find_tx_sender
 from .networks import query, networks
 
 
@@ -205,5 +205,5 @@ def find_vote_casts(provider, vote: Vote, choice_index: int):
 
         sender = find_tx_sender(provider, raw_tx)
         confirmations = raw_tx["confirmations"]
-        blocknum = get_block_info(provider, raw_tx["blockhash"])["height"]
+        blocknum = provider.getblock(raw_tx["blockhash"])["height"]
         yield VoteCast(vote, sender, blocknum, confirmations, raw_tx["blocktime"])

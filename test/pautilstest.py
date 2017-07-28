@@ -1,48 +1,227 @@
-import unittest
+import pytest
+from typing import Generator
+from pypeerassets import find_deck
+from pypeerassets import Deck
+from pypeerassets import paproto
 from pypeerassets.pautils import *
 from pypeerassets import RpcNode, Mintr
 
-class PAutilsTestCase(unittest.TestCase):
-    '''tests various PeerAssets utility functions.'''
 
-    @classmethod
-    def setUpClass(cls):
-        print('''Starting tests for various PeerAssets utility functions...''')
+@pytest.mark.xfail
+def test_load_p2th_privkeys_into_local_node():
 
-    def test_parse_deckspawn_metainfo(self):
-        '''tests if loading of deck parameteres from protobuf works as it should.'''
+    provider = RpcNode(testnet=True)
+    load_p2th_privkeys_into_local_node(provider=provider)
 
-        string = b'\x08\x01\x12\x0cmy_test_deck\x18\x03 \x02'
-        self.assertEqual(parse_deckspawn_metainfo(string), {'issue_mode': "ONCE",
-                                                            'name': 'my_test_deck',
-                                                            'number_of_decimals': 3,
-                                                            'version': 1,
-                                                            'asset_specific_data': b''})
 
-        string = b'\x12\x06faulty\x18\x01' # without version and issue mode
-        self.assertRaises(AssertionError, parse_deckspawn_metainfo, string)
+@pytest.mark.parametrize("prov", ["rpc", "holy", "mintr"])
+def test_find_tx_sender(prov):
 
-        string = b'\x08\x01\x18\x05 \x04' # without deck name
-        self.assertRaises(AssertionError, parse_deckspawn_metainfo, string)
+    if prov == "holy":
+        provider = Holy(network="peercoin")
+        rawtx = provider.getrawtransaction("397bda2f5e6608c872a663b2e5482d95db8ecfad00757823f0f12caa45a213a6")
+        assert find_tx_sender(provider, rawtx) == 'PNHGzKupyvo2YZVb1CTdRxtCGBB5ykgiug'
 
-    def test_validate_deckspawn_p2th(self):
-        '''test deckspawn p2th validation'''
+    if prov == "mintr":
+        provider = Mintr()
+        rawtx = provider.getrawtransaction("397bda2f5e6608c872a663b2e5482d95db8ecfad00757823f0f12caa45a213a6")
+        assert find_tx_sender(provider, rawtx) == 'PNHGzKupyvo2YZVb1CTdRxtCGBB5ykgiug'
 
-        node = RpcNode(testnet=True)
+    try:
+        if prov == "rpc":
+            provider = RpcNode(testnet=False)
+            rawtx = provider.getrawtransaction("397bda2f5e6608c872a663b2e5482d95db8ecfad00757823f0f12caa45a213a6")
+            assert find_tx_sender(provider, rawtx) == 'PNHGzKupyvo2YZVb1CTdRxtCGBB5ykgiug'
+    except:
+        print("No RpcNode avaliable.")
 
-        self.assertTrue(validate_deckspawn_p2th(node, "93dff38d65ef25ff9539ea2fa1fda45eb29d8bb989ca91399218c7e83e6630ea",
-                                                testnet=True))
 
-        self.assertRaises(AssertionError, validate_deckspawn_p2th, node,
-                          "93dff38d65ef25ff9539ea2fa1fda45eb29d8bb989ca91399218c7e83e6630ea",
-                          testnet=True, prod_or_test="test")
+@pytest.mark.xfail
+@pytest.mark.parametrize("prov", ["rpc", "holy", "mintr"])
+def test_find_deck_spawns(prov):
 
-    def test_read_tx_opreturn(self):
-        '''test if it parses the OP_RETURN from tx correctly'''
+    if prov == "holy":
+        provider = Holy(network="peercoin-testnet")
+        assert isinstance(find_deck_spawns(provider), GeneratorType)
 
-        node = Mintr("peercoin")
-        self.assertEqual(read_tx_opreturn(node, "8baddc69aff7873b3ca0bf5fb94a8487611c9aacb7a0f3bcaf90d501f955ad77"),
-                         b'Thank you for your work and dedication, peerchemist. Your friend, saeveritt.')
+    if prov == "mintr":
+        provider = Mintr()
+        assert isinstance(find_deck_spawns(provider), GeneratorType)
 
-if __name__ == '__main__':
-    unittest.main()
+    try:
+        if prov == "rpc":
+            provider = RpcNode(testnet=True)
+            assert isinstance(find_deck_spawns(provider), GeneratorType)
+
+    except:
+        print("No RpcNode avaliable.")
+
+
+@pytest.mark.parametrize("prov", ["rpc", "holy", "mintr"])
+def test_tx_serialization_order(prov):
+
+    if prov == "holy":
+        provider = Holy(network="peercoin-testnet")
+        assert tx_serialization_order(provider,
+                                      txid="f968702bcedc107959aae2c2b1a1becdccbfe7e5a32b460b2c13c1adaa33d541", blockhash="e234d2ef69f7cd1e7ee489546b39314cc838763b4e32438106cba657d9749f2f") == 1
+
+    if prov == "mintr":
+        provider = Mintr()
+        assert tx_serialization_order(provider,
+                                      txid="6f9c76f5e2d188c8d4e8411a89dd152ca94e6b1756aec6c4d12fcbf0450970f7", blockhash="13ea431cb818628d762f224fb3fa957ecdbab661d190d28aedef8449e007f207") == 0
+
+
+    try:
+        if prov == "rpc":
+            provider = RpcNode(testnet=True)
+            assert tx_serialization_order(provider,
+                                          txid="f968702bcedc107959aae2c2b1a1becdccbfe7e5a32b460b2c13c1adaa33d541", blockhash="e234d2ef69f7cd1e7ee489546b39314cc838763b4e32438106cba657d9749f2f") == 1
+
+    except:
+        print("No RpcNode avaliable.")
+
+
+def test_read_tx_opreturn():
+
+    rawtx = {'blockhash': 'aef46dc82bcc9b40ff0c05e2498c4f85db7e273fc6f7e656acbcd1c8e0c93356',
+             'blocktime': 1489426035,
+             'confirmations': 23696,
+             'hex': '010000004ad4c6580107c7390516448a1b03e7fc2c55e2e816aa0e0745e4e5089393ee1d0fbf0ad0fb020000006c49304602210099d36b8c36f29e2d7c423ebb68ef804744c3681e81ea2db7f02ea930c4aaa984022100f2d7e044e1b4034a5edb65f38fd4451ed11fe43a240eaacb58cb951de842bc190121029becbd50edbb8fee8fc1227112e6c8a6b6ead69c3660b560e5eab22c2fe8f976ffffffff0310270000000000001976a9141e667ee94ea8e62c63fe59a0269bb3c091c86ca388ac0000000000000000196a170801120f736978746f5f726f6472696775657a18052004601f0d00000000001976a91456a0a01afba6687e98e5e61b434d45a337f2cd2588ac00000000',
+             'locktime': 0,
+             'time': 1489425482,
+             'txid': '643dccd585211766fc03f71e92fbf299cfc2bdbf3f2cae0ad85adec3141069f3',
+             'version': 1,
+             'vin': [{'scriptSig': {'asm': '304602210099d36b8c36f29e2d7c423ebb68ef804744c3681e81ea2db7f02ea930c4aaa984022100f2d7e044e1b4034a5edb65f38fd4451ed11fe43a240eaacb58cb951de842bc1901 029becbd50edbb8fee8fc1227112e6c8a6b6ead69c3660b560e5eab22c2fe8f976',
+                      'hex': '49304602210099d36b8c36f29e2d7c423ebb68ef804744c3681e81ea2db7f02ea930c4aaa984022100f2d7e044e1b4034a5edb65f38fd4451ed11fe43a240eaacb58cb951de842bc190121029becbd50edbb8fee8fc1227112e6c8a6b6ead69c3660b560e5eab22c2fe8f976'},
+             'sequence': 4294967295,
+             'txid': 'fbd00abf0f1dee939308e5e445070eaa16e8e2552cfce7031b8a44160539c707',
+             'vout': 2}],
+             'vout': [{'n': 0,
+             'scriptPubKey': {'addresses': ['miHhMLaMWubq4Wx6SdTEqZcUHEGp8RKMZt'],
+                'asm': 'OP_DUP OP_HASH160 1e667ee94ea8e62c63fe59a0269bb3c091c86ca3 OP_EQUALVERIFY OP_CHECKSIG',
+                'hex': '76a9141e667ee94ea8e62c63fe59a0269bb3c091c86ca388ac',
+                'reqSigs': 1,
+                'type': 'pubkeyhash'},
+             'value': 0.01},
+             {'n': 1,
+             'scriptPubKey': {'asm': 'OP_RETURN 0801120f736978746f5f726f6472696775657a18052004',
+                'hex': '6a170801120f736978746f5f726f6472696775657a18052004',
+                'type': 'nulldata'},
+             'value': 0},
+             {'n': 2,
+             'scriptPubKey': {'addresses': ['moQzpzzcCYZMnAz224EY4att5A9psxN8X2'],
+                'asm': 'OP_DUP OP_HASH160 56a0a01afba6687e98e5e61b434d45a337f2cd25 OP_EQUALVERIFY OP_CHECKSIG',
+                'hex': '76a91456a0a01afba6687e98e5e61b434d45a337f2cd2588ac',
+                'reqSigs': 1,
+                'type': 'pubkeyhash'},
+             'value': 0.86}]}
+
+    assert isinstance(read_tx_opreturn(rawtx), bytes)
+    assert read_tx_opreturn(rawtx) == b'\x08\x01\x12\x0fsixto_rodriguez\x18\x05 \x04'
+
+
+def generate_dummy_deck():
+
+    return Deck(name="decky", number_of_decimals=2, issue_mode="SINGLET",
+                network="ppc", production=True, asset_specific_data="just testing.")
+
+
+def test_deck_issue_mode_logic_check():
+    pass
+
+
+def test_deck_issue_mode():
+    '''test enum to issue_mode conversion'''
+
+    deck_meta = paproto.DeckSpawn()
+    deck_meta.issue_mode = 3
+
+    assert isinstance(deck_issue_mode(deck_meta), Generator)
+    assert list(deck_issue_mode(deck_meta)) == ['CUSTOM', 'ONCE']
+
+
+def test_issue_mode_to_enum():
+    '''test issue mode to enum conversion'''
+
+    deck = generate_dummy_deck().metainfo_to_protobuf
+    deck_meta = paproto.DeckSpawn()
+    deck_meta.ParseFromString(deck)
+
+    assert isinstance(issue_mode_to_enum(deck_meta,
+                      ["CUSTOM", "SINGLET"]), int)
+
+
+def test_parse_deckspawn_metainfo():
+    '''tests if loading of deck parameteres from protobuf works as it should.'''
+
+    string = b'\x08\x01\x12\x0cmy_test_deck\x18\x03 \x02'
+    assert parse_deckspawn_metainfo(string) == {'issue_mode': ["ONCE"],
+                                                'name': 'my_test_deck',
+                                                'number_of_decimals': 3,
+                                                'version': 1,
+                                                'asset_specific_data': b''}
+
+    string = b'\x08\x01\x18\x05 \x04' # without deck name
+    with pytest.raises(AssertionError):
+        parse_deckspawn_metainfo(string)
+
+
+def test_validate_deckspawn_p2th():
+    '''test deckspawn p2th validation'''
+
+    provider = Holy(network="peercoin-testnet")
+    raw_tx = provider.getrawtransaction('643dccd585211766fc03f71e92fbf299cfc2bdbf3f2cae0ad85adec3141069f3')
+
+    assert validate_deckspawn_p2th(provider, raw_tx, True)
+
+
+@pytest.mark.xfail
+def test_load_deck_p2th_into_local_node():
+
+    provider = RpcNode(testnet=True)
+    deck = generate_dummy_deck()
+    load_deck_p2th_into_local_node(provider, deck)
+
+
+def test_validate_card_transfer_p2th():
+
+    provider = Holy(network="peercoin-testnet")
+    deck = find_deck(provider, "643dccd585211766fc03f71e92fbf299cfc2bdbf3f2cae0ad85adec3141069f3")[0]
+    card = "809c506bc3add9e46a4d3a65348426688545213da5fb5b524acd380f2cdaf3cc"
+
+    validate_card_transfer_p2th(deck, provider.getrawtransaction("809c506bc3add9e46a4d3a65348426688545213da5fb5b524acd380f2cdaf3cc"))
+
+
+def test_parse_card_transfer_metainfo():
+
+    card = b'\x08\x01\x12\n\xd0\xd2=\x80\x89z\xee\x83\xb8\x01\x18\x05'
+    res = parse_card_transfer_metainfo(card)
+
+    assert isinstance(res, dict)
+
+
+def test_postprocess_card():
+
+    provider = Holy(network="peercoin-testnet")
+    deck = find_deck(provider, "643dccd585211766fc03f71e92fbf299cfc2bdbf3f2cae0ad85adec3141069f3")[0]
+    raw_tx = provider.getrawtransaction('809c506bc3add9e46a4d3a65348426688545213da5fb5b524acd380f2cdaf3cc')
+    vout = raw_tx["vout"]
+    blockseq = tx_serialization_order(provider, raw_tx["blockhash"], raw_tx["txid"])
+    blocknum = provider.getblock(raw_tx["blockhash"])["height"]
+    sender = 'moQzpzzcCYZMnAz224EY4att5A9psxN8X2'
+    card_metainfo = b'\x08\x01\x12\n\xd0\xd2=\x80\x89z\xee\x83\xb8\x01\x18\x05'
+
+    card = postprocess_card(card_metainfo, raw_tx, sender, vout, blockseq, blocknum, deck)
+    assert isinstance(card, list)
+
+
+def test_amount_to_exponent():
+
+    assert isinstance(amount_to_exponent(88.99, 3), int)
+    assert amount_to_exponent(88.99, 3) == 88990
+
+
+def test_exponent_to_amount():
+
+    assert isinstance(exponent_to_amount(10, 6), float)
+    assert exponent_to_amount(10, 3) == 0.01
