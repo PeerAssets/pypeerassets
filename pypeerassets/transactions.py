@@ -181,19 +181,16 @@ def script_asm( script: bytes ) -> dict:
         # Pay-to-PubKey
         stype = "pubkey"
         asm = _script[2:n-2] + " OP_CHECKSIG"
-        return {"hex": _script, "asm": asm , "type": stype, "reqSigs": reqSigs}
 
     if all( i in op_codes for i in P2PKH):
         # Pay-to-PubKeyHash
         stype = "pubkeyhash"
         asm = "OP_DUP OP_HASH160 " + _script[6:n-4] + " OP_EQUALVERIFY" + " OP_CHECKSIG"
-        return {"hex": _script, "asm": asm , "type": stype, "reqSigs": reqSigs}
     
     if all( i in op_codes for i in P2SH):
         # Pay-to-ScriptHash
         stype = "scripthash"
         asm = "OP_HASH160 " + _script[2:n-2] + " OP_EQUAL"
-        return {"hex": _script, "asm": asm , "type": stype, "reqSigs": reqSigs}
 
     if _script[:2] == '6a':
         # Nulldata / OP_RETURN Script
@@ -207,6 +204,8 @@ def script_asm( script: bytes ) -> dict:
             n += 6
         asm = "OP_RETURN " + _script[n:]
         return {"hex": _script, "asm": asm , "type": stype}
+    
+    return {"hex": _script, "asm": asm , "type": stype, "reqSigs": reqSigs}
     
 
 def unpack_txn_buffer(buffer: Tx_buffer, network: str) -> dict:
