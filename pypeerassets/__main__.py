@@ -46,7 +46,7 @@ def find_all_valid_decks(provider, prod=True) -> list:
                 d["production"] = prod
                 return Deck(**d)
 
-        except (AssertionError, TypeError) as err:
+        except (AssertionError, TypeError, KeyError) as err:
             pass
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as th:
