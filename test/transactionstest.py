@@ -129,3 +129,24 @@ def test_transaction_assembly():
 
     # Match the remainder
     assert hexlify(split[1]) == b'020000006b483045022057a5995013c8c55a16c1f692d91881fef443a467316d73a15abd65b6ca6c77dd022100f349283acebe70c2be16dcfd7860aa530e920e74f7a4afeb905d58d73e381ce2012103cd1236a7327457047f596e621b7dfa4a923cfdafffd6094e12db09f0f5695b4dffffffff01c0d45407000000001976a9141e667ee94ea8e62c63fe59a0269bb3c091c86ca388ac00000000'
+    
+def test_asm_from_hex():
+    from binascii import unhexlify
+    global scripts
+    '''check if asm generated is what is expected from hex script.'''
+    
+    scripts = {
+        "2103995e7a655184e166ef48d0e15e126deaff6f3c07e415ef6f9e45645543579536ac":
+        "03995e7a655184e166ef48d0e15e126deaff6f3c07e415ef6f9e45645543579536 OP_CHECKSIG",
+        "2102aa1af77d813d9ab98fe7447c3a735323709bd42cacaa1777b3d0dd35e98bbc61ac":
+        "02aa1af77d813d9ab98fe7447c3a735323709bd42cacaa1777b3d0dd35e98bbc61 OP_CHECKSIG",
+        "76a9140f39a0043cf7bdbe429c17e8b514599e9ec53dea88ac":
+        "OP_DUP OP_HASH160 0f39a0043cf7bdbe429c17e8b514599e9ec53dea OP_EQUALVERIFY OP_CHECKSIG",
+        "76a9146759a0764127ae9047bff989f330bc2c5d0cfa1e88ac":
+        "OP_DUP OP_HASH160 6759a0764127ae9047bff989f330bc2c5d0cfa1e OP_EQUALVERIFY OP_CHECKSIG",
+        "6a140801120e4d79206c6974746c6520706f6e792004":
+        "OP_RETURN 0801120e4d79206c6974746c6520706f6e792004",
+    }
+
+    for key, value in scripts.items():
+        assert script_asm(unhexlify(key))["asm"] == value
