@@ -162,7 +162,7 @@ def load_deck_p2th_into_local_node(provider, deck) -> None:
     assert isinstance(provider, RpcNode), {"error": "You can load privkeys only into local node."}
     error = {"error": "Deck P2TH import went wrong."}
 
-    provider.importprivkey(deck.p2th_wif, deck.name)
+    provider.importprivkey(deck.p2th_wif, deck.txid)
     check_addr = provider.validateaddress(deck.p2th_address)
     assert check_addr["isvalid"] and check_addr["ismine"], error
 
