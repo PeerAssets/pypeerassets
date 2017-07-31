@@ -107,7 +107,7 @@ def find_card_transfers(provider, deck: Deck) -> list:
     cards = []
     if isinstance(provider, RpcNode):
         card_transfers = (provider.getrawtransaction(i["txid"], 1) for i in
-                          provider.listtransactions(deck.name))
+                          provider.listtransactions(deck.txid))
     else:
         card_transfers = (provider.getrawtransaction(i, 1) for i in
                           provider.listtransactions(deck.p2th_address))
