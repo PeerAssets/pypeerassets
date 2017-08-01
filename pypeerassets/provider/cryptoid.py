@@ -82,3 +82,11 @@ class Cryptoid:
         query = cls.explorer_url + 'tx.raw.dws?coin={net}&id={txid}'.format(net=cls.net,
                                                                             txid=txid)
         return cls.block_req(query)
+
+    @classmethod
+    def listtransactions(cls, address: str) -> list:
+
+        query = cls.explorer_url + 'address.summary.dws?coin={net}&id={addr}'.format(net=cls.net,
+                                                                                     addr=address)
+        resp = cls.block_req(query)
+        return [i[1].lower() for i in resp['tx']]
