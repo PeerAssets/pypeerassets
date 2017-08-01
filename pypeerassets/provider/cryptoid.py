@@ -50,6 +50,13 @@ class Cryptoid:
         return cls.req('getblockcount')
 
     @classmethod
+    def getblock(cls, blocknum: int) -> dict:
+
+        query = cls.explorer_url + 'block.raw.dws?coin={net}&id={blocknum}'.format(net=cls.net,
+                                                                                   blocknum=blocknum)
+        return cls.block_req(query)
+
+    @classmethod
     def getdifficulty(cls) -> float:
 
         return cls.req('getdifficulty')
