@@ -61,14 +61,17 @@ class Cryptoid:
 
         return cls.req('getdifficulty')
 
+    @classmethod
     def getbalance(cls, address: str) -> float:
 
         return float(cls.req('getbalance' + "&a=" + address))
 
+    @classmethod
     def getreceivedbyaddress(cls, address: str) -> float:
 
         return float(cls.req('getreceivedbyaddress' + "&a=" + address))
 
+    @classmethod
     def listunspent(cls, address: str) -> list:
 
         return cls.req('unspent' + "&a=" + address)['unspent_outputs']
