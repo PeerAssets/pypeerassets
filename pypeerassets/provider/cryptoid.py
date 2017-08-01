@@ -75,3 +75,10 @@ class Cryptoid:
     def listunspent(cls, address: str) -> list:
 
         return cls.req('unspent' + "&a=" + address)['unspent_outputs']
+
+    @classmethod
+    def getrawtransaction(cls, txid: str) -> dict:
+
+        query = cls.explorer_url + 'tx.raw.dws?coin={net}&id={txid}'.format(net=cls.net,
+                                                                            txid=txid)
+        return cls.block_req(query)
