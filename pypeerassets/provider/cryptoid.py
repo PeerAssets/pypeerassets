@@ -19,7 +19,6 @@ class Cryptoid:
                  'getreceivedbyaddress', 'listunspent')
     private = ('getbalance', 'unspent')
     explorer_url = 'https://chainz.cryptoid.info/explorer/'
-    block_calls = ('')
 
     @classmethod
     def api_req(self, query: str) -> dict:
