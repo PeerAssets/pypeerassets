@@ -75,7 +75,7 @@ class Cryptoid:
     @classmethod
     def getdifficulty(cls) -> float:
 
-        return cls.req('getdifficulty')
+        return cls.api_req('getdifficulty')
 
     @classmethod
     def getbalance(cls, address: str) -> float:
