@@ -1,5 +1,5 @@
 import pytest
-from pypeerassets import Mintr, Holy
+from pypeerassets import Mintr, Holy, Cryptoid
 
 
 def test_mintr_getinfo():
@@ -141,3 +141,60 @@ def test_holy_getbalance():
 def test_holy_listtransactions():
 
     assert isinstance(Holy(network="peercoin").listtransactions("PXBf64T4gqKcn7Kruw75X8V5yeci34HG92"), list)
+
+
+def test_cryptoid_is_testnet():
+
+    cryptoid = Cryptoid(network="ppc")
+
+    assert isinstance(cryptoid.is_testnet, bool)
+
+
+def test_cryptoid_getblockcount():
+
+    assert isinstance(Cryptoid(network="ppc").getblockcount(), int)
+
+
+def test_cryptoid_get_block():
+
+    assert isinstance(Cryptoid(network="ppc").getblock(123), dict)
+
+
+def test_cryptoid_get_block_hash():
+
+    assert isinstance(Cryptoid(network="ppc").getblockhash(3378), str)
+
+
+def test_cryptoid_getdifficulty():
+
+    assert isinstance(Cryptoid(network="ppc").getdifficulty(), float)
+
+
+def test_cryptoid_getbalance():
+
+    assert isinstance(Cryptoid(network="ppc").getbalance(
+                      'PHvDhfz1dGyPbZZ3Qnp56y92zmy98sncZT'), float)
+
+
+def test_cryptoid_getreceivedbyaddress():
+
+    assert isinstance(Cryptoid(network="ppc").getreceivedbyaddress(
+                      'PHvDhfz1dGyPbZZ3Qnp56y92zmy98sncZT'), float)
+
+
+def test_cryptoid_listunspent():
+
+    assert isinstance(Cryptoid(network="ppc").listunspent(
+                      'PAdonateFczhZuKLkKHozrcyMJW7Y6TKvw'), list)
+
+
+def test_cryptoid_gettrawtransaction():
+
+    assert isinstance(Cryptoid(network="ppc").getrawtransaction(
+                      '34d19bf5a5c757d5bcbf83a91ad9bc04365c58a035a6bf728bce8013ad04c173'), dict)
+
+
+def test_cryptoid_listtransaction():
+
+    assert isinstance(Cryptoid(network="ppc").listtransactions(
+                      'PAdonateFczhZuKLkKHozrcyMJW7Y6TKvw'), list)
