@@ -49,11 +49,13 @@ class Cryptoid:
 
         if self.net.startswith('t'):
             return True
+        else:
+            return False
 
     @classmethod
     def getblockcount(cls) -> int:
 
-        return cls.req('getblockcount')
+        return cls.api_req('getblockcount')
 
     @classmethod
     def getblock(cls, blocknum: int) -> dict:
