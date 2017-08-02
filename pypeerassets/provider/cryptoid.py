@@ -80,17 +80,17 @@ class Cryptoid:
     @classmethod
     def getbalance(cls, address: str) -> float:
 
-        return float(cls.req('getbalance' + "&a=" + address))
+        return float(cls.api_req('getbalance' + "&a=" + address))
 
     @classmethod
     def getreceivedbyaddress(cls, address: str) -> float:
 
-        return float(cls.req('getreceivedbyaddress' + "&a=" + address))
+        return float(cls.api_req('getreceivedbyaddress' + "&a=" + address))
 
     @classmethod
     def listunspent(cls, address: str) -> list:
 
-        return cls.req('unspent' + "&a=" + address)['unspent_outputs']
+        return cls.api_req('unspent' + "&a=" + address)['unspent_outputs']
 
     @classmethod
     def getrawtransaction(cls, txid: str) -> dict:
