@@ -43,6 +43,13 @@ class Cryptoid:
         assert response.status_code == 200, {'error': 'API error: ' + str(response.status_code)}
         return response.json()
 
+    @property
+    def is_testnet(self):
+        """testnet or not?"""
+
+        if self.net.startswith('t'):
+            return True
+
     @classmethod
     def getblockcount(cls) -> int:
 
