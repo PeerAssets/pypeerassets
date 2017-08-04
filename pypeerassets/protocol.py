@@ -6,6 +6,43 @@ from . import paproto
 from .pautils import amount_to_exponent, issue_mode_to_enum
 from operator import itemgetter
 
+issue_modes = ('MULTI',
+               ###
+               # Multiple card_issue transactions allowed.
+
+               'ONCE',
+               ###
+               # A single card_issue transaction allowed.
+
+               'SINGLET',
+               ###
+               # A single card_issue transsaction allowed, carrying a single card (int=1)
+
+               'CUSTOM',
+               ###
+               # Custom issue mode, verified by client aware of this.
+
+               'UNFLUSHABLE',
+               ###
+               # The UNFLUSHABLE issue mode invalidates any card transfer
+               # transaction except for the card issue transaction.
+               # Meaning that only the issuing entity is able to change
+               # the balance of a specific address.
+               # To correctly calculate the balance of a PeerAssets addr
+               # a client should only consider the card transfer
+               # transactions originating from the deck owner.
+
+               'SUBSCRIPTION'
+               ###
+               # The SUBSCRIPTION issue mode marks an address holding tokens
+               # as subscribed for a limited timeframe. This timeframe is
+               # defined by the balance of the account and the time at which
+               # the first cards of this token are received.
+               # To check validity of a subscription one should take the timestamp
+               # of the first received cards and add the address' balance to it in hours.
+               )
+
+
 class Deck:
 
     def __init__(self, name: str, number_of_decimals: int, issue_mode: str,
