@@ -52,6 +52,12 @@ class Cryptoid:
         else:
             return False
 
+    @property
+    def network(self):
+        """which network is this running on?"""
+
+        return self.net
+
     @classmethod
     def getblockcount(cls) -> int:
 
