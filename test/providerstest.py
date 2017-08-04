@@ -148,6 +148,12 @@ def test_cryptoid_is_testnet():
     cryptoid = Cryptoid(network="ppc")
 
     assert isinstance(cryptoid.is_testnet, bool)
+    assert cryptoid.is_testnet is False
+
+
+def test_crypotid_network():
+
+    assert Cryptoid(network="ppc").network == "peercoin"
 
 
 def test_cryptoid_getblockcount():
