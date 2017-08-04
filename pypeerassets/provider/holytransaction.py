@@ -5,9 +5,10 @@ See https://peercoin.holytransaction.com/info for more information.
 '''
 
 import requests
+from .common import Provider
 
 
-class Holy:
+class Holy(Provider):
 
     """API wrapper for holytransaction.com blockexplorer,
     it only implements queries relevant to peerassets.
@@ -18,59 +19,23 @@ class Holy:
     @classmethod
     def __init__(self, network: str):
         """
-        : network = peercoin, peercoin-testnet ...
+        : network = ppc, peercoin-testnet ...
         """
 
-        self.net = self.network_long_to_short(network)
-        self.netname = self.network_short_to_long(self.net)
-        self.api = "https://{network}.holytransaction.com/api/".format(network=self.netname)
-        self.ext_api = "https://{network}.holytransaction.com/ext/".format(network=self.netname)
+        self.net = self._netname(network)['long']
+        self.api = "https://{network}.holytransaction.com/api/".format(
+                   network=self._netname(network)['long'])
+        self.ext_api = "https://{network}.holytransaction.com/ext/".format(
+                       network=self._netname(network)['long'])
         self.api_methods = ("getdifficulty", "getrawtransaction",
                            "getblockcount", "getblockhash", "getblock")
         self.ext_api_methods = ("getaddress", "getbalance")
         self.api_session = requests.Session()
 
-    @property
-    def is_testnet(self):
-        """testnet or not?"""
-
-        if self.net == "peercoin":
-            return False
-        if self.net == "peercoin-testnet":
-            return True
-
-    @staticmethod
-    def network_long_to_short(name):
-        """convert long network name like "peercoin" to "ppc"."""
-
-        if len(name) < 3:
-            if name == "peercoin":
-                return "ppc"
-            if name == "peercoin-testnet":
-                return "tppc"
-
-        return name
-
-    @staticmethod
-    def network_short_to_long(name):
-        """convert short network name like "ppc" to "peercoin". """
-
-        if len(name) > 3:
-            if name == "ppc":
-                return "peercoin"
-            if name == "tppc":
-                return "peercoin-testnet"
-
-        return name
-
-    @property
-    def network(self):
-        """which network is this running on?"""
-        return self.net
-
     @classmethod
     def req(self, query: str, params: dict):
         """Send request, return response."""
+
         if query in self.api_methods:
             response = self.api_session.get(self.api + query, params=params)
         if query in self.ext_api_methods:
