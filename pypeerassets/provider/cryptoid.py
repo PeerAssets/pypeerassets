@@ -1,17 +1,18 @@
 import requests
+from .common import Provider
 
 
-class Cryptoid:
+class Cryptoid(Provider):
 
     '''API wrapper for http://chainz.cryptoid.info blockexplorer.'''
 
     @classmethod
     def __init__(self, network: str):
         """
-        : network = ppc, tppc ...
+        : network = peercoin [ppc], peercoin-testnet [tppc] ...
         """
 
-        self.net = network
+        self.net = self._netname(network)['short']
         self.api_session = requests.Session()
 
     key = '7547f94398e3'
@@ -42,21 +43,6 @@ class Cryptoid:
         response = self.api_session.get(query)
         assert response.status_code == 200, {'error': 'API error: ' + str(response.status_code)}
         return response.json()
-
-    @property
-    def is_testnet(self):
-        """testnet or not?"""
-
-        if self.net.startswith('t'):
-            return True
-        else:
-            return False
-
-    @property
-    def network(self):
-        """which network is this running on?"""
-
-        return self.net
 
     @classmethod
     def getblockcount(cls) -> int:
