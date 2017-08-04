@@ -1,32 +1,25 @@
 import requests
+from .common import Provider
 
 
-class Mintr:
+class Mintr(Provider):
 
     '''API wrapper for mintr.org blockexplorer,
     it only implements queries relevant to peerassets.
     This wrapper does some tweaks to output to match original RPC response.'''
 
     @classmethod
-    def __init__(cls):
+    def __init__(cls, network="peercoin"):
 
-        cls.api = "https://peercoin.mintr.org/api/"
-
-    @property
-    def is_testnet(self):
-        '''testnet or not?'''
-        return False
-
-    @property
-    def network(self):
-        '''which network is this running on?'''
-        return "ppc"
+        cls.net = cls._netname(network)['long']
+        cls.api_session = requests.Session()
 
     @classmethod
     def get(cls, query):
 
+        api_url = "https://{netname}.mintr.org/api/".format(netname=cls.net)
         requests.packages.urllib3.disable_warnings()
-        return requests.get(cls.api + query, verify=False).json()
+        return requests.get(api_url + query, verify=False).json()
 
     @classmethod
     def getinfo(cls):
