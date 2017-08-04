@@ -68,6 +68,11 @@ def test_holy_is_testnet():
     assert Holy(network="peercoin-testnet").is_testnet is True
 
 
+def test_holy_network():
+
+    assert Holy(network="ppc").network == "peercoin"
+
+
 def test_holy_getdifficulty():
 
     get_diff = Holy(network="peercoin").getdifficulty()
