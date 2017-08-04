@@ -98,7 +98,7 @@ class Cryptoid:
     @classmethod
     def listunspent(cls, address: str) -> list:
 
-        return cls.api_req('unspent' + "&a=" + address)['unspent_outputs']
+        return cls.api_req('unspent' + "&active=" + address)['unspent_outputs']
 
     @classmethod
     def getrawtransaction(cls, txid: str) -> dict:
