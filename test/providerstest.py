@@ -9,7 +9,7 @@ def test_mintr_getinfo():
 
 def test_mintr_network():
 
-    assert Mintr().network == "ppc"
+    assert Mintr().network == "peercoin"
 
 
 def test_mintr_getrawtransaction():
