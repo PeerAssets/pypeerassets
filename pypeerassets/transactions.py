@@ -113,7 +113,7 @@ def op_return_script(data: bytes) -> bytes:
     '''returns a single OP_RETURN output script'''
 
     data = hexlify(data)
-    script = hexlify(OP_RETURN + op_push(len(data) // 2)) + data
+    script = hexlify(OP['RETURN'] + op_push(len(data) // 2)) + data
     return unhexlify(script)
 
 
