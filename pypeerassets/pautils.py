@@ -7,7 +7,6 @@ from .constants import param_query, params
 from typing import Iterator
 from .paproto import DeckSpawn, CardTransfer
 from . import paproto
-from .exceptions import InvalidDeckIssueModeCombo
 
 
 def load_p2th_privkeys_into_local_node(provider: RpcNode, prod=True) -> None:
@@ -90,18 +89,6 @@ def read_tx_opreturn(raw_tx: dict) -> bytes:
             return binascii.unhexlify(data)
         else:
             return binascii.unhexlify(data[:n])
-
-
-def deck_issue_mode_logic_check(issue_mode: list) -> bool:
-    '''verify do combined issue modes pass simple logic tests'''
-
-    error = {'error': 'Invalid issue_mode combination.'}
-
-    if 'MULTI' and 'ONCE' in issue_mode:
-        raise InvalidDeckIssueModeCombo(error)
-
-    if 'MULTI' and 'SINGLET' in issue_mode:
-        raise InvalidDeckIssueModeCombo(error)
 
 
 def deck_issue_mode(proto: DeckSpawn) -> Iterator[str]:

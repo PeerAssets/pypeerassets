@@ -4,6 +4,7 @@ import warnings
 from .kutil import Kutil
 from . import paproto
 from .pautils import amount_to_exponent, issue_mode_to_enum
+from .exceptions import InvalidDeckIssueModeCombo
 from operator import itemgetter
 
 issue_modes = ('MULTI',
@@ -112,6 +113,18 @@ class Deck:
             "number_of_decimals": self.number_of_decimals,
             "issue_mode": self.issue_mode
         }
+
+
+def deck_issue_mode_logic_check(issue_mode: list) -> bool:
+    '''verify do combined issue modes pass simple logic tests'''
+
+    error = {'error': 'Invalid issue_mode combination.'}
+
+    if 'MULTI' and 'ONCE' in issue_mode:
+        raise InvalidDeckIssueModeCombo(error)
+
+    if 'MULTI' and 'SINGLET' in issue_mode:
+        raise InvalidDeckIssueModeCombo(error)
 
 
 class CardTransfer:
