@@ -1,4 +1,5 @@
 from pypeerassets.networks import query
+import requests
 
 
 class Provider:
@@ -28,3 +29,11 @@ class Provider:
             return True
         else:
             return False
+
+    @classmethod
+    def sendrawtransaction(cls, rawtxn: str) -> dict:
+        '''sendrawtransaction'''
+
+        url = 'talk.peercoin.net:5555/sendrawtransaction/'
+        resp = requests.get(url + rawtxn)
+        return resp
