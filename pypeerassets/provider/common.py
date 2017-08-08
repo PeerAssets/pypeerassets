@@ -1,4 +1,5 @@
 from pypeerassets.networks import query
+from pypeerassets.exceptions import UnsupportedNetwork
 import requests
 
 
@@ -9,8 +10,11 @@ class Provider:
         '''resolute network name,
         required because some providers use shortnames and other use longnames.'''
 
-        long = query(name).network_name
-        short = query(name).network_shortname
+        try:
+            long = query(name).network_name
+            short = query(name).network_shortname
+        except AttributeError:
+            raise UnsupportedNetwork('''This blockchain network is not supported by the pypeerassets, check networks.py for list of supported networks.''')
 
         return {'long': long,
                 'short': short}
