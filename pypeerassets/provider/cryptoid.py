@@ -13,6 +13,8 @@ class Cryptoid(Provider):
         """
 
         self.net = self._netname(network)['short']
+        if self.is_testnet:
+            self.net = self.net[1:] + '-test'
         self.api_session = requests.Session()
 
     key = '7547f94398e3'
