@@ -1,4 +1,4 @@
-'''various protocol contants'''
+'''various protocol constants'''
 
 from collections import namedtuple
 
@@ -25,6 +25,7 @@ params = (
             "mvfR2sSxAfmDaGgPcmdsTwPqzS6R9nM5Bo", float(0.01))
 )
 
+
 def param_query(query):
     '''find matching parameter among the networks'''
 
@@ -32,4 +33,3 @@ def param_query(query):
         for field in network:
             if field == query:
                 return network
-
