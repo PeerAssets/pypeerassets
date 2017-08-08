@@ -13,7 +13,7 @@ class Cryptoid(Provider):
         """
 
         self.net = self._netname(network)['short']
-        if self.is_testnet:
+        if self.net.startswith('t') or 'testnet' in self.net:
             self.net = self.net[1:] + '-test'
         self.api_session = requests.Session()
 
