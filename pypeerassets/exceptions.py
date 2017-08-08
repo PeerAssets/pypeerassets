@@ -3,4 +3,7 @@
 
 class InvalidDeckIssueModeCombo(Exception):
     '''When verfiying deck issue_mode combinations.'''
-    pass
+
+
+class UnsupportedNetwork(Exception):
+    '''This network is not suppored by pypeerassets.'''
