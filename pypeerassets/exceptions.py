@@ -7,3 +7,7 @@ class InvalidDeckIssueModeCombo(Exception):
 
 class UnsupportedNetwork(Exception):
     '''This network is not suppored by pypeerassets.'''
+
+
+class InvalidDeckSpawn(Exception):
+    '''Invalid deck_spawn, deck is not properly tagged.'''

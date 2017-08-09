@@ -6,6 +6,7 @@ from binascii import unhexlify
 from .protocol import *
 from .pautils import *
 from .voting import *
+from .exceptions import *
 from . import transactions
 from .constants import param_query, params
 from .networks import query, networks
@@ -46,7 +47,7 @@ def find_all_valid_decks(provider, prod=True) -> list:
                 d["production"] = prod
                 return Deck(**d)
 
-        except (AssertionError, TypeError, KeyError) as err:
+        except (InvalidDeckSpawn, TypeError, KeyError) as err:
             pass
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as th:

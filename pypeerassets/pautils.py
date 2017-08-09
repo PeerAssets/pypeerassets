@@ -3,6 +3,7 @@
 
 import binascii
 from .provider import *
+from .exceptions import InvalidDeckSpawn
 from .constants import param_query, params
 from typing import Iterator
 from .paproto import DeckSpawn, CardTransfer
@@ -133,18 +134,21 @@ def parse_deckspawn_metainfo(protobuf: bytes) -> dict:
     }
 
 
-def validate_deckspawn_p2th(provider, raw_tx, prod=True):
+def validate_deckspawn_p2th(provider, rawtx, prod=True):
     '''validate if deck spawn pays to p2th in vout[0] and if it correct P2TH address'''
 
     pa_params = param_query(provider.network)
-    vout = raw_tx["vout"][0]["scriptPubKey"].get("addresses")[0]
-    error = {"error": "This deck is not properly tagged."}
+    vout = rawtx["vout"][0]["scriptPubKey"].get("addresses")[0]
+    error = {"Error": "This deck ({deck}) is not properly tagged.".format(deck=rawtx['txid'])}
 
     if prod:
-        assert vout == pa_params.P2TH_addr, error
+        if not vout == pa_params.P2TH_addr:
+            raise InvalidDeckSpawn(error)
         return True
+
     else:
-        assert vout == pa_params.test_P2TH_addr, error
+        if not vout == pa_params.test_P2TH_addr:
+            raise InvalidDeckSpawn(error)
         return True
 
 
