@@ -52,12 +52,11 @@ class Cryptoid(Provider):
         return cls.api_req('getblockcount')
 
     @classmethod
-    def getblock(cls, blocknum: int) -> dict:
-        '''unlike with all other providers, 
-        it is only possible to query block by blocknum'''
+    def getblock(cls, blockhash: str) -> dict:
+        '''query block using <blockhash> as key.'''
 
-        query = cls.explorer_url + 'block.raw.dws?coin={net}&id={blocknum}'.format(net=cls.net,
-                                                                                   blocknum=blocknum)
+        query = cls.explorer_url + 'block.raw.dws?coin={net}&hash={blockhash}'.format(net=cls.net,
+                                                                                      blockhash=blockhash)
         return cls.block_req(query)
 
     @classmethod
