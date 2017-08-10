@@ -3,7 +3,7 @@
 
 import binascii
 from .provider import *
-from .exceptions import InvalidDeckSpawn
+from .exceptions import InvalidDeckSpawn, InvalidDeckMetainfo
 from .constants import param_query, params
 from typing import Iterator
 from .paproto import DeckSpawn, CardTransfer
@@ -123,7 +123,10 @@ def parse_deckspawn_metainfo(protobuf: bytes) -> dict:
     deck = paproto.DeckSpawn()
     deck.ParseFromString(protobuf)
 
-    assert deck.name is not "", {"error": "Deck metainfo incomplete, Deck must have a name."}
+    error = {"error": "Deck ({deck}) metainfo incomplete, deck must have a name.".format(deck=deck.name)}
+
+    if deck.name == "":
+        raise InvalidDeckMetainfo(error)
 
     return {
         "version": deck.version,

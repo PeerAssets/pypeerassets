@@ -31,6 +31,8 @@ def find_all_valid_decks(provider, prod=True) -> list:
                            provider.listtransactions(pa_params.test_P2TH_addr))
 
     def deck_parser(raw_tx):
+        '''main deck parser function'''
+
         try:
             validate_deckspawn_p2th(provider, raw_tx, prod=prod)
 
@@ -47,7 +49,7 @@ def find_all_valid_decks(provider, prod=True) -> list:
                 d["production"] = prod
                 return Deck(**d)
 
-        except (InvalidDeckSpawn, TypeError, KeyError) as err:
+        except (InvalidDeckSpawn, InvalidDeckMetainfo, TypeError, KeyError) as err:
             pass
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as th:

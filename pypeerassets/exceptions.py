@@ -11,3 +11,7 @@ class UnsupportedNetwork(Exception):
 
 class InvalidDeckSpawn(Exception):
     '''Invalid deck_spawn, deck is not properly tagged.'''
+
+
+class InvalidDeckMetainfo(Exception):
+    '''Deck metainfo incomplete, deck must have a name.'''
