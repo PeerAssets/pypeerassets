@@ -166,9 +166,10 @@ def test_cryptoid_getblockcount():
     assert isinstance(Cryptoid(network="ppc").getblockcount(), int)
 
 
-def test_cryptoid_get_block():
+def test_cryptoid_getblock():
 
-    assert isinstance(Cryptoid(network="ppc").getblock(123), dict)
+    provider = Cryptoid(network="tppc")
+    assert isinstance(provider.getblock('0000000429a1e623da44a7430b9d9ae377bc2da203043c444c313b2d4390eba2'), dict)
 
 
 def test_cryptoid_get_block_hash():
