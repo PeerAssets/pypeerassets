@@ -73,9 +73,7 @@ class Cryptoid(Provider):
     def getblockhash(cls, blocknum: int) -> str:
         '''get blockhash'''
 
-        query = cls.block_url(cls.net) + '&id={blocknum}'.format(net=cls.net,
-                                                                 blocknum=blocknum)
-        return cls.block_req(query)['hash']
+        return cls.api_req('getblockhash' + '&height=' + str(blocknum))
 
     @classmethod
     def getdifficulty(cls) -> float:
