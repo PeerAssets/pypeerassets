@@ -55,7 +55,7 @@ def find_deck_spawns(provider, prod=True):
         else:
             raise NotImplementedError
 
-    if isinstance(provider, Holy):
+    if isinstance(provider, Holy) or isinstance(provider, Cryptoid):
 
         if prod:
             decks = (i for i in provider.listtransactions(pa_params.P2TH_addr))
@@ -140,9 +140,14 @@ def parse_deckspawn_metainfo(protobuf: bytes) -> dict:
 def validate_deckspawn_p2th(provider, rawtx, prod=True):
     '''validate if deck spawn pays to p2th in vout[0] and if it correct P2TH address'''
 
-    pa_params = param_query(provider.network)
-    vout = rawtx["vout"][0]["scriptPubKey"].get("addresses")[0]
     error = {"Error": "This deck ({deck}) is not properly tagged.".format(deck=rawtx['txid'])}
+    pa_params = param_query(provider.network)
+
+    try:
+        vout = rawtx["vout"][0]["scriptPubKey"].get("addresses")[0]
+    except TypeError:
+        '''TypeError: 'NoneType' object is not subscriptable error on some of the deck spawns.'''
+        raise InvalidDeckSpawn(error)
 
     if prod:
         if not vout == pa_params.P2TH_addr:
