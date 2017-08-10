@@ -105,7 +105,6 @@ class Cryptoid(Provider):
     @classmethod
     def listtransactions(cls, address: str) -> list:
 
-        query = cls.block_url
         query = cls.explorer_url + 'address.summary.dws?coin={net}&id={addr}'.format(net=cls.format_name(cls.net),
                                                                                      addr=address)
         resp = cls.block_req(query)
