@@ -13,20 +13,30 @@ class Cryptoid(Provider):
         """
 
         self.net = self._netname(network)['short']
-        if self.net.startswith('t') or 'testnet' in self.net:
-            self.net = self.net[1:] + '-test'
-        self.api_session = requests.Session()
 
     key = '7547f94398e3'
     api_calls = ('getblockcount', 'getdifficulty', 'getbalance',
                  'getreceivedbyaddress', 'listunspent')
     private = ('getbalance', 'unspent')
     explorer_url = 'https://chainz.cryptoid.info/explorer/'
+    api_session = requests.Session()
+
+    @staticmethod
+    def format_name(net: str) -> str:
+        '''take care of specifics of cryptoid naming system'''
+
+        if net.startswith('t') or 'testnet' in net:
+            net = net[1:] + '-test'
+        else:
+            net = net
+
+        return net
 
     @classmethod
     def api_req(self, query: str) -> dict:
 
-        api_url = 'https://chainz.cryptoid.info/{0}/api.dws'.format(self.net)
+        api_url = 'https://chainz.cryptoid.info/{net}/api.dws'.format(
+                                                               net=self.format_name(self.net))
 
         if (p in self.api_calls for p in query):
             query = api_url + "?q=" + query
@@ -55,16 +65,16 @@ class Cryptoid(Provider):
     def getblock(cls, blockhash: str) -> dict:
         '''query block using <blockhash> as key.'''
 
-        query = cls.explorer_url + 'block.raw.dws?coin={net}&hash={blockhash}'.format(net=cls.net,
-                                                                                      blockhash=blockhash)
+        query = cls.block_url(cls.net) + '&hash={blockhash}'.format(net=cls.net,
+                                                                    blockhash=blockhash)
         return cls.block_req(query)
 
     @classmethod
     def getblockhash(cls, blocknum: int) -> str:
         '''get blockhash'''
 
-        query = cls.explorer_url + 'block.raw.dws?coin={net}&id={blocknum}'.format(net=cls.net,
-                                                                                   blocknum=blocknum)
+        query = cls.block_url(cls.net) + '&id={blocknum}'.format(net=cls.net,
+                                                                 blocknum=blocknum)
         return cls.block_req(query)['hash']
 
     @classmethod
@@ -90,14 +100,15 @@ class Cryptoid(Provider):
     @classmethod
     def getrawtransaction(cls, txid: str) -> dict:
 
-        query = cls.explorer_url + 'tx.raw.dws?coin={net}&id={txid}'.format(net=cls.net,
+        query = cls.explorer_url + 'tx.raw.dws?coin={net}&id={txid}'.format(net=cls.format_name(cls.net),
                                                                             txid=txid)
         return cls.block_req(query)
 
     @classmethod
     def listtransactions(cls, address: str) -> list:
 
-        query = cls.explorer_url + 'address.summary.dws?coin={net}&id={addr}'.format(net=cls.net,
+        query = cls.block_url
+        query = cls.explorer_url + 'address.summary.dws?coin={net}&id={addr}'.format(net=cls.format_name(cls.net),
                                                                                      addr=address)
         resp = cls.block_req(query)
         return [i[1].lower() for i in resp['tx']]
