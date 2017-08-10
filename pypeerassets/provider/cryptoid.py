@@ -96,7 +96,7 @@ class Cryptoid(Provider):
         return cls.api_req('unspent' + "&active=" + address)['unspent_outputs']
 
     @classmethod
-    def getrawtransaction(cls, txid: str) -> dict:
+    def getrawtransaction(cls, txid: str, decrypt=1) -> dict:
 
         query = cls.explorer_url + 'tx.raw.dws?coin={net}&id={txid}'.format(net=cls.format_name(cls.net),
                                                                             txid=txid)
