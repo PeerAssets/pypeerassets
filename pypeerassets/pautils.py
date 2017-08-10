@@ -3,7 +3,8 @@
 
 import binascii
 from .provider import *
-from .exceptions import InvalidDeckSpawn, InvalidDeckMetainfo
+from .exceptions import (InvalidDeckSpawn, InvalidDeckMetainfo,
+                         InvalidDeckIssueMode)
 from .constants import param_query, params
 from typing import Iterator
 from .paproto import DeckSpawn, CardTransfer
@@ -110,11 +111,11 @@ def issue_mode_to_enum(deck: DeckSpawn, issue_mode: list) -> int:
             r += deck.MODE.Value(mode)
         return r
 
-    if isinstance(issue_mode, str):  # if single issue mode
+    elif isinstance(issue_mode, str):  # if single issue mode
         return deck.MODE.Value(issue_mode)
 
     else:
-        return {'error': 'issue_mode given in wrong format.'}
+        raise InvalidDeckIssueMode({'error': 'issue_mode given in wrong format.'})
 
 
 def parse_deckspawn_metainfo(protobuf: bytes) -> dict:

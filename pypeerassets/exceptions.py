@@ -15,3 +15,7 @@ class InvalidDeckSpawn(Exception):
 
 class InvalidDeckMetainfo(Exception):
     '''Deck metainfo incomplete, deck must have a name.'''
+
+
+class InvalidDeckIssueMode(Exception):
+    '''Deck Issue mode is wrong.'''
