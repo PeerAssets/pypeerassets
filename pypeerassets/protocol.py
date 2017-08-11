@@ -47,43 +47,43 @@ issue_modes = ('MULTI',
 class Deck:
 
     def __init__(self, name: str, number_of_decimals: int, issue_mode: str,
-                 network: str, production: bool, version=1,
+                 network: str, production: bool, version: int,
                  asset_specific_data="", issuer="", time=None, asset_id=None):
         '''
         Initialize deck object, load from dictionary Deck(**dict) or initilize
         with kwargs Deck("deck", 3, "ONCE")
         '''
 
-        self.version = version # protocol version
-        self.name = name # deck name
-        self.issue_mode = issue_mode # deck issue mode
+        self.version = version  # protocol version
+        self.name = name  # deck name
+        self.issue_mode = issue_mode  # deck issue mode
         assert isinstance(number_of_decimals, int), {"error": "number_of_decimals must be an integer"}
         self.number_of_decimals = number_of_decimals
-        self.asset_specific_data = asset_specific_data # optional metadata for the deck
+        self.asset_specific_data = asset_specific_data  # optional metadata for the deck
         self.asset_id = asset_id
         self.issuer = issuer
         self.issue_time = time
         self.network = network
         self.production = production
-        if self.network.startswith("t"):
+        if self.network.startswith("t") or 'testnet' in self.network:
             self.testnet = True
         else:
             self.testnet = False
 
     @property
-    def p2th_address(self):
+    def p2th_address(self) -> str:
         '''P2TH address of this deck'''
 
         return Kutil(network=self.network, privkey=self.asset_id).address
 
     @property
-    def p2th_wif(self):
+    def p2th_wif(self) -> str:
         '''P2TH privkey in WIF format'''
 
         return Kutil(network=self.network, privkey=self.asset_id).wif
 
     @property
-    def metainfo_to_protobuf(self):
+    def metainfo_to_protobuf(self) -> bytes:
         '''encode deck into protobuf'''
 
         deck = paproto.DeckSpawn()
@@ -104,7 +104,7 @@ class Deck:
         return proto
 
     @property
-    def metainfo_to_dict(self):
+    def metainfo_to_dict(self) -> dict:
         '''encode deck into dictionary'''
 
         return {
