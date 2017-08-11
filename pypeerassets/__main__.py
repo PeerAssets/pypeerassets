@@ -154,7 +154,7 @@ def find_card_transfers(provider, deck: Deck) -> list:
             cards = postprocess_card(card_metainfo, raw_tx, sender,
                                      vouts, blockseq, blocknum, deck)
 
-        except (InvalidCardTransferP2TH, CardVersionMistmatch):
+        except (InvalidCardTransferP2TH, CardVersionMistmatch, CardNumberOfDecimalsMismatch):
             return False
 
         return cards

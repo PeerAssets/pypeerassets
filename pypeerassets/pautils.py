@@ -5,7 +5,8 @@ import binascii
 from .provider import *
 from .exceptions import (InvalidDeckSpawn, InvalidDeckMetainfo,
                          InvalidDeckIssueMode, InvalidDeckVersion)
-from .exceptions import (InvalidCardTransferP2TH, CardVersionMistmatch)
+from .exceptions import (InvalidCardTransferP2TH, CardVersionMistmatch,
+                         CardNumberOfDecimalsMismatch)
 from .constants import param_query, params
 from typing import Iterator
 from .paproto import DeckSpawn, CardTransfer
@@ -224,10 +225,9 @@ def postprocess_card(card_metainfo: CardTransfer, raw_tx: dict, sender: str,
     _card = {}
     _card["version"] = card_metainfo["version"]
     _card["number_of_decimals"] = card_metainfo["number_of_decimals"]
-    try:  # check if card number of decimals matches the deck atribute
-        assert _card["number_of_decimals"] == deck.number_of_decimals, nderror
-    except AssertionError:
-        return
+    # check if card number of decimals matches the deck atribute
+    if not _card["number_of_decimals"] == deck.number_of_decimals:
+        raise CardNumberOfDecimalsMismatch(nderror)
 
     _card["deck"] = deck
     _card["txid"] = raw_tx["txid"]

@@ -31,3 +31,7 @@ class InvalidCardTransferP2TH(Exception):
 
 class CardVersionMistmatch(Exception):
     '''card_transfers version must match deck.version'''
+
+
+class CardNumberOfDecimalsMismatch(Exception):
+    '''card_tranfer number of decimals does not match deck rules.'''
