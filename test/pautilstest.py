@@ -4,6 +4,7 @@ from pypeerassets import find_deck
 from pypeerassets import Deck
 from pypeerassets import paproto
 from pypeerassets.pautils import *
+from pypeerassets.exceptions import *
 from pypeerassets import RpcNode, Mintr
 
 
@@ -162,7 +163,7 @@ def test_parse_deckspawn_metainfo():
                                                 'asset_specific_data': b''}
 
     string = b'\x08\x01\x18\x05 \x04' # without deck name
-    with pytest.raises(AssertionError):
+    with pytest.raises(InvalidDeckMetainfo):
         parse_deckspawn_metainfo(string)
 
 
