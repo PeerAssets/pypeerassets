@@ -4,8 +4,8 @@
 import binascii
 from .provider import *
 from .exceptions import (InvalidDeckSpawn, InvalidDeckMetainfo,
-                         InvalidDeckIssueMode)
-from exceptions import (InvalidCardTransferP2TH)
+                         InvalidDeckIssueMode, InvalidDeckVersion)
+from .exceptions import (InvalidCardTransferP2TH)
 from .constants import param_query, params
 from typing import Iterator
 from .paproto import DeckSpawn, CardTransfer
@@ -119,8 +119,9 @@ def issue_mode_to_enum(deck: DeckSpawn, issue_mode: list) -> int:
         raise InvalidDeckIssueMode({'error': 'issue_mode given in wrong format.'})
 
 
-def parse_deckspawn_metainfo(protobuf: bytes) -> dict:
-    '''decode deck_spawn tx op_return protobuf message and validate it.'''
+def parse_deckspawn_metainfo(protobuf: bytes, version: int) -> dict:
+    '''Decode deck_spawn tx op_return protobuf message and validate it,
+       Raise error if deck_spawn metainfo incomplete or version mistmatch.'''
 
     deck = paproto.DeckSpawn()
     deck.ParseFromString(protobuf)
@@ -129,6 +130,9 @@ def parse_deckspawn_metainfo(protobuf: bytes) -> dict:
 
     if deck.name == "":
         raise InvalidDeckMetainfo(error)
+
+    if deck.version != version:
+        raise InvalidDeckVersion({"error", "Deck version mismatch."})
 
     return {
         "version": deck.version,

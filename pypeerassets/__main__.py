@@ -3,6 +3,7 @@
 
 import concurrent.futures
 from binascii import unhexlify
+from typing import Union
 from .protocol import *
 from .pautils import *
 from .voting import *
@@ -12,11 +13,12 @@ from .constants import param_query, params
 from .networks import query, networks
 
 
-def find_all_valid_decks(provider, prod=True) -> list:
+def find_all_valid_decks(provider, deck_version: int, prod: bool=True) -> list:
     '''
     Scan the blockchain for PeerAssets decks, returns list of deck objects.
-    :provider - provider instance
-    :test True/False - test or production P2TH
+    : provider - provider instance
+    : version - deck protocol version (0, 1, 2, ...)
+    : test True/False - test or production P2TH
     '''
 
     if isinstance(provider, RpcNode):
@@ -30,13 +32,16 @@ def find_all_valid_decks(provider, prod=True) -> list:
             deck_spawns = (provider.getrawtransaction(i, 1) for i in
                            provider.listtransactions(pa_params.test_P2TH_addr))
 
-    def deck_parser(raw_tx):
+    def deck_parser(args: Union[dict, int]) -> Deck:
         '''main deck parser function'''
+
+        raw_tx = args[0]
+        deck_version = args[1]
 
         try:
             validate_deckspawn_p2th(provider, raw_tx, prod=prod)
 
-            d = parse_deckspawn_metainfo(read_tx_opreturn(raw_tx)) 
+            d = parse_deckspawn_metainfo(read_tx_opreturn(raw_tx), deck_version)
 
             if d:
 
@@ -54,18 +59,18 @@ def find_all_valid_decks(provider, prod=True) -> list:
             pass
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as th:
-        for result in th.map(deck_parser, deck_spawns):
+        for result in th.map(deck_parser, ((deck, deck_version) for deck in deck_spawns)):
             if result:
                 yield result
 
 
-def find_deck(provider, key: str, prod=True) -> list:
+def find_deck(provider, key: str, version: int, prod=True) -> list:
     '''
     Find specific deck by key, with key being:
     <id>, <name>, <issuer>, <issue_mode>, <number_of_decimals>
     '''
 
-    decks = find_all_valid_decks(provider, prod=prod)
+    decks = find_all_valid_decks(provider, version, prod=prod)
     return [d for d in decks if key in d.__dict__.values()]
 
 

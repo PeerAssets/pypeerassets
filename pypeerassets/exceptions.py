@@ -17,6 +17,10 @@ class InvalidDeckMetainfo(Exception):
     '''Deck metainfo incomplete, deck must have a name.'''
 
 
+class InvalidDeckVersion(Exception):
+    '''Deck version mistmatch.'''
+
+
 class InvalidDeckIssueMode(Exception):
     '''Deck Issue mode is wrong.'''
 
