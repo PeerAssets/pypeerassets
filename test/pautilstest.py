@@ -5,7 +5,7 @@ from pypeerassets import Deck
 from pypeerassets import paproto
 from pypeerassets.pautils import *
 from pypeerassets.exceptions import *
-from pypeerassets import RpcNode, Mintr
+from pypeerassets import RpcNode, Mintr, Cryptoid
 
 
 @pytest.mark.xfail
@@ -15,7 +15,7 @@ def test_load_p2th_privkeys_into_local_node():
     load_p2th_privkeys_into_local_node(provider=provider)
 
 
-@pytest.mark.parametrize("prov", ["rpc", "holy", "mintr"])
+@pytest.mark.parametrize("prov", ["rpc", "holy", "mintr", 'cryptoid'])
 def test_find_tx_sender(prov):
 
     if prov == "holy":
@@ -24,7 +24,12 @@ def test_find_tx_sender(prov):
         assert find_tx_sender(provider, rawtx) == 'PNHGzKupyvo2YZVb1CTdRxtCGBB5ykgiug'
 
     if prov == "mintr":
-        provider = Mintr()
+        provider = Mintr(network="peercoin")
+        rawtx = provider.getrawtransaction("397bda2f5e6608c872a663b2e5482d95db8ecfad00757823f0f12caa45a213a6")
+        assert find_tx_sender(provider, rawtx) == 'PNHGzKupyvo2YZVb1CTdRxtCGBB5ykgiug'
+
+    if prov == "cryptoid":
+        provider = Cryptoid(network="peercoin")
         rawtx = provider.getrawtransaction("397bda2f5e6608c872a663b2e5482d95db8ecfad00757823f0f12caa45a213a6")
         assert find_tx_sender(provider, rawtx) == 'PNHGzKupyvo2YZVb1CTdRxtCGBB5ykgiug'
 
@@ -38,24 +43,25 @@ def test_find_tx_sender(prov):
 
 
 @pytest.mark.xfail
-@pytest.mark.parametrize("prov", ["rpc", "holy", "mintr"])
+@pytest.mark.parametrize("prov", ["rpc", "holy", "mintr", "cryptoid"])
 def test_find_deck_spawns(prov):
 
     if prov == "holy":
         provider = Holy(network="peercoin-testnet")
-        assert isinstance(find_deck_spawns(provider), GeneratorType)
 
     if prov == "mintr":
-        provider = Mintr()
-        assert isinstance(find_deck_spawns(provider), GeneratorType)
+        provider = Mintr(network="peercoin")
+
+    if prov == "cryptoid":
+        provider = Cryptoid(network="peercoin")
 
     try:
         if prov == "rpc":
             provider = RpcNode(testnet=True)
-            assert isinstance(find_deck_spawns(provider), GeneratorType)
-
     except:
         print("No RpcNode avaliable.")
+
+    assert isinstance(find_deck_spawns(provider), Generator)
 
 
 @pytest.mark.parametrize("prov", ["rpc", "holy", "mintr"])
@@ -125,10 +131,6 @@ def generate_dummy_deck():
 
     return Deck(name="decky", number_of_decimals=2, issue_mode="SINGLET",
                 network="ppc", production=True, asset_specific_data="just testing.")
-
-
-def test_deck_issue_mode_logic_check():
-    pass
 
 
 def test_deck_issue_mode():
