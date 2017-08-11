@@ -261,4 +261,3 @@ def card_transfer(deck: Deck, card_transfer: CardTransfer, inputs: list, change_
         })
 
     return transactions.make_raw_transaction(deck.network, inputs['utxos'], outputs)
-
