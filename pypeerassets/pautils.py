@@ -5,6 +5,7 @@ import binascii
 from .provider import *
 from .exceptions import (InvalidDeckSpawn, InvalidDeckMetainfo,
                          InvalidDeckIssueMode)
+from exceptions import (InvalidCardTransferP2TH)
 from .constants import param_query, params
 from typing import Iterator
 from .paproto import DeckSpawn, CardTransfer
@@ -180,7 +181,8 @@ def validate_card_transfer_p2th(deck, raw_tx: dict) -> None:
 
     error = {"error": "Card transfer is not properly tagged."}
 
-    assert raw_tx["vout"][0]["scriptPubKey"].get("addresses")[0] == deck.p2th_address, error
+    if not raw_tx["vout"][0]["scriptPubKey"].get("addresses")[0] == deck.p2th_address:
+        raise InvalidCardTransferP2TH(error)
 
 
 def parse_card_transfer_metainfo(protobuf: bytes) -> dict:

@@ -19,3 +19,7 @@ class InvalidDeckMetainfo(Exception):
 
 class InvalidDeckIssueMode(Exception):
     '''Deck Issue mode is wrong.'''
+
+
+class InvalidCardTransferP2TH(Exception):
+    '''card_transfer does not pay to deck p2th in vout[0]'''

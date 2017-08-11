@@ -141,7 +141,7 @@ def find_card_transfers(provider, deck: Deck) -> list:
             cards = postprocess_card(card_metainfo, raw_tx, sender,
                                      vouts, blockseq, blocknum, deck)
 
-        except AssertionError:
+        except InvalidCardTransferP2TH:
             return False
 
         return cards
