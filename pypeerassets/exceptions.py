@@ -27,3 +27,7 @@ class InvalidDeckIssueMode(Exception):
 
 class InvalidCardTransferP2TH(Exception):
     '''card_transfer does not pay to deck p2th in vout[0]'''
+
+
+class CardVersionMistmatch(Exception):
+    '''card_transfers version must match deck.version'''

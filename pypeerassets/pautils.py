@@ -5,7 +5,7 @@ import binascii
 from .provider import *
 from .exceptions import (InvalidDeckSpawn, InvalidDeckMetainfo,
                          InvalidDeckIssueMode, InvalidDeckVersion)
-from .exceptions import (InvalidCardTransferP2TH)
+from .exceptions import (InvalidCardTransferP2TH, CardVersionMistmatch)
 from .constants import param_query, params
 from typing import Iterator
 from .paproto import DeckSpawn, CardTransfer
@@ -189,13 +189,14 @@ def validate_card_transfer_p2th(deck, raw_tx: dict) -> None:
         raise InvalidCardTransferP2TH(error)
 
 
-def parse_card_transfer_metainfo(protobuf: bytes) -> dict:
-    '''decode card_spawn tx op_return protobuf message and validate it.'''
+def parse_card_transfer_metainfo(protobuf: bytes, deck_version: int) -> dict:
+    '''decode card_spawn protobuf message and validate it against deck.version'''
 
     card = paproto.CardTransfer()
     card.ParseFromString(protobuf)
 
-    assert card.version > 0, {"error": "Card metainfo incomplete, version can't be 0."}
+    if not card.version == deck_version:
+        raise CardVersionMistmatch({'error': 'card version does not match deck version.'})
 
     return {
         "version": card.version,
@@ -218,7 +219,6 @@ def postprocess_card(card_metainfo: CardTransfer, raw_tx: dict, sender: str,
     : blocknum: block number
     : deck: deck object this card transfer belongs to'''
 
-    card_metainfo = parse_card_transfer_metainfo(card_metainfo)
     nderror = {"error": "Number of decimals does not match."}
 
     _card = {}

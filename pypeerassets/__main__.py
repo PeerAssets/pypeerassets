@@ -5,7 +5,15 @@ import concurrent.futures
 from binascii import unhexlify
 from typing import Union
 from .protocol import *
-from .pautils import *
+from .provider import *
+from .pautils import (load_deck_p2th_into_local_node, 
+                      load_p2th_privkeys_into_local_node, find_tx_sender,
+                      find_deck_spawns, tx_serialization_order,
+                      read_tx_opreturn, deck_issue_mode,
+                      issue_mode_to_enum, parse_deckspawn_metainfo,
+                      validate_deckspawn_p2th, validate_card_transfer_p2th,
+                      parse_card_transfer_metainfo, postprocess_card
+                      )
 from .voting import *
 from .exceptions import *
 from . import transactions
@@ -130,7 +138,7 @@ def find_card_transfers(provider, deck: Deck) -> list:
 
         try:
             validate_card_transfer_p2th(deck, raw_tx)  # validate P2TH first
-            card_metainfo = read_tx_opreturn(raw_tx)
+            card_metainfo = parse_card_transfer_metainfo(read_tx_opreturn(raw_tx), deck.version)
             vouts = raw_tx["vout"]
             sender = find_tx_sender(provider, raw_tx)
 
@@ -146,7 +154,7 @@ def find_card_transfers(provider, deck: Deck) -> list:
             cards = postprocess_card(card_metainfo, raw_tx, sender,
                                      vouts, blockseq, blocknum, deck)
 
-        except InvalidCardTransferP2TH:
+        except (InvalidCardTransferP2TH, CardVersionMistmatch):
             return False
 
         return cards
