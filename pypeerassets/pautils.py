@@ -3,6 +3,7 @@
 
 import binascii
 from .provider import *
+from .exceptions import P2THImportFailed
 from .exceptions import (InvalidDeckSpawn, InvalidDeckMetainfo,
                          InvalidDeckIssueMode, InvalidDeckVersion)
 from .exceptions import (InvalidCardTransferP2TH, CardVersionMistmatch,
@@ -13,8 +14,8 @@ from .paproto import DeckSpawn, CardTransfer
 from . import paproto
 
 
-def load_p2th_privkeys_into_local_node(provider: RpcNode, prod=True) -> None:
-    '''load production p2th privkey into local node'''
+def load_p2th_privkey_into_local_node(provider: RpcNode, prod=True) -> None:
+    '''Load PeerAssets P2TH privkey into the local node.'''
 
     assert isinstance(provider, RpcNode), {"error": "Import only works with local node."}
     error = {"error": "Loading P2TH privkey failed."}
@@ -22,10 +23,13 @@ def load_p2th_privkeys_into_local_node(provider: RpcNode, prod=True) -> None:
 
     if prod:
         provider.importprivkey(pa_params.P2TH_wif, "PAPROD")
-        assert isinstance(provider.listtransactions("PAPROD"), list), error
+        #  now verify if ismine == True
+        if not provider.validateaddress("PAPROD")['ismine']:
+            raise P2THImportFailed(error)
     else:
         provider.importprivkey(pa_params.test_P2TH_wif, "PATEST")
-        assert isinstance(provider.listtransactions("PATEST"), list), error
+        if not provider.validateaddress("PATEST")['ismine']:
+            raise P2THImportFailed(error)
 
 
 def find_tx_sender(provider, raw_tx: dict) -> str:

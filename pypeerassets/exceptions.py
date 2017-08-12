@@ -1,6 +1,10 @@
 '''all custom exceptions should go here'''
 
 
+class P2THImportFailed(Exception):
+    '''Importing of PeerAssets P2TH privkeys failed.'''
+
+
 class InvalidDeckIssueModeCombo(Exception):
     '''When verfiying deck issue_mode combinations.'''
 
