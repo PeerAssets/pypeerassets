@@ -7,7 +7,7 @@ from typing import Union
 from .protocol import *
 from .provider import *
 from .pautils import (load_deck_p2th_into_local_node, 
-                      load_p2th_privkeys_into_local_node, find_tx_sender,
+                      find_tx_sender,
                       find_deck_spawns, tx_serialization_order,
                       read_tx_opreturn, deck_issue_mode,
                       issue_mode_to_enum, parse_deckspawn_metainfo,
