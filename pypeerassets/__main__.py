@@ -21,7 +21,7 @@ from .constants import param_query, params
 from .networks import query, networks
 
 
-def find_all_valid_decks(provider, deck_version: int, prod: bool=True) -> list:
+def find_all_valid_decks(provider, deck_version: int, prod: bool=True) -> Generator:
     '''
     Scan the blockchain for PeerAssets decks, returns list of deck objects.
     : provider - provider instance
