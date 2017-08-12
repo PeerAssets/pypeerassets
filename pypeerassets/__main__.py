@@ -3,7 +3,7 @@
 
 import concurrent.futures
 from binascii import unhexlify
-from typing import Union
+from typing import Union, Generator
 from .protocol import *
 from .provider import *
 from .pautils import (load_deck_p2th_into_local_node, 
@@ -118,10 +118,9 @@ def deck_transfer(deck: Deck, inputs: list, change_address: str) -> bytes:
     raise NotImplementedError
 
 
-def find_card_transfers(provider, deck: Deck) -> list:
+def find_card_transfers(provider, deck: Deck) -> Generator:
     '''find all <deck> card transfers'''
 
-    cards = []
     if isinstance(provider, RpcNode):
         card_transfers = (provider.getrawtransaction(i["txid"], 1) for i in
                           provider.listtransactions(deck.asset_id))
@@ -162,9 +161,7 @@ def find_card_transfers(provider, deck: Deck) -> list:
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as th:
         for result in th.map(card_parser, ((provider, deck, i) for i in card_transfers)):
             if result:
-                cards.extend([CardTransfer(**i) for i in result])
-
-    return cards
+                return (CardTransfer(**i) for i in result)
 
 
 def card_issue(deck: Deck, card_transfer: CardTransfer, inputs: list, change_address: str) -> bytes:

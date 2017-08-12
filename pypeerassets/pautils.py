@@ -262,7 +262,7 @@ def postprocess_card(card_metainfo: CardTransfer, raw_tx: dict, sender: str,
         _card["amount"] = card_metainfo["amount"]
         _card["cardseq"] = 0
 
-    return [_card]
+    return (_card)
 
 
 def amount_to_exponent(amount: float, number_of_decimals: int) -> int:
