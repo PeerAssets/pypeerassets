@@ -14,7 +14,7 @@ from .paproto import DeckSpawn, CardTransfer
 from . import paproto
 
 
-def load_p2th_privkey_into_local_node(provider: RpcNode, prod=True) -> None:
+def load_p2th_privkey_into_local_node(provider: RpcNode, prod: bool=True) -> None:
     '''Load PeerAssets P2TH privkey into the local node.'''
 
     assert isinstance(provider, RpcNode), {"error": "Import only works with local node."}
