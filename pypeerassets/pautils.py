@@ -24,11 +24,11 @@ def load_p2th_privkey_into_local_node(provider: RpcNode, prod=True) -> None:
     if prod:
         provider.importprivkey(pa_params.P2TH_wif, "PAPROD")
         #  now verify if ismine == True
-        if not provider.validateaddress("PAPROD")['ismine']:
+        if not provider.validateaddress(pa_params.P2TH_addr)['ismine']:
             raise P2THImportFailed(error)
     else:
         provider.importprivkey(pa_params.test_P2TH_wif, "PATEST")
-        if not provider.validateaddress("PATEST")['ismine']:
+        if not provider.validateaddress(pa_params.test_P2TH_addr)['ismine']:
             raise P2THImportFailed(error)
 
 
