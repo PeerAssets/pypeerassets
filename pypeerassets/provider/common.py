@@ -1,6 +1,7 @@
 from pypeerassets.networks import query
 from pypeerassets.exceptions import UnsupportedNetwork
 from pypeerassets.constants import param_query
+from pypeerassets.networks import query
 import requests
 
 
@@ -31,6 +32,12 @@ class Provider:
         '''load network PeerAssets parameters.'''
 
         return param_query(self.network)
+
+    @property
+    def network_properties(self):
+        '''network properties [min_fee, denomination, ...]'''
+
+        return query(self.network)
 
     @property
     def is_testnet(self) -> bool:
