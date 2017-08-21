@@ -2,6 +2,7 @@
 '''Communicate with local or remote peercoin-daemon via JSON-RPC'''
 
 from operator import itemgetter
+from exceptions import InsufficientFunds
 from pypeerassets.constants import param_query, params
 
 try:
@@ -9,6 +10,7 @@ try:
 except:
     raise EnvironmentError("peercoin_rpc library is required for this to work,\
                             use pip to install it.")
+
 
 class RpcNode(Client):
     '''JSON-RPC connection to local Peercoin node'''
@@ -42,7 +44,7 @@ class RpcNode(Client):
                     return {'utxos': utxo, 'total': utxo_sum}
 
         if utxo_sum < total_amount:
-            raise ValueError("Insufficient funds.")
+            raise InsufficientFunds("Insufficient funds.")
 
     @property
     def is_testnet(self):
