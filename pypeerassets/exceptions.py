@@ -39,3 +39,7 @@ class CardVersionMistmatch(Exception):
 
 class CardNumberOfDecimalsMismatch(Exception):
     '''card_tranfer number of decimals does not match deck rules.'''
+
+
+class InsufficientFunds(Exception):
+    '''this address does not have enough assigned UTXOs'''
