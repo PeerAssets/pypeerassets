@@ -1,5 +1,7 @@
 import requests
+from operator import itemgetter
 from .common import Provider
+from pypeerassets.exceptions import InsufficientFunds
 
 
 class Cryptoid(Provider):
@@ -94,6 +96,31 @@ class Cryptoid(Provider):
     def listunspent(cls, address: str) -> list:
 
         return cls.api_req('unspent' + "&active=" + address)['unspent_outputs']
+
+    @classmethod
+    def select_inputs(cls, amount: float, address: str):
+        '''select UTXOs'''
+
+        utxo = []
+        utxo_sum = float(-0.01)  # starts from negative due to minimal fee
+        for tx in sorted(cls.listunspent(address=address), key=itemgetter('confirmations')):
+
+            #if tx["address"] not in (cls.network_p2th.P2TH_addr,
+            #                         cls.network_p2th.test_P2TH_addr):
+
+                utxo.append({
+                    'txid': tx['tx_hash'],
+                    'vout': tx['tx_ouput_n'],
+                    'scriptSig': tx['script'],
+                    'amount': float(tx['value']) / 100000000
+                })
+
+                utxo_sum += float(tx['value']) / 100000000
+                if utxo_sum >= amount:
+                    return {'utxos': utxo, 'total': utxo_sum}
+
+        if utxo_sum < amount:
+            raise InsufficientFunds('Insufficient funds.')
 
     @classmethod
     def getrawtransaction(cls, txid: str, decrypt=1) -> dict:
