@@ -27,7 +27,7 @@ class Provider:
         return self._netname(self.net)['long']
 
     @property
-    def network_properties(self):
+    def network_parameters(self):
         '''load network PeerAssets parameters.'''
 
         return param_query(self.network)
