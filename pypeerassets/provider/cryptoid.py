@@ -105,8 +105,8 @@ class Cryptoid(Provider):
         utxo_sum = float(-0.01)  # starts from negative due to minimal fee
         for tx in sorted(cls.listunspent(address=address), key=itemgetter('confirmations')):
 
-            #if tx["address"] not in (cls.network_p2th.P2TH_addr,
-            #                         cls.network_p2th.test_P2TH_addr):
+            #if tx["address"] not in (cls.network_properties.P2TH_addr,
+            #                         cls.network_properties.test_P2TH_addr):
 
                 utxo.append({
                     'txid': tx['tx_hash'],
