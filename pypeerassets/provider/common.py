@@ -1,5 +1,6 @@
 from pypeerassets.networks import query
 from pypeerassets.exceptions import UnsupportedNetwork
+from pypeerassets.constants import param_query
 import requests
 
 
@@ -24,6 +25,12 @@ class Provider:
         '''return network full name'''
 
         return self._netname(self.net)['long']
+
+    @property
+    def network_properties(self):
+        '''load network PeerAssets parameters.'''
+
+        return param_query(self.network)
 
     @property
     def is_testnet(self) -> bool:
