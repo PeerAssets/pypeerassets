@@ -2,7 +2,7 @@
 
 import warnings
 from .kutil import Kutil
-from . import paproto
+from .paproto_pb2 import DeckSpawn, CardTransfer
 from .pautils import amount_to_exponent, issue_mode_to_enum
 from .exceptions import InvalidDeckIssueModeCombo
 from operator import itemgetter
@@ -86,7 +86,7 @@ class Deck:
     def metainfo_to_protobuf(self) -> bytes:
         '''encode deck into protobuf'''
 
-        deck = paproto.DeckSpawn()
+        deck = DeckSpawn()
         deck.version = self.version
         deck.name = self.name
         deck.number_of_decimals = self.number_of_decimals
@@ -189,7 +189,7 @@ class CardTransfer:
     def metainfo_to_protobuf(self):
         '''encode card_transfer info to protobuf'''
 
-        card = paproto.CardTransfer()
+        card = CardTransfer()
         card.version = self.version
         card.amount.extend(self.amount)
         card.number_of_decimals = self.number_of_decimals

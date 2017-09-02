@@ -10,8 +10,7 @@ from .exceptions import (InvalidCardTransferP2TH, CardVersionMistmatch,
                          CardNumberOfDecimalsMismatch)
 from .constants import param_query, params
 from typing import Iterator
-from .paproto import DeckSpawn, CardTransfer
-from . import paproto
+from .paproto_pb2 import DeckSpawn, CardTransfer
 
 
 def load_p2th_privkey_into_local_node(provider: RpcNode, prod: bool=True) -> None:
@@ -128,7 +127,7 @@ def parse_deckspawn_metainfo(protobuf: bytes, version: int) -> dict:
     '''Decode deck_spawn tx op_return protobuf message and validate it,
        Raise error if deck_spawn metainfo incomplete or version mistmatch.'''
 
-    deck = paproto.DeckSpawn()
+    deck = DeckSpawn()
     deck.ParseFromString(protobuf)
 
     error = {"error": "Deck ({deck}) metainfo incomplete, deck must have a name.".format(deck=deck.name)}
@@ -197,7 +196,7 @@ def validate_card_transfer_p2th(deck, raw_tx: dict) -> None:
 def parse_card_transfer_metainfo(protobuf: bytes, deck_version: int) -> dict:
     '''decode card_spawn protobuf message and validate it against deck.version'''
 
-    card = paproto.CardTransfer()
+    card = CardTransfer()
     card.ParseFromString(protobuf)
 
     if not card.version == deck_version:
