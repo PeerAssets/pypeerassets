@@ -1,7 +1,7 @@
 import warnings
 from pypeerassets.kutil import Kutil
 from pypeerassets.protocol import Deck
-from pypeerassets import pavoteproto
+from pypeerassets import pavoteproto_pb2
 from hashlib import sha256
 from binascii import unhexlify
 from pypeerassets import transactions
