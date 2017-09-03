@@ -7,24 +7,40 @@ from .pautils import amount_to_exponent, issue_mode_to_enum
 from .exceptions import InvalidDeckIssueModeCombo
 from operator import itemgetter
 
-issue_modes = ('MULTI',
+issue_modes = (
+               'NONE',
                ###
+               # https://github.com/PeerAssets/rfcs/blob/master/0001-peerassets-transaction-specification.proto#L19
+               # No issuance allowed.
+
+               'MULTI',
+               ###
+               # https://github.com/PeerAssets/rfcs/blob/master/0001-peerassets-transaction-specification.proto#L22
                # Multiple card_issue transactions allowed.
 
                'ONCE',
                ###
+               # https://github.com/PeerAssets/rfcs/blob/master/0001-peerassets-transaction-specification.proto#L21
                # A single card_issue transaction allowed.
+
+               'MONO',
+               ###
+               # https://github.com/PeerAssets/rfcs/blob/master/0001-peerassets-transaction-specification.proto#L23
+               # All card transaction amounts are equal to 1.
 
                'SINGLET',
                ###
-               # A single card_issue transsaction allowed, carrying a single card (int=1)
+               # https://github.com/PeerAssets/rfcs/blob/master/0001-peerassets-transaction-specification.proto#L30
+               # A single MONO card_issue transsaction allowed.
 
                'CUSTOM',
                ###
+               # https://github.com/PeerAssets/rfcs/blob/master/0001-peerassets-transaction-specification.proto#L20
                # Custom issue mode, verified by client aware of this.
 
                'UNFLUSHABLE',
                ###
+               # https://github.com/PeerAssets/rfcs/blob/master/0001-peerassets-transaction-specification.proto#L24
                # The UNFLUSHABLE issue mode invalidates any card transfer
                # transaction except for the card issue transaction.
                # Meaning that only the issuing entity is able to change
@@ -35,6 +51,7 @@ issue_modes = ('MULTI',
 
                'SUBSCRIPTION'
                ###
+               # https://github.com/PeerAssets/rfcs/blob/master/0001-peerassets-transaction-specification.proto#L26
                # The SUBSCRIPTION issue mode marks an address holding tokens
                # as subscribed for a limited timeframe. This timeframe is
                # defined by the balance of the account and the time at which
