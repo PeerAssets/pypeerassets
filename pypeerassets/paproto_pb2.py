@@ -19,9 +19,8 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='0001-peerassets-transaction-specification.proto',
   package='',
   syntax='proto3',
-  serialized_pb=_b('\n/0001-peerassets-transaction-specification.proto\"\xb7\x01\n\tDeckSpawn\x12\x0f\n\x07version\x18\x01 \x01(\r\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x1a\n\x12number_of_decimals\x18\x03 \x01(\r\x12\x12\n\nissue_mode\x18\x04 \x01(\r\x12\x1b\n\x13\x61sset_specific_data\x18\x05 \x01(\x0c\">\n\x04MODE\x12\x08\n\x04NONE\x10\x00\x12\n\n\x06\x43USTOM\x10\x01\x12\x08\n\x04ONCE\x10\x02\x12\t\n\x05MULTI\x10\x04\x12\x0b\n\x07SINGLET\x10\x08\"h\n\x0c\x43\x61rdTransfer\x12\x0f\n\x07version\x18\x01 \x01(\r\x12\x0e\n\x06\x61mount\x18\x02 \x03(\x04\x12\x1a\n\x12number_of_decimals\x18\x03 \x01(\r\x12\x1b\n\x13\x61sset_specific_data\x18\x04 \x01(\x0c\x62\x06proto3')
+  serialized_pb=_b('\n/0001-peerassets-transaction-specification.proto\"\xf1\x01\n\tDeckSpawn\x12\x0f\n\x07version\x18\x01 \x01(\r\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x1a\n\x12number_of_decimals\x18\x03 \x01(\r\x12\x12\n\nissue_mode\x18\x04 \x01(\r\x12\x1b\n\x13\x61sset_specific_data\x18\x05 \x01(\x0c\x12\x0b\n\x03\x66\x65\x65\x18\x06 \x01(\r\"k\n\x04MODE\x12\x08\n\x04NONE\x10\x00\x12\n\n\x06\x43USTOM\x10\x01\x12\x08\n\x04ONCE\x10\x02\x12\t\n\x05MULTI\x10\x04\x12\x08\n\x04MONO\x10\x08\x12\x0f\n\x0bUNFLUSHABLE\x10\x10\x12\x10\n\x0cSUBSCRIPTION\x10\x34\x12\x0b\n\x07SINGLET\x10\n\"h\n\x0c\x43\x61rdTransfer\x12\x0f\n\x07version\x18\x01 \x01(\r\x12\x0e\n\x06\x61mount\x18\x02 \x03(\x04\x12\x1a\n\x12number_of_decimals\x18\x03 \x01(\r\x12\x1b\n\x13\x61sset_specific_data\x18\x04 \x01(\x0c\x62\x06proto3')
 )
-_sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 
 
@@ -48,14 +47,26 @@ _DECKSPAWN_MODE = _descriptor.EnumDescriptor(
       options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='SINGLET', index=4, number=8,
+      name='MONO', index=4, number=8,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='UNFLUSHABLE', index=5, number=16,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='SUBSCRIPTION', index=6, number=52,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='SINGLET', index=7, number=10,
       options=None,
       type=None),
   ],
   containing_type=None,
   options=None,
-  serialized_start=173,
-  serialized_end=235,
+  serialized_start=186,
+  serialized_end=293,
 )
 _sym_db.RegisterEnumDescriptor(_DECKSPAWN_MODE)
 
@@ -102,6 +113,13 @@ _DECKSPAWN = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
+    _descriptor.FieldDescriptor(
+      name='fee', full_name='DeckSpawn.fee', index=5,
+      number=6, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
   ],
   extensions=[
   ],
@@ -116,7 +134,7 @@ _DECKSPAWN = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=52,
-  serialized_end=235,
+  serialized_end=293,
 )
 
 
@@ -167,13 +185,14 @@ _CARDTRANSFER = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=237,
-  serialized_end=341,
+  serialized_start=295,
+  serialized_end=399,
 )
 
 _DECKSPAWN_MODE.containing_type = _DECKSPAWN
 DESCRIPTOR.message_types_by_name['DeckSpawn'] = _DECKSPAWN
 DESCRIPTOR.message_types_by_name['CardTransfer'] = _CARDTRANSFER
+_sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 DeckSpawn = _reflection.GeneratedProtocolMessageType('DeckSpawn', (_message.Message,), dict(
   DESCRIPTOR = _DECKSPAWN,
