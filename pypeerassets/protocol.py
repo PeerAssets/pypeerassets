@@ -2,7 +2,8 @@
 
 import warnings
 from .kutil import Kutil
-from .paproto_pb2 import DeckSpawn, CardTransfer
+from .paproto_pb2 import DeckSpawn as deckspawnproto
+from .paproto_pb2 import CardTransfer as cardtransferproto
 from .pautils import amount_to_exponent, issue_mode_to_enum
 from .exceptions import InvalidDeckIssueModeCombo
 from operator import itemgetter
@@ -65,7 +66,7 @@ class Deck:
 
     def __init__(self, name: str, number_of_decimals: int, issue_mode: str,
                  network: str, production: bool, version: int,
-                 asset_specific_data="", issuer="", time=None, asset_id=None):
+                 asset_specific_data="", issuer="", fee=0, time=None, asset_id=None) -> None:
         '''
         Initialize deck object, load from dictionary Deck(**dict) or initilize
         with kwargs Deck("deck", 3, "ONCE")
@@ -74,6 +75,7 @@ class Deck:
         self.version = version  # protocol version
         self.name = name  # deck name
         self.issue_mode = issue_mode  # deck issue mode
+        self.fee = fee
         assert isinstance(number_of_decimals, int), {"error": "number_of_decimals must be an integer"}
         self.number_of_decimals = number_of_decimals
         self.asset_specific_data = asset_specific_data  # optional metadata for the deck
@@ -103,7 +105,7 @@ class Deck:
     def metainfo_to_protobuf(self) -> bytes:
         '''encode deck into protobuf'''
 
-        deck = DeckSpawn()
+        deck = deckspawnproto()
         deck.version = self.version
         deck.name = self.name
         deck.number_of_decimals = self.number_of_decimals
@@ -149,7 +151,7 @@ class CardTransfer:
     def __init__(self, deck: Deck, receiver=[], amount=[], version=1,
                  blockhash=None, txid=None, sender=None, asset_specific_data="",
                  number_of_decimals=None, blockseq=None, cardseq=None,
-                 blocknum=None, timestamp=None):
+                 blocknum=None, timestamp=None) -> None:
         '''CardTransfer object, used when parsing card_transfers from the blockchain
         or when sending out new card_transfer.
         It can be initialized by passing the **kwargs and it will do the parsing,
@@ -206,7 +208,7 @@ class CardTransfer:
     def metainfo_to_protobuf(self):
         '''encode card_transfer info to protobuf'''
 
-        card = CardTransfer()
+        card = cardtransferproto()
         card.version = self.version
         card.amount.extend(self.amount)
         card.number_of_decimals = self.number_of_decimals
