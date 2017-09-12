@@ -109,6 +109,7 @@ class Deck:
         deck.version = self.version
         deck.name = self.name
         deck.number_of_decimals = self.number_of_decimals
+        deck.fee = amount_to_exponent(self.fee, self.number_of_decimals)
         deck.issue_mode = issue_mode_to_enum(deck, self.issue_mode)
         if not isinstance(self.asset_specific_data, bytes):
             deck.asset_specific_data = self.asset_specific_data.encode()
@@ -130,7 +131,8 @@ class Deck:
             "version": self.version,
             "name": self.name,
             "number_of_decimals": self.number_of_decimals,
-            "issue_mode": self.issue_mode
+            "issue_mode": self.issue_mode,
+            "fee": self.fee
         }
 
 
