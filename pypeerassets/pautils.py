@@ -143,7 +143,8 @@ def parse_deckspawn_metainfo(protobuf: bytes, version: int) -> dict:
         "name": deck.name,
         "issue_mode": list(deck_issue_mode(deck)),
         "number_of_decimals": deck.number_of_decimals,
-        "asset_specific_data": deck.asset_specific_data
+        "asset_specific_data": deck.asset_specific_data,
+        "fee": exponent_to_amount(deck.fee, deck.number_of_decimals)  # deck.fee is encoded as exponent
     }
 
 
