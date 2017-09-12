@@ -135,4 +135,7 @@ class Cryptoid(Provider):
         query = cls.explorer_url + 'address.summary.dws?coin={net}&id={addr}'.format(net=cls.format_name(cls.net),
                                                                                      addr=address)
         resp = cls.block_req(query)
-        return [i[1].lower() for i in resp['tx']]
+        if resp:
+            return [i[1].lower() for i in resp['tx']]
+        else:
+            return None
