@@ -50,12 +50,13 @@ class Provider:
 
     @classmethod
     def sendrawtransaction(cls, rawtxn: str) -> dict:
-        '''sendrawtransaction'''
+        '''sendrawtransaction remote API
+        : rawtxn - must be submitted as string'''
 
         if cls.is_testnet:
-            url = 'talk.peercoin.net:5555/pushapi/testnet/sendrawtransaction/'
+            url = 'http://talk.peercoin.net:5555/pushapi/testnet/sendrawtransaction/'
         else:
-            url = 'talk.peercoin.net:5555/pushapi/sendrawtransaction/'
+            url = 'http://talk.peercoin.net:5555/pushapi/sendrawtransaction/'
 
         resp = requests.get(url + rawtxn)
-        return resp
+        return resp.content.decode()
