@@ -169,14 +169,8 @@ def card_issue(deck: Deck, card_transfer: CardTransfer, inputs: list, change_add
        :inputs - utxo [has to be owned by deck issuer]
     '''
 
-    issuer_error = {"error": "You must provide UTXO owned by the issuer of this deck."}
-
     network_params = query(deck.network)
     pa_params = param_query(deck.network)
-
-    for utxo in inputs["utxos"]:
-        assert utxo["address"] == deck.issuer, issuer_error
-
     tx_fee = network_params.min_tx_fee # settle for min tx fee for now
 
     for utxo in inputs['utxos']:
