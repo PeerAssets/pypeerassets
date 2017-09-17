@@ -100,6 +100,7 @@ def read_tx_opreturn(raw_tx: dict) -> bytes:
 
 def deck_issue_mode(proto: DeckSpawn) -> Iterator[str]:
     '''interpret issue mode bitfeg'''
+    # https://github.com/PeerAssets/rfcs/blob/master/0001-peerassets-transaction-specification.proto#L18
 
     for mode in proto.MODE.keys():
         if proto.issue_mode & proto.MODE.Value(mode):
@@ -108,6 +109,7 @@ def deck_issue_mode(proto: DeckSpawn) -> Iterator[str]:
 
 def issue_mode_to_enum(deck: DeckSpawn, issue_mode: list) -> int:
     '''encode issue mode(s) as bitfeg'''
+    # https://github.com/PeerAssets/rfcs/blob/master/0001-peerassets-transaction-specification.proto#L18
 
     # case where there are multiple issue modes specified
     if isinstance(issue_mode, list) and len(issue_mode) > 1:
@@ -247,7 +249,7 @@ def postprocess_card(card_metainfo: CardTransfer, raw_tx: dict, sender: str,
     _card["sender"] = sender
     _card["asset_specific_data"] = card_metainfo["asset_specific_data"]
 
-    if len(card_metainfo["amount"]) > 1:  # if card states multiple outputs:
+    if len(card_metainfo["amount"]) > 1:  # if multiple cards in the bundle:
         cards = []
         for am, v in zip(card_metainfo["amount"], vout[2:]):
             c = _card.copy()
