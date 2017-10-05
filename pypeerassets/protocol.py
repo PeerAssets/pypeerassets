@@ -7,6 +7,7 @@ from .paproto_pb2 import CardTransfer as cardtransferproto
 from .pautils import amount_to_exponent, issue_mode_to_enum
 from .exceptions import InvalidDeckIssueModeCombo
 from operator import itemgetter
+from types import GeneratorType
 
 issue_modes = (
                'NONE',
@@ -212,7 +213,9 @@ class CardTransfer:
 
         card = cardtransferproto()
         card.version = self.version
-        card.amount.extend(self.amount)
+        card.amount.extend(
+                           [amount_to_exponent(i, self.number_of_decimals) for i in self.amount]
+                          )
         card.number_of_decimals = self.number_of_decimals
         if not isinstance(self.asset_specific_data, bytes):
             card.asset_specific_data = self.asset_specific_data.encode()
@@ -225,7 +228,6 @@ class CardTransfer:
             warnings.warn('\nMetainfo size exceeds maximum of 80bytes that fit into OP_RETURN.')
 
         return proto
-
 
 def validate_card_issue_modes(deck: Deck, cards: list) -> list:
     """validate card transfers against deck issue mode"""
