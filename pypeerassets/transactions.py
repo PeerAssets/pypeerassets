@@ -63,6 +63,7 @@ class Tx_buffer:
         return max(self.len - self.ptr, 0)
 
 
+
 def get_hash160(address: str) -> bytes:
     '''return ripemd160 hash of the pubkey form the address'''
 
