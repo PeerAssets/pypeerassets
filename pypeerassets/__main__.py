@@ -16,7 +16,8 @@ from .pautils import (load_deck_p2th_into_local_node,
                       )
 from .voting import *
 from .exceptions import *
-from . import transactions
+from .transactions import (nulldata_output, tx_output, monosig_p2pkh,
+                           make_raw_transaction)
 from .constants import param_query, params
 from .networks import query, networks
 
@@ -94,19 +95,15 @@ def deck_spawn(deck: Deck, inputs: list, change_address: str) -> bytes:
         p2th_addr = pa_params.test_P2TH_addr
 
     tx_fee = network_params.min_tx_fee # settle for min tx fee for now
-
-    for utxo in inputs['utxos']:
-        utxo['txid'] = unhexlify(utxo['txid'])
-        utxo['scriptSig'] = unhexlify(utxo['scriptSig'])
+    change_sum = float(inputs['total']) - float(tx_fee) - float(pa_params.P2TH_fee)
 
     outputs = [
-        {"redeem": pa_params.P2TH_fee, "outputScript": transactions.monosig_script(p2th_addr)},
-        {"redeem": 0, "outputScript": transactions.op_return_script(deck.metainfo_to_protobuf)},
-        {"redeem": float(inputs['total']) - float(tx_fee) - float(pa_params.P2TH_fee),
-         "outputScript": transactions.monosig_script(change_address)
-        }]
+        tx_output(value=pa_params.P2TH_fee, seq=0, script=monosig_p2pkh(p2th_addr)),  # p2th
+        nulldata_output(value=0, seq=1, data=deck.metainfo_to_protobuf),  # op_return
+        tx_output(value=change_sum, seq=2, script=monosig_p2pkh(change_address))  # change
+              ]
 
-    return transactions.make_raw_transaction(deck.network, inputs['utxos'], outputs)
+    return make_raw_transaction(inputs['utxos'], outputs)
 
 
 def deck_transfer(deck: Deck, inputs: list, change_address: str) -> bytes:
