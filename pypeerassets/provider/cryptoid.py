@@ -2,6 +2,7 @@ import requests
 from operator import itemgetter
 from .common import Provider
 from pypeerassets.exceptions import InsufficientFunds
+from btcpy.structs.transaction import TxIn, Sequence, ScriptSig
 
 
 class Cryptoid(Provider):
@@ -101,23 +102,23 @@ class Cryptoid(Provider):
     def select_inputs(cls, amount: float, address: str):
         '''select UTXOs'''
 
-        utxo = []
+        utxos = []
         utxo_sum = float(-0.01)  # starts from negative due to minimal fee
         for tx in sorted(cls.listunspent(address=address), key=itemgetter('confirmations')):
 
             #if tx["address"] not in (cls.network_properties.P2TH_addr,
             #                         cls.network_properties.test_P2TH_addr):
 
-                utxo.append({
-                    'txid': tx['tx_hash'],
-                    'vout': tx['tx_ouput_n'],
-                    'scriptSig': tx['script'],
-                    'amount': float(tx['value']) / 100000000
-                })
+                utxos.append(
+                    TxIn(txid=tx['tx_hash'],
+                         txout=tx['tx_ouput_n'],
+                         sequence=Sequence.max(),
+                         script_sig=ScriptSig.empty())
+                         )
 
                 utxo_sum += float(tx['value']) / 100000000
                 if utxo_sum >= amount:
-                    return {'utxos': utxo, 'total': utxo_sum}
+                    return {'utxos': utxos, 'total': utxo_sum}
 
         if utxo_sum < amount:
             raise InsufficientFunds('Insufficient funds.')
