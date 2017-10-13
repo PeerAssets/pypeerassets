@@ -3,7 +3,8 @@
 
 from time import time
 from btcpy.structs.address import Address
-from btcpy.structs.transaction import TxOut, TxIn, Sequence, Locktime, Transaction
+from btcpy.structs.sig import P2pkhSolver
+from btcpy.structs.transaction import TxOut, TxIn, Sequence, Locktime, MutableTransaction
 from btcpy.structs.script import StackData, ScriptSig, NulldataScript, ScriptSig, ScriptPubKey
 from btcpy.structs.script import P2pkhScript, MultisigScript, P2shScript
 from .networks import query
@@ -34,4 +35,4 @@ def make_raw_transaction(inputs: list, outputs: list, locktime=Locktime(0),
                          timestamp: int=int(time()), version=1):
     '''create raw transaction'''
 
-    return Transaction(version, timestamp, inputs, outputs, locktime)
+    return MutableTransaction(version, timestamp, inputs, outputs, locktime)
