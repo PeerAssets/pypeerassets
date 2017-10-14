@@ -83,7 +83,7 @@ def find_deck(provider, key: str, version: int, prod=True) -> list:
     return [d for d in decks if key in d.__dict__.values()]
 
 
-def deck_spawn(deck: Deck, inputs: list, change_address: str) -> bytes:
+def deck_spawn(deck: Deck, inputs: dict, change_address: str) -> bytes:
     '''Creates Deck spawn raw transaction.'''
 
     network_params = query(deck.network)
