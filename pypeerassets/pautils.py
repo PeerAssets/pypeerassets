@@ -7,7 +7,7 @@ from .exceptions import P2THImportFailed
 from .exceptions import (InvalidDeckSpawn, InvalidDeckMetainfo,
                          InvalidDeckIssueMode, InvalidDeckVersion)
 from .exceptions import (InvalidCardTransferP2TH, CardVersionMistmatch,
-                         CardNumberOfDecimalsMismatch)
+                         CardNumberOfDecimalsMismatch, InvalidNulldataOutput)
 from .constants import param_query, params
 from typing import Iterator
 from .paproto_pb2 import DeckSpawn, CardTransfer
@@ -85,7 +85,7 @@ def read_tx_opreturn(raw_tx: dict) -> bytes:
     asm = vout['scriptPubKey']['asm']
     n = asm.find('OP_RETURN')
     if n == -1:
-        return False #{'error': 'OP_RETURN not found'}
+        raise InvalidNulldataOutput({'error': 'OP_RETURN not found.'})
     else:
         # add 10 because 'OP_RETURN ' is 10 characters
         n += 10

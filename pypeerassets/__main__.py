@@ -64,7 +64,7 @@ def find_all_valid_decks(provider, deck_version: int, prod: bool=True) -> Genera
                 d["production"] = prod
                 return Deck(**d)
 
-        except (InvalidDeckSpawn, InvalidDeckMetainfo, InvalidDeckVersion) as err:
+        except (InvalidDeckSpawn, InvalidDeckMetainfo, InvalidDeckVersion, InvalidNulldataOutput) as err:
             pass
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as th:
