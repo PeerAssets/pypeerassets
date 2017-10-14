@@ -14,7 +14,7 @@ def nulldata_output(data: bytes, seq: int, value=0):
     '''create nulldata (OP_return) output'''
 
     stack = StackData.from_bytes(data)
-    return TxOut(value, seq, ScriptPubKey(stack.serialize()))
+    return TxOut(value, seq, stack.to_push_op())
 
 
 def monosig_p2pkh(address: str):
