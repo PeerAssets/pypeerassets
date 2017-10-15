@@ -4,12 +4,14 @@
 from operator import itemgetter
 from pypeerassets.exceptions import InsufficientFunds
 from pypeerassets.constants import param_query, params
+from btcpy.structs.transaction import MutableTxIn, Sequence, ScriptSig
 
 try:
     from peercoin_rpc import Client
 except:
     raise EnvironmentError("peercoin_rpc library is required for this to work,\
                             use pip to install it.")
+
 
 class RpcNode(Client):
     '''JSON-RPC connection to local Peercoin node'''
@@ -23,24 +25,23 @@ class RpcNode(Client):
         to never spend old transactions with a lot of coin age.
         Argument is intiger, returns list of apropriate UTXO's'''
 
-        utxo = []
+        utxos = []
         utxo_sum = float(-0.01)  # starts from negative due to minimal fee
         for tx in sorted(self.listunspent(address=address), key=itemgetter('confirmations')):
 
             if tx["address"] not in (self.network_p2th.P2TH_addr,
                                      self.network_p2th.test_P2TH_addr):
 
-                utxo.append({
-                    "txid": tx["txid"],
-                    "vout": tx["vout"],
-                    "scriptSig": "",
-                    "amount": tx["amount"],
-                    "address": tx["address"]
-                })
+                utxos.append(
+                        MutableTxIn(txid=tx['txid'],
+                                    txout=tx['vout'],
+                                    sequence=Sequence.max(),
+                                    script_sig=ScriptSig.empty())
+                         )
 
                 utxo_sum += float(tx["amount"])
                 if utxo_sum >= total_amount:
-                    return {'utxos': utxo, 'total': utxo_sum}
+                    return {'utxos': utxos, 'total': utxo_sum}
 
         if utxo_sum < total_amount:
             raise InsufficientFunds("Insufficient funds.")
