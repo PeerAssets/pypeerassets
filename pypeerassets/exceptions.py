@@ -45,5 +45,5 @@ class InsufficientFunds(Exception):
     '''this address does not have enough assigned UTXOs'''
 
 
-class InvalidNullDataOutput(Exception):
+class InvalidNulldataOutput(Exception):
     '''mallformed OP_RETURN transaction output.'''
