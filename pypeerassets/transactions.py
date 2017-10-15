@@ -9,15 +9,14 @@ from btcpy.structs.script import P2pkhScript, MultisigScript, P2shScript
 from .networks import query
 
 
-def nulldata_output(data: bytes, seq: int, value=0):
-    '''create nulldata (OP_return) output'''
+def nulldata_script(data: bytes):
+    '''create nulldata (OP_return) script'''
 
     stack = StackData.from_bytes(data)
-    op_ret = NulldataScript(stack)
-    return TxOut(value, seq, op_ret)
+    return NulldataScript(stack)
 
 
-def monosig_p2pkh(address: str):
+def monosig_p2pkh_script(address: str):
     '''create pay-to-key-hash (P2PKH) script'''
 
     addr = Address.from_string(address)
