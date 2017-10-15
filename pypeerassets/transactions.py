@@ -3,7 +3,6 @@
 
 from time import time
 from btcpy.structs.address import Address
-from btcpy.structs.sig import P2pkhSolver
 from btcpy.structs.transaction import TxOut, TxIn, Sequence, Locktime, MutableTransaction
 from btcpy.structs.script import StackData, ScriptSig, NulldataScript, ScriptSig, ScriptPubKey
 from btcpy.structs.script import P2pkhScript, MultisigScript, P2shScript
