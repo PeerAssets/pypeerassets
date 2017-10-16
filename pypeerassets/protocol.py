@@ -1,6 +1,7 @@
 """all things PeerAssets protocol."""
 
 import warnings
+from binascii import unhexlify
 from .kutil import Kutil
 from .paproto_pb2 import DeckSpawn as deckspawnproto
 from .paproto_pb2 import CardTransfer as cardtransferproto
@@ -93,20 +94,22 @@ class Deck:
     def p2th_address(self) -> str:
         '''P2TH address of this deck'''
 
-        return Kutil(network=self.network, privkey=self.asset_id).address
+        return Kutil(network=self.network,
+                     privkey=unhexlify(self.asset_id)).address
 
     @property
     def p2th_wif(self) -> str:
         '''P2TH privkey in WIF format'''
 
-        return Kutil(network=self.network, privkey=self.asset_id).wif
+        return Kutil(network=self.network,
+                     privkey=unhexlify(self.asset_id)).wif
 
     @property
     def metainfo_to_protobuf(self) -> bytes:
         '''encode deck into protobuf'''
 
         deck = deckspawnproto()
-        deck.version = self.version
+        deck.version = self.versions
         deck.name = self.name
         deck.number_of_decimals = self.number_of_decimals
         deck.fee = amount_to_exponent(self.fee, self.number_of_decimals)
