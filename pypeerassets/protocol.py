@@ -135,6 +135,14 @@ class Deck:
             "fee": self.fee
         }
 
+    def __str__(self):
+
+        r = []
+        for key in self.__dict__:
+            r.append("{key}='{value}'".format(key=key, value=self.__dict__[key]))
+
+        return ', '.join(r)
+
 
 def deck_issue_mode_logic_check(issue_mode: list) -> bool:
     '''verify do combined issue modes pass simple logic tests'''
