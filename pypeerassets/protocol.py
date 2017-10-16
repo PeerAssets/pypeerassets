@@ -234,6 +234,14 @@ class CardTransfer:
 
         return proto
 
+    def __str__(self):
+
+        r = []
+        for key in self.__dict__:
+            r.append("{key}='{value}'".format(key=key, value=self.__dict__[key]))
+
+        return ', '.join(r)
+
 
 def validate_card_issue_modes(deck: Deck, cards: list) -> list:
     """validate card transfers against deck issue mode"""
