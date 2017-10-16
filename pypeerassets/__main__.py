@@ -161,34 +161,35 @@ def find_card_transfers(provider, deck: Deck) -> Generator:
                 return (CardTransfer(**i) for i in result)
 
 
-def card_issue(deck: Deck, card_transfer: CardTransfer, inputs: list, change_address: str) -> bytes:
+def card_issue(deck: Deck, card: CardTransfer, inputs: dict,
+               change_address: str) -> bytes:
     '''Create card issue transaction.
-       :inputs - utxo [has to be owned by deck issuer]
+       :inputs - utxos [has to be owned by deck issuer]
+       :card - CardTransfer object
+       :change_address - address to send the change to
     '''
 
     network_params = query(deck.network)
     pa_params = param_query(deck.network)
     tx_fee = network_params.min_tx_fee # settle for min tx fee for now
 
-    for utxo in inputs['utxos']:
-        utxo['txid'] = unhexlify(utxo['txid'])
-        utxo['scriptSig'] = unhexlify(utxo['scriptSig'])
-
     outputs = [
-        {"redeem": pa_params.P2TH_fee, "outputScript": transactions.monosig_script(deck.p2th_address)},
-        {"redeem": 0, "outputScript": transactions.op_return_script(card_transfer.metainfo_to_protobuf)}
+        tx_output(value=pa_params.P2TH_fee, seq=0, script=monosig_p2pkh_script(deck.p2th_address)),  # deck p2th
+        tx_output(value=0, seq=1, script=nulldata_script(card.metainfo_to_protobuf))  # op_return
     ]
 
-    for addr in card_transfer.receiver:
-        outputs.append({"redeem": 0, "outputScript": transactions.monosig_script(addr)
-                       })
+    for addr, index in zip(card.receiver, range(len(card.receiver))):
+        outputs.append(   # TxOut for each receiver, index + 1 because we have two outs already
+            tx_output(value=0, seq=index+1, script=monosig_p2pkh_script(addr))
+        )
+
+    change_sum = float(inputs['total']) - float(tx_fee) - float(pa_params.P2TH_fee)
 
     outputs.append(
-        {"redeem": float(inputs['total']) - float(tx_fee) - float(pa_params.P2TH_fee),
-         "outputScript": transactions.monosig_script(change_address)
-        })
+        tx_output(value=change_sum, seq=len(outputs)+1, script=monosig_p2pkh_script(change_address))
+        )
 
-    return transactions.make_raw_transaction(deck.network, inputs['utxos'], outputs)
+    return make_raw_transaction(inputs['utxos'], outputs)
 
 
 def card_burn(deck: Deck, card_transfer: CardTransfer, inputs: list, change_address: str) -> bytes:
