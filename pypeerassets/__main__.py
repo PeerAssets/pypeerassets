@@ -94,13 +94,13 @@ def deck_spawn(deck: Deck, inputs: dict, change_address: str) -> bytes:
     else:
         p2th_addr = pa_params.test_P2TH_addr
 
-    tx_fee = network_params.min_tx_fee # settle for min tx fee for now
-    change_sum = float(inputs['total']) - float(tx_fee) - float(pa_params.P2TH_fee)
+    #  first round of txn making is done by presuming minimal fee
+    change_sum = float(inputs['total']) - float(network_params.min_tx_fee) - float(pa_params.P2TH_fee)
 
     outputs = [
         tx_output(value=pa_params.P2TH_fee, seq=0, script=monosig_p2pkh_script(p2th_addr)),  # p2th
         tx_output(value=0, seq=1, script=nulldata_script(deck.metainfo_to_protobuf)),  # op_return
-        tx_output(value=change_sum, seq=2, script=monosig_p2pkh_script(change_address))  # change
+        tx_output(value=round(change_sum, 6), seq=2, script=monosig_p2pkh_script(change_address))  # change
               ]
 
     return make_raw_transaction(inputs['utxos'], outputs)
