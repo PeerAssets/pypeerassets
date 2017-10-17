@@ -171,7 +171,6 @@ def card_issue(deck: Deck, card: CardTransfer, inputs: dict,
 
     network_params = query(deck.network)
     pa_params = param_query(deck.network)
-    tx_fee = network_params.min_tx_fee # settle for min tx fee for now
 
     outputs = [
         tx_output(value=pa_params.P2TH_fee, seq=0, script=monosig_p2pkh_script(deck.p2th_address)),  # deck p2th
@@ -179,14 +178,15 @@ def card_issue(deck: Deck, card: CardTransfer, inputs: dict,
     ]
 
     for addr, index in zip(card.receiver, range(len(card.receiver))):
-        outputs.append(   # TxOut for each receiver, index + 1 because we have two outs already
-            tx_output(value=0, seq=index+1, script=monosig_p2pkh_script(addr))
+        outputs.append(   # TxOut for each receiver, index + 2 because we have two outs already
+            tx_output(value=0, seq=index+2, script=monosig_p2pkh_script(addr))
         )
 
-    change_sum = float(inputs['total']) - float(tx_fee) - float(pa_params.P2TH_fee)
+    #  first round of txn making is done by presuming minimal fee
+    change_sum = float(inputs['total']) - float(network_params.min_tx_fee) - float(pa_params.P2TH_fee)
 
     outputs.append(
-        tx_output(value=change_sum, seq=len(outputs)+1, script=monosig_p2pkh_script(change_address))
+        tx_output(value=round(change_sum, 6), seq=len(outputs)+1, script=monosig_p2pkh_script(change_address))
         )
 
     return make_raw_transaction(inputs['utxos'], outputs)
