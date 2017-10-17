@@ -16,7 +16,7 @@ from .pautils import (load_deck_p2th_into_local_node,
                       )
 from .voting import *
 from .exceptions import *
-from .transactions import (nulldata_script, tx_output, monosig_p2pkh_script,
+from .transactions import (nulldata_script, tx_output, p2pkh_script,
                            make_raw_transaction)
 from .constants import param_query, params
 from .networks import query, networks
