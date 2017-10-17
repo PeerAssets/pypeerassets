@@ -2,11 +2,20 @@
 '''transaction assembly/dissasembly'''
 
 from time import time
+from math import ceil
 from btcpy.structs.address import Address
 from btcpy.structs.transaction import TxOut, TxIn, Sequence, Locktime, MutableTransaction
 from btcpy.structs.script import StackData, ScriptSig, NulldataScript, ScriptSig, ScriptPubKey
 from btcpy.structs.script import P2pkhScript, MultisigScript, P2shScript
 from .networks import query
+
+
+def calculate_tx_fee(tx_size: int):
+    '''return tx fee from tx size in bytes'''
+
+    min_fee = 0.01  # minimum
+
+    return ceil(tx_size / 1000) * min_fee
 
 
 def nulldata_script(data: bytes):
