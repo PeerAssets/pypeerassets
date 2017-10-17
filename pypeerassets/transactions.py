@@ -25,7 +25,7 @@ def nulldata_script(data: bytes):
     return NulldataScript(stack)
 
 
-def monosig_p2pkh_script(address: str):
+def p2pkh_script(address: str):
     '''create pay-to-key-hash (P2PKH) script'''
 
     addr = Address.from_string(address)

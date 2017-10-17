@@ -98,9 +98,9 @@ def deck_spawn(deck: Deck, inputs: dict, change_address: str) -> bytes:
     change_sum = float(inputs['total']) - float(network_params.min_tx_fee) - float(pa_params.P2TH_fee)
 
     outputs = [
-        tx_output(value=pa_params.P2TH_fee, seq=0, script=monosig_p2pkh_script(p2th_addr)),  # p2th
+        tx_output(value=pa_params.P2TH_fee, seq=0, script=p2pkh_script(p2th_addr)),  # p2th
         tx_output(value=0, seq=1, script=nulldata_script(deck.metainfo_to_protobuf)),  # op_return
-        tx_output(value=round(change_sum, 6), seq=2, script=monosig_p2pkh_script(change_address))  # change
+        tx_output(value=round(change_sum, 6), seq=2, script=p2pkh_script(change_address))  # change
               ]
 
     return make_raw_transaction(inputs['utxos'], outputs)
@@ -173,7 +173,7 @@ def card_issue(deck: Deck, card: CardTransfer, inputs: dict,
     pa_params = param_query(deck.network)
 
     outputs = [
-        tx_output(value=pa_params.P2TH_fee, seq=0, script=monosig_p2pkh_script(deck.p2th_address)),  # deck p2th
+        tx_output(value=pa_params.P2TH_fee, seq=0, script=p2pkh_script(deck.p2th_address)),  # deck p2th
         tx_output(value=0, seq=1, script=nulldata_script(card.metainfo_to_protobuf))  # op_return
     ]
 
@@ -186,7 +186,7 @@ def card_issue(deck: Deck, card: CardTransfer, inputs: dict,
     change_sum = float(inputs['total']) - float(network_params.min_tx_fee) - float(pa_params.P2TH_fee)
 
     outputs.append(
-        tx_output(value=round(change_sum, 6), seq=len(outputs)+1, script=monosig_p2pkh_script(change_address))
+        tx_output(value=round(change_sum, 6), seq=len(outputs)+1, script=p2pkh_script(change_address))
         )
 
     return make_raw_transaction(inputs['utxos'], outputs)
