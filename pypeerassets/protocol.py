@@ -109,7 +109,7 @@ class Deck:
         '''encode deck into protobuf'''
 
         deck = deckspawnproto()
-        deck.version = self.versions
+        deck.version = self.version
         deck.name = self.name
         deck.number_of_decimals = self.number_of_decimals
         deck.fee = amount_to_exponent(self.fee, self.number_of_decimals)
