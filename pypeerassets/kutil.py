@@ -51,4 +51,4 @@ class Kutil:
         '''sign the P2PKH txn inputs'''
 
         solver = P2pkhSolver(self._private_key)
-        return tx.spend([tx.outs[0]], [solver]).hexlify()
+        return tx.spend([tx.ins[0]], [solver]).hexlify()
