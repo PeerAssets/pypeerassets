@@ -100,7 +100,7 @@ def deck_spawn(deck: Deck, inputs: dict, change_address: str) -> bytes:
     txouts = [
         tx_output(value=pa_params.P2TH_fee, seq=0, script=p2pkh_script(p2th_addr)),  # p2th
         tx_output(value=0, seq=1, script=nulldata_script(deck.metainfo_to_protobuf)),  # op_return
-        tx_output(value=round(change_sum, 6), seq=2, script=p2pkh_script(change_address))  # change
+        tx_output(value=change_sum, seq=2, script=p2pkh_script(change_address))  # change
               ]
 
     return make_raw_transaction(inputs['utxos'], txouts)
