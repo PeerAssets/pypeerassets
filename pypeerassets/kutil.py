@@ -1,7 +1,7 @@
 from hashlib import sha256
 from os import urandom
 from btcpy.structs.crypto import PublicKey, PrivateKey
-from btcpy.structs.transaction import MutableTransaction
+from btcpy.structs.transaction import MutableTransaction, TxOut
 from btcpy.structs.sig import P2pkhSolver
 from btcpy.setup import setup
 
@@ -47,8 +47,8 @@ class Kutil:
 
         return str(PublicKey.from_priv(self._private_key).to_address())
 
-    def sign_transaction(self, tx: MutableTransaction) -> str:
-        '''sign the P2PKH txn inputs'''
+    def sign_transaction(self, txins: TxOut, tx: MutableTransaction) -> str:
+        '''sign the parent txn outputs P2PKH'''
 
         solver = P2pkhSolver(self._private_key)
-        return tx.spend([tx.ins[0]], [solver]).hexlify()
+        return tx.spend([txins], [solver]).hexlify()
