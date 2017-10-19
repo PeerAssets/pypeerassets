@@ -2,7 +2,7 @@ import requests
 from operator import itemgetter
 from .common import Provider
 from pypeerassets.exceptions import InsufficientFunds
-from btcpy.structs.transaction import MutableTxIn, Sequence, ScriptSig
+from btcpy.structs.transaction import TxIn, Sequence, ScriptSig
 
 
 class Cryptoid(Provider):
@@ -110,7 +110,7 @@ class Cryptoid(Provider):
             #                         cls.network_properties.test_P2TH_addr):
 
                 utxos.append(
-                    MutableTxIn(txid=tx['tx_hash'],
+                    TxIn(txid=tx['tx_hash'],
                          txout=tx['tx_ouput_n'],
                          sequence=Sequence.max(),
                          script_sig=ScriptSig.empty())
