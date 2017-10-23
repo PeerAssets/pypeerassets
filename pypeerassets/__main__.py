@@ -131,7 +131,8 @@ def deck_spawn(provider: Provider, key: Kutil, deck: Deck, inputs: dict, change_
     return signed.hexlify()
 
 
-def deck_transfer(deck: Deck, inputs: list, change_address: str) -> str:
+def deck_transfer(provider: Provider, key: Kutil, deck: Deck,
+                  inputs: list, change_address: str):
     '''
     The deck transfer transaction is a special case of the deck spawn transaction.
     Instead of registering a new asset, the deck transfer transaction transfers ownership from vin[1] to vin[0],
