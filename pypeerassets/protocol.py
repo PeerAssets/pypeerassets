@@ -67,7 +67,7 @@ class Deck:
 
     def __init__(self, name: str, number_of_decimals: int, issue_mode: str,
                  network: str, production: bool, version: int,
-                 asset_specific_data="", issuer="", fee=0, time=None, asset_id=None) -> None:
+                 asset_specific_data="", issuer="", fee=0, time=None, id=None) -> None:
         '''
         Initialize deck object, load from dictionary Deck(**dict) or initilize
         with kwargs Deck("deck", 3, "ONCE")
@@ -80,7 +80,7 @@ class Deck:
         assert isinstance(number_of_decimals, int), {"error": "number_of_decimals must be an integer"}
         self.number_of_decimals = number_of_decimals
         self.asset_specific_data = asset_specific_data  # optional metadata for the deck
-        self.asset_id = asset_id
+        self.id = id
         self.issuer = issuer
         self.issue_time = time
         self.network = network
@@ -95,14 +95,14 @@ class Deck:
         '''P2TH address of this deck'''
 
         return Kutil(network=self.network,
-                     privkey=unhexlify(self.asset_id)).address
+                     privkey=unhexlify(self.id)).address
 
     @property
     def p2th_wif(self) -> str:
         '''P2TH privkey in WIF format'''
 
         return Kutil(network=self.network,
-                     privkey=unhexlify(self.asset_id)).wif
+                     privkey=unhexlify(self.id)).wif
 
     @property
     def metainfo_to_protobuf(self) -> bytes:
@@ -184,7 +184,7 @@ class CardTransfer:
 
         assert len(amount) == len(receiver), {"error": "Amount must match receiver."}
         self.version = version
-        self.deck_id = deck.asset_id
+        self.deck_id = deck.id
         self.txid = txid
         self.sender = sender
         self.asset_specific_data = asset_specific_data
