@@ -179,7 +179,7 @@ def card_issue(deck: Deck, card: CardTransfer, inputs: dict,
 
     for addr, index in zip(card.receiver, range(len(card.receiver))):
         outputs.append(   # TxOut for each receiver, index + 2 because we have two outs already
-            tx_output(value=0, seq=index+2, script=monosig_p2pkh_script(addr))
+            tx_output(value=0, seq=index+2, script=p2pkh_script(addr))
         )
 
     #  first round of txn making is done by presuming minimal fee
@@ -232,7 +232,7 @@ def card_transfer(deck: Deck, card: CardTransfer, inputs: list, change_address: 
 
     for addr, index in zip(card.receiver, range(len(card.receiver))):
         outputs.append(   # TxOut for each receiver, index + 2 because we have two outs already
-            tx_output(value=0, seq=index+2, script=monosig_p2pkh_script(addr))
+            tx_output(value=0, seq=index+2, script=p2pkh_script(addr))
         )
 
     #  first round of txn making is done by presuming minimal fee
