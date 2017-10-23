@@ -17,7 +17,7 @@ from .pautils import (load_deck_p2th_into_local_node,
 from .voting import *
 from .exceptions import *
 from .transactions import (nulldata_script, tx_output, p2pkh_script,
-                           make_raw_transaction, TxOut)
+                           make_raw_transaction, TxOut, MutableTransaction)
 from .constants import param_query, params
 from .networks import query, networks
 
@@ -83,7 +83,7 @@ def find_deck(provider, key: str, version: int, prod=True) -> list:
     return [d for d in decks if key in d.__dict__.values()]
 
 
-def deck_spawn(deck: Deck, inputs: dict, change_address: str) -> bytes:
+def deck_spawn(deck: Deck, inputs: dict, change_address: str) -> MutableTransaction:
     '''Creates Deck spawn raw transaction.'''
 
     network_params = query(deck.network)
@@ -106,7 +106,7 @@ def deck_spawn(deck: Deck, inputs: dict, change_address: str) -> bytes:
     return make_raw_transaction(inputs['utxos'], txouts)
 
 
-def deck_transfer(deck: Deck, inputs: list, change_address: str) -> bytes:
+def deck_transfer(deck: Deck, inputs: list, change_address: str) -> MutableTransaction:
     '''
     The deck transfer transaction is a special case of the deck spawn transaction.
     Instead of registering a new asset, the deck transfer transaction transfers ownership from vin[1] to vin[0],
@@ -162,7 +162,7 @@ def find_card_transfers(provider, deck: Deck) -> Generator:
 
 
 def card_issue(deck: Deck, card: CardTransfer, inputs: dict,
-               change_address: str) -> bytes:
+               change_address: str) -> MutableTransaction:
     '''Create card issue transaction.
        : deck - Deck object
        : card - CardTransfer object
@@ -193,7 +193,7 @@ def card_issue(deck: Deck, card: CardTransfer, inputs: dict,
     return make_raw_transaction(inputs['utxos'], outputs)
 
 
-def card_burn(deck: Deck, card: CardTransfer, inputs: list, change_address: str) -> bytes:
+def card_burn(deck: Deck, card: CardTransfer, inputs: list, change_address: str) -> MutableTransaction:
     '''Create card burn transaction, cards are burned by sending the cards back to deck issuer.
        : deck - Deck object
        : card - CardTransfer object
@@ -222,7 +222,7 @@ def card_burn(deck: Deck, card: CardTransfer, inputs: list, change_address: str)
     return make_raw_transaction(inputs['utxos'], outputs)
 
 
-def card_transfer(deck: Deck, card: CardTransfer, inputs: list, change_address: str) -> bytes:
+def card_transfer(deck: Deck, card: CardTransfer, inputs: list, change_address: str) -> MutableTransaction:
     '''Standard peer-to-peer card transfer.
        : deck - Deck object
        : card - CardTransfer object
