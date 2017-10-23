@@ -47,8 +47,9 @@ class Kutil:
 
         return str(PublicKey.from_priv(self._private_key).to_address())
 
-    def sign_transaction(self, txins: TxOut, tx: MutableTransaction) -> str:
+    def sign_transaction(self, txin: TxOut,
+                         tx: MutableTransaction) -> MutableTransaction:
         '''sign the parent txn outputs P2PKH'''
 
         solver = P2pkhSolver(self._private_key)
-        return tx.spend([txins], [solver]).hexlify()
+        return tx.spend([txin], [solver])
