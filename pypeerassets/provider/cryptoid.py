@@ -128,6 +128,10 @@ class Cryptoid(Provider):
 
         query = cls.explorer_url + 'tx.raw.dws?coin={net}&id={txid}'.format(net=cls.format_name(cls.net),
                                                                             txid=txid)
+        if not decrypt:
+            query += '&hex'
+            return cls.block_req(query)['hex']
+
         return cls.block_req(query)
 
     @classmethod
