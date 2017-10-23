@@ -164,9 +164,10 @@ def find_card_transfers(provider, deck: Deck) -> Generator:
 def card_issue(deck: Deck, card: CardTransfer, inputs: dict,
                change_address: str) -> bytes:
     '''Create card issue transaction.
-       :inputs - utxos [has to be owned by deck issuer]
-       :card - CardTransfer object
-       :change_address - address to send the change to
+       : deck - Deck object
+       : card - CardTransfer object
+       : inputs - utxos (has to be owned by deck issuer)
+       : change_address - address to send the change to
     '''
 
     network_params = query(deck.network)
