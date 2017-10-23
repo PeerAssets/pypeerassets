@@ -186,7 +186,7 @@ def card_issue(deck: Deck, card: CardTransfer, inputs: dict,
     change_sum = float(inputs['total']) - float(network_params.min_tx_fee) - float(pa_params.P2TH_fee)
 
     outputs.append(
-        tx_output(value=round(change_sum, 6), seq=len(outputs)+1, script=p2pkh_script(change_address))
+        tx_output(value=change_sum, seq=len(outputs)+1, script=p2pkh_script(change_address))
         )
 
     return make_raw_transaction(inputs['utxos'], outputs)
