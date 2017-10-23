@@ -17,12 +17,13 @@ from .pautils import (load_deck_p2th_into_local_node,
 from .voting import *
 from .exceptions import *
 from .transactions import (nulldata_script, tx_output, p2pkh_script,
-                           make_raw_transaction, TxOut, MutableTransaction)
+                           find_parent_outputs, calculate_tx_fee,
+                           make_raw_transaction, TxOut)
 from .constants import param_query, params
 from .networks import query, networks
 
 
-def find_all_valid_decks(provider, deck_version: int, prod: bool=True) -> Generator:
+def find_all_valid_decks(provider: Provider, deck_version: int, prod: bool=True) -> Generator:
     '''
     Scan the blockchain for PeerAssets decks, returns list of deck objects.
     : provider - provider instance
@@ -73,7 +74,7 @@ def find_all_valid_decks(provider, deck_version: int, prod: bool=True) -> Genera
                 yield result
 
 
-def find_deck(provider, key: str, version: int, prod=True) -> list:
+def find_deck(provider: Provider, key: str, version: int, prod=True) -> list:
     '''
     Find specific deck by key, with key being:
     <id>, <name>, <issuer>, <issue_mode>, <number_of_decimals>
@@ -83,8 +84,14 @@ def find_deck(provider, key: str, version: int, prod=True) -> list:
     return [d for d in decks if key in d.__dict__.values()]
 
 
-def deck_spawn(deck: Deck, inputs: dict, change_address: str) -> MutableTransaction:
-    '''Creates Deck spawn raw transaction.'''
+def deck_spawn(provider: Provider, key: Kutil, deck: Deck, inputs: dict, change_address: str) -> str:
+    '''Creates Deck spawn raw transaction.
+       : key - Kutil object which we'll use to sign the tx
+       : deck - Deck object
+       : card - CardTransfer object
+       : inputs - utxos (has to be owned by deck issuer)
+       : change_address - address to send the change to
+    '''
 
     network_params = query(deck.network)
     pa_params = param_query(deck.network)
@@ -103,10 +110,28 @@ def deck_spawn(deck: Deck, inputs: dict, change_address: str) -> MutableTransact
         tx_output(value=change_sum, seq=2, script=p2pkh_script(change_address))  # change
               ]
 
-    return make_raw_transaction(inputs['utxos'], txouts)
+    mutable_tx = make_raw_transaction(inputs['utxos'], txouts)
+
+    parent_output = find_parent_outputs(provider, mutable_tx.ins[0])
+    signed = key.sign_transaction(parent_output, mutable_tx)
+
+    # if 0.01 ppc fee is enough to cover the tx size
+    if network_params.min_tx_fee == calculate_tx_fee(signed.size):
+        return signed.hexlify()
+
+    fee = calculate_tx_fee(signed.size)
+    change_sum = float(inputs['total']) - float(fee) - float(pa_params.P2TH_fee)
+
+    # change output is last of transaction outputs
+    txouts[-1] = tx_output(value=change_sum, seq=txouts[-1].seq, script=txouts[-1].script)
+
+    mutable_tx = make_raw_transaction(inputs['utxos'], txouts)
+    signed = key.sign_transaction(parent_output, mutable_tx)
+
+    return signed.hexlify()
 
 
-def deck_transfer(deck: Deck, inputs: list, change_address: str) -> MutableTransaction:
+def deck_transfer(deck: Deck, inputs: list, change_address: str) -> str:
     '''
     The deck transfer transaction is a special case of the deck spawn transaction.
     Instead of registering a new asset, the deck transfer transaction transfers ownership from vin[1] to vin[0],
@@ -162,7 +187,7 @@ def find_card_transfers(provider, deck: Deck) -> Generator:
 
 
 def card_issue(deck: Deck, card: CardTransfer, inputs: dict,
-               change_address: str) -> MutableTransaction:
+               change_address: str) -> str:
     '''Create card issue transaction.
        : deck - Deck object
        : card - CardTransfer object
@@ -193,7 +218,7 @@ def card_issue(deck: Deck, card: CardTransfer, inputs: dict,
     return make_raw_transaction(inputs['utxos'], outputs)
 
 
-def card_burn(deck: Deck, card: CardTransfer, inputs: list, change_address: str) -> MutableTransaction:
+def card_burn(deck: Deck, card: CardTransfer, inputs: list, change_address: str) -> str:
     '''Create card burn transaction, cards are burned by sending the cards back to deck issuer.
        : deck - Deck object
        : card - CardTransfer object
@@ -222,7 +247,7 @@ def card_burn(deck: Deck, card: CardTransfer, inputs: list, change_address: str)
     return make_raw_transaction(inputs['utxos'], outputs)
 
 
-def card_transfer(deck: Deck, card: CardTransfer, inputs: list, change_address: str) -> MutableTransaction:
+def card_transfer(deck: Deck, card: CardTransfer, inputs: list, change_address: str) -> str:
     '''Standard peer-to-peer card transfer.
        : deck - Deck object
        : card - CardTransfer object

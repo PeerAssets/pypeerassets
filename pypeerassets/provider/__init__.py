@@ -1,4 +1,5 @@
 from .rpcnode import RpcNode
+from .common import Provider
 from .mintr import Mintr
 from .holytransaction import Holy
 from .cryptoid import Cryptoid
