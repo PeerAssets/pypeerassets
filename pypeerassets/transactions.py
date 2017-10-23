@@ -10,7 +10,7 @@ from btcpy.structs.script import P2pkhScript, MultisigScript, P2shScript
 from .networks import query
 
 
-def calculate_tx_fee(tx_size: int):
+def calculate_tx_fee(tx_size: int) -> float:
     '''return tx fee from tx size in bytes'''
 
     min_fee = 0.01  # minimum
