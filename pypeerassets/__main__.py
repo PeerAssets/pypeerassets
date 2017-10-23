@@ -194,7 +194,12 @@ def card_issue(deck: Deck, card: CardTransfer, inputs: dict,
 
 
 def card_burn(deck: Deck, card: CardTransfer, inputs: list, change_address: str) -> bytes:
-    '''Create card burn transaction, cards are burned by sending the cards back to deck issuer.'''
+    '''Create card burn transaction, cards are burned by sending the cards back to deck issuer.
+       : deck - Deck object
+       : card - CardTransfer object
+       : inputs - utxos (has to be owned by deck issuer)
+       : change_address - address to send the change to
+       '''
 
     assert deck.issuer == card.receiver[0], {"error": "First recipient must be deck issuer."}
 
@@ -219,9 +224,11 @@ def card_burn(deck: Deck, card: CardTransfer, inputs: list, change_address: str)
 
 def card_transfer(deck: Deck, card: CardTransfer, inputs: list, change_address: str) -> bytes:
     '''Standard peer-to-peer card transfer.
-       :inputs - utxos [has to be owned by deck issuer]
-       :card - CardTransfer object
-       :change_address - address to send the change to'''
+       : deck - Deck object
+       : card - CardTransfer object
+       : inputs - utxos (has to be owned by deck issuer)
+       : change_address - address to send the change to
+       '''
 
     network_params = query(deck.network)
     pa_params = param_query(deck.network)
