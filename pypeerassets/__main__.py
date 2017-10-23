@@ -55,7 +55,7 @@ def find_all_valid_decks(provider: Provider, deck_version: int, prod: bool=True)
 
             if d:
 
-                d["asset_id"] = raw_tx["txid"]
+                d["id"] = raw_tx["txid"]
                 try:
                     d["time"] = raw_tx["blocktime"]
                 except KeyError:
@@ -145,7 +145,7 @@ def find_card_transfers(provider, deck: Deck) -> Generator:
 
     if isinstance(provider, RpcNode):
         card_transfers = (provider.getrawtransaction(i["txid"], 1) for i in
-                          provider.listtransactions(deck.asset_id))
+                          provider.listtransactions(deck.id))
     else:
         card_transfers = (provider.getrawtransaction(i, 1) for i in
                           provider.listtransactions(deck.p2th_address))
