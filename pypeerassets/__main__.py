@@ -141,7 +141,7 @@ def deck_transfer(provider: Provider, key: Kutil, deck: Deck,
     raise NotImplementedError
 
 
-def find_card_transfers(provider, deck: Deck) -> Generator:
+def find_card_transfers(provider: Provider, deck: Deck) -> Generator:
     '''find all <deck> card transfers'''
 
     if isinstance(provider, RpcNode):
@@ -187,9 +187,11 @@ def find_card_transfers(provider, deck: Deck) -> Generator:
                 return (CardTransfer(**i) for i in result)
 
 
-def card_issue(deck: Deck, card: CardTransfer, inputs: dict,
+def card_issue(provider: Provider, key: Kutil, deck: Deck,
+               card: CardTransfer, inputs: dict,
                change_address: str) -> str:
     '''Create card issue transaction.
+       : key - Kutil object which we'll use to sign the tx
        : deck - Deck object
        : card - CardTransfer object
        : inputs - utxos (has to be owned by deck issuer)
@@ -199,24 +201,43 @@ def card_issue(deck: Deck, card: CardTransfer, inputs: dict,
     network_params = query(deck.network)
     pa_params = param_query(deck.network)
 
-    outputs = [
+    txouts = [
         tx_output(value=pa_params.P2TH_fee, seq=0, script=p2pkh_script(deck.p2th_address)),  # deck p2th
         tx_output(value=0, seq=1, script=nulldata_script(card.metainfo_to_protobuf))  # op_return
     ]
 
     for addr, index in zip(card.receiver, range(len(card.receiver))):
-        outputs.append(   # TxOut for each receiver, index + 2 because we have two outs already
+        txouts.append(   # TxOut for each receiver, index + 2 because we have two outs already
             tx_output(value=0, seq=index+2, script=p2pkh_script(addr))
         )
 
     #  first round of txn making is done by presuming minimal fee
     change_sum = float(inputs['total']) - float(network_params.min_tx_fee) - float(pa_params.P2TH_fee)
 
-    outputs.append(
-        tx_output(value=change_sum, seq=len(outputs)+1, script=p2pkh_script(change_address))
+    txouts.append(
+        tx_output(value=change_sum, seq=len(txouts)+1, script=p2pkh_script(change_address))
         )
 
-    return make_raw_transaction(inputs['utxos'], outputs)
+    mutable_tx = make_raw_transaction(inputs['utxos'], txouts)
+
+    parent_output = find_parent_outputs(provider, mutable_tx.ins[0])
+    signed = key.sign_transaction(parent_output, mutable_tx)
+
+    # if 0.01 ppc fee is enough to cover the tx size
+    if network_params.min_tx_fee == calculate_tx_fee(signed.size):
+        return signed.hexlify()
+
+    fee = calculate_tx_fee(signed.size)
+    change_sum = float(inputs['total']) - float(fee) - float(pa_params.P2TH_fee)
+
+    # change output is last of transaction outputs
+    txouts[-1] = tx_output(value=change_sum, seq=txouts[-1].seq, script=txouts[-1].script)
+
+    mutable_tx = make_raw_transaction(inputs['utxos'], txouts)
+    signed = key.sign_transaction(parent_output, mutable_tx)
+
+    return signed.hexlify()
+
 
 
 def card_burn(deck: Deck, card: CardTransfer, inputs: list, change_address: str) -> str:
