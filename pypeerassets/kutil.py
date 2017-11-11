@@ -25,7 +25,10 @@ class Kutil:
         self.network = network
 
         try:
-            setup(self.network)
+            if self.network.startswith('t'):
+                setup('testnet')
+            else:
+                setup('mainnet')
         except ValueError:
             pass
 
