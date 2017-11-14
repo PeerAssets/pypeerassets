@@ -1,6 +1,7 @@
 import requests
 from operator import itemgetter
 from .common import Provider
+from decimal import Decimal
 from pypeerassets.exceptions import InsufficientFunds
 from btcpy.structs.transaction import TxIn, Sequence, ScriptSig
 
@@ -116,7 +117,7 @@ class Cryptoid(Provider):
                          script_sig=ScriptSig.empty())
                          )
 
-                utxo_sum += int(tx['value'])
+                utxo_sum += int(tx['value'] * 10)  # get it to proper number of decimals
                 if utxo_sum >= amount:
                     return {'utxos': utxos, 'total': utxo_sum}
 
