@@ -102,7 +102,7 @@ def deck_spawn(provider: Provider, key: Kutil, deck: Deck, inputs: dict, change_
         p2th_addr = pa_params.test_P2TH_addr
 
     #  first round of txn making is done by presuming minimal fee
-    change_sum = int(inputs['value']) - network_params.min_tx_fee - pa_params.P2TH_fee
+    change_sum = float(inputs['total']) - float(network_params.min_tx_fee) - float(pa_params.P2TH_fee)
 
     txouts = [
         tx_output(value=pa_params.P2TH_fee, seq=0, script=p2pkh_script(p2th_addr)),  # p2th
@@ -110,7 +110,7 @@ def deck_spawn(provider: Provider, key: Kutil, deck: Deck, inputs: dict, change_
         tx_output(value=change_sum, seq=2, script=p2pkh_script(change_address))  # change
               ]
 
-    mutable_tx = make_raw_transaction(inputs, txouts)
+    mutable_tx = make_raw_transaction(inputs['utxos'], txouts)
 
     parent_output = find_parent_outputs(provider, mutable_tx.ins[0])
     signed = key.sign_transaction(parent_output, mutable_tx)
@@ -120,7 +120,7 @@ def deck_spawn(provider: Provider, key: Kutil, deck: Deck, inputs: dict, change_
         return signed.hexlify()
 
     fee = calculate_tx_fee(signed.size)
-    change_sum = float(inputs['value']) - float(fee) - float(pa_params.P2TH_fee)
+    change_sum = float(inputs['total']) - float(fee) - float(pa_params.P2TH_fee)
 
     # change output is last of transaction outputs
     txouts[-1] = tx_output(value=change_sum, seq=txouts[-1].seq, script=txouts[-1].script)
