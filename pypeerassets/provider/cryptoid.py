@@ -103,7 +103,7 @@ class Cryptoid(Provider):
         '''select UTXOs'''
 
         utxos = []
-        utxo_sum = float(-0.01)  # starts from negative due to minimal fee
+        utxo_sum = 1000000  # starts from negative due to minimal fee
         for tx in sorted(cls.listunspent(address=address), key=itemgetter('confirmations')):
 
             #if tx["address"] not in (cls.network_properties.P2TH_addr,
@@ -116,7 +116,7 @@ class Cryptoid(Provider):
                          script_sig=ScriptSig.empty())
                          )
 
-                utxo_sum += float(tx['value']) / 100000000
+                utxo_sum += int(tx['value'])
                 if utxo_sum >= amount:
                     return {'utxos': utxos, 'total': utxo_sum}
 
