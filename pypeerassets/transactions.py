@@ -10,10 +10,10 @@ from btcpy.structs.script import P2pkhScript, MultisigScript, P2shScript
 from .networks import query
 
 
-def calculate_tx_fee(tx_size: int) -> float:
+def calculate_tx_fee(tx_size: int) -> int:
     '''return tx fee from tx size in bytes'''
 
-    min_fee = 0.01  # minimum
+    min_fee = 1000000  # minimum
 
     return ceil(tx_size / 1000) * min_fee
 
@@ -36,7 +36,7 @@ def p2pkh_script(address: str):
 def tx_output(value: float, seq: int, script: ScriptSig):
     '''create TxOut object'''
 
-    return TxOut(int(value * 1000000), seq, script)
+    return TxOut(value, seq, script)
 
 
 def make_raw_transaction(inputs: list, outputs: list, locktime=Locktime(0),
