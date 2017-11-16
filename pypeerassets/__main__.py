@@ -25,6 +25,32 @@ from .networks import query, networks
 from decimal import Decimal, getcontext
 getcontext().prec = 6
 
+def deck_parser( args: Union[ Provider, dict, int], prod: bool=True) -> Deck:
+    '''deck parser function'''
+    
+    provider = args[0]
+    raw_tx = args[1]
+    deck_version = args[2]
+
+    try:
+        validate_deckspawn_p2th(provider, raw_tx, prod=prod)
+
+        d = parse_deckspawn_metainfo(read_tx_opreturn(raw_tx), deck_version)
+
+        if d:
+
+            d["id"] = raw_tx["txid"]
+            try:
+                d["time"] = raw_tx["blocktime"]
+            except KeyError:
+                d["time"] = 0
+            d["issuer"] = find_tx_sender(provider, raw_tx)
+            d["network"] = provider.network
+            d["production"] = prod
+            return Deck(**d)
+
+    except (InvalidDeckSpawn, InvalidDeckMetainfo, InvalidDeckVersion, InvalidNulldataOutput) as err:
+        pass
 
 def find_all_valid_decks(provider: Provider, deck_version: int, prod: bool=True) -> Generator:
     '''
@@ -45,34 +71,8 @@ def find_all_valid_decks(provider: Provider, deck_version: int, prod: bool=True)
             deck_spawns = (provider.getrawtransaction(i, 1) for i in
                            provider.listtransactions(pa_params.test_P2TH_addr))
 
-    def deck_parser(args: Union[dict, int]) -> Deck:
-        '''main deck parser function'''
-
-        raw_tx = args[0]
-        deck_version = args[1]
-
-        try:
-            validate_deckspawn_p2th(provider, raw_tx, prod=prod)
-
-            d = parse_deckspawn_metainfo(read_tx_opreturn(raw_tx), deck_version)
-
-            if d:
-
-                d["id"] = raw_tx["txid"]
-                try:
-                    d["time"] = raw_tx["blocktime"]
-                except KeyError:
-                    d["time"] = 0
-                d["issuer"] = find_tx_sender(provider, raw_tx)
-                d["network"] = provider.network
-                d["production"] = prod
-                return Deck(**d)
-
-        except (InvalidDeckSpawn, InvalidDeckMetainfo, InvalidDeckVersion, InvalidNulldataOutput) as err:
-            pass
-
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as th:
-        for result in th.map(deck_parser, ((deck, deck_version) for deck in deck_spawns)):
+        for result in th.map(deck_parser, ((provider, deck, deck_version) for deck in deck_spawns)):
             if result:
                 yield result
 
@@ -104,8 +104,10 @@ def find_deck(provider: Provider, key: str, version: int, prod=True) -> list:
     <id>, <name>, <issuer>, <issue_mode>, <number_of_decimals>
     '''
 
-    decks = find_all_valid_decks(provider, version, prod=prod)
-    return [d for d in decks if key in d.__dict__.values()]
+    rawtx = provider.getrawtransaction( key, 1)
+    deck = deck_parser( (provider, rawtx, 1) )
+
+    return [deck]
 
 
 def deck_spawn(provider: Provider, key: Kutil, deck: Deck, inputs: dict, change_address: str) -> str:
