@@ -95,7 +95,7 @@ def _increase_fee_and_sign(provider: Provider, key: Kutil, change_sum: Decimal,
     mutable_tx = make_raw_transaction(inputs['utxos'], txouts)
     signed = sign_transaction(provider, mutable_tx, key)
 
-    return signed.hexlify()
+    return signed
 
 
 def find_deck(provider: Provider, key: str, version: int, prod=True) -> list:
