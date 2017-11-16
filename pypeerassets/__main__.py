@@ -18,7 +18,8 @@ from .voting import *
 from .exceptions import *
 from .transactions import (nulldata_script, tx_output, p2pkh_script,
                            find_parent_outputs, calculate_tx_fee,
-                           make_raw_transaction, TxOut)
+                           make_raw_transaction, TxOut,
+                           Transaction, MutableTransaction)
 from .constants import param_query, params
 from .networks import query, networks
 from decimal import Decimal, getcontext
@@ -76,6 +77,14 @@ def find_all_valid_decks(provider: Provider, deck_version: int, prod: bool=True)
                 yield result
 
 
+def sign_transaction(provider: Provider, mutable_tx: MutableTransaction,
+                     key: Kutil) -> Transaction:
+    '''sign mutable transaction with Kutil'''
+
+    parent_output = find_parent_outputs(provider, mutable_tx.ins[0])
+    return key.sign_transaction(parent_output, mutable_tx)
+
+
 def find_deck(provider: Provider, key: str, version: int, prod=True) -> list:
     '''
     Find specific deck by key, with key being:
@@ -113,9 +122,7 @@ def deck_spawn(provider: Provider, key: Kutil, deck: Deck, inputs: dict, change_
               ]
 
     mutable_tx = make_raw_transaction(inputs['utxos'], txouts)
-
-    parent_output = find_parent_outputs(provider, mutable_tx.ins[0])
-    signed = key.sign_transaction(parent_output, mutable_tx)
+    signed = sign_transaction(provider, mutable_tx, key)
 
     fee = Decimal(calculate_tx_fee(signed.size))
 
@@ -222,9 +229,7 @@ def card_issue(provider: Provider, key: Kutil, deck: Deck,
         )
 
     mutable_tx = make_raw_transaction(inputs['utxos'], txouts)
-
-    parent_output = find_parent_outputs(provider, mutable_tx.ins[0])
-    signed = key.sign_transaction(parent_output, mutable_tx)
+    signed = sign_transaction(provider, mutable_tx, key)
 
     # if 0.01 ppc fee is enough to cover the tx size
     if network_params.min_tx_fee == calculate_tx_fee(signed.size):
