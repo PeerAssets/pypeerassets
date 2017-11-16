@@ -21,6 +21,8 @@ from .transactions import (nulldata_script, tx_output, p2pkh_script,
                            make_raw_transaction, TxOut)
 from .constants import param_query, params
 from .networks import query, networks
+from decimal import Decimal, getcontext
+getcontext().prec = 6
 
 
 def find_all_valid_decks(provider: Provider, deck_version: int, prod: bool=True) -> Generator:
@@ -102,12 +104,12 @@ def deck_spawn(provider: Provider, key: Kutil, deck: Deck, inputs: dict, change_
         p2th_addr = pa_params.test_P2TH_addr
 
     #  first round of txn making is done by presuming minimal fee
-    change_sum = inputs['total'] - network_params.min_tx_fee - pa_params.P2TH_fee
+    change_sum = Decimal(inputs['total'] - network_params.min_tx_fee - pa_params.P2TH_fee)
 
     txouts = [
-        tx_output(value=pa_params.P2TH_fee, seq=0, script=p2pkh_script(p2th_addr)),  # p2th
-        tx_output(value=0, seq=1, script=nulldata_script(deck.metainfo_to_protobuf)),  # op_return
-        tx_output(value=change_sum, seq=2, script=p2pkh_script(change_address))  # change
+        tx_output(value=pa_params.P2TH_fee, n=0, script=p2pkh_script(p2th_addr)),  # p2th
+        tx_output(value=0, n=1, script=nulldata_script(deck.metainfo_to_protobuf)),  # op_return
+        tx_output(value=change_sum, n=2, script=p2pkh_script(change_address))  # change
               ]
 
     mutable_tx = make_raw_transaction(inputs['utxos'], txouts)
@@ -115,15 +117,16 @@ def deck_spawn(provider: Provider, key: Kutil, deck: Deck, inputs: dict, change_
     parent_output = find_parent_outputs(provider, mutable_tx.ins[0])
     signed = key.sign_transaction(parent_output, mutable_tx)
 
+    fee = Decimal(calculate_tx_fee(signed.size))
+
     # if 0.01 ppc fee is enough to cover the tx size
-    if network_params.min_tx_fee == calculate_tx_fee(signed.size):
+    if Decimal(network_params.min_tx_fee) == fee:
         return signed.hexlify()
 
-    fee = calculate_tx_fee(signed.size)
-    change_sum = inputs['total'] - fee - pa_params.P2TH_fee
+    change_sum = Decimal(inputs['total'] - fee - pa_params.P2TH_fee)
 
     # change output is last of transaction outputs
-    txouts[-1] = tx_output(value=change_sum, seq=txouts[-1].seq, script=txouts[-1].script)
+    txouts[-1] = tx_output(value=change_sum, n=txouts[-1].n, script=txouts[-1].script_pubkey)
 
     mutable_tx = make_raw_transaction(inputs['utxos'], txouts)
     signed = key.sign_transaction(parent_output, mutable_tx)
