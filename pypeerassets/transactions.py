@@ -3,6 +3,8 @@
 
 from time import time
 from math import ceil
+from decimal import Decimal, getcontext
+getcontext().prec = 6
 from btcpy.structs.address import Address
 from btcpy.structs.transaction import TxOut, TxIn, Sequence, Locktime, MutableTransaction
 from btcpy.structs.script import StackData, ScriptSig, NulldataScript, ScriptSig, ScriptPubKey
@@ -10,12 +12,12 @@ from btcpy.structs.script import P2pkhScript, MultisigScript, P2shScript
 from .networks import query
 
 
-def calculate_tx_fee(tx_size: int) -> int:
+def calculate_tx_fee(tx_size: int) -> Decimal:
     '''return tx fee from tx size in bytes'''
 
-    min_fee = 1000000  # minimum
+    min_fee = Decimal(0.01)  # minimum
 
-    return ceil(tx_size / 1000) * min_fee
+    return Decimal(ceil(tx_size / 1000) * min_fee)
 
 
 def nulldata_script(data: bytes):
@@ -33,10 +35,10 @@ def p2pkh_script(address: str):
     return P2pkhScript(addr)
 
 
-def tx_output(value: float, seq: int, script: ScriptSig):
+def tx_output(value: Decimal, n: int, script: ScriptSig) -> TxOut:
     '''create TxOut object'''
 
-    return TxOut(value, seq, script)
+    return TxOut(value=int(value * 1000000), n=n, script_pubkey=script)
 
 
 def make_raw_transaction(inputs: list, outputs: list, locktime=Locktime(0),
