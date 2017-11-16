@@ -85,6 +85,19 @@ def sign_transaction(provider: Provider, mutable_tx: MutableTransaction,
     return key.sign_transaction(parent_output, mutable_tx)
 
 
+def _increase_fee_and_sign(provider: Provider, key: Kutil, change_sum: Decimal,
+                           inputs: dict, txouts: list):
+    '''when minimal fee wont cut it'''
+
+    # change output is last of transaction outputs
+    txouts[-1] = tx_output(value=change_sum, n=txouts[-1].n, script=txouts[-1].script_pubkey)
+
+    mutable_tx = make_raw_transaction(inputs['utxos'], txouts)
+    signed = sign_transaction(provider, mutable_tx, key)
+
+    return signed.hexlify()
+
+
 def find_deck(provider: Provider, key: str, version: int, prod=True) -> list:
     '''
     Find specific deck by key, with key being:
@@ -132,12 +145,7 @@ def deck_spawn(provider: Provider, key: Kutil, deck: Deck, inputs: dict, change_
 
     change_sum = Decimal(inputs['total'] - fee - pa_params.P2TH_fee)
 
-    # change output is last of transaction outputs
-    txouts[-1] = tx_output(value=change_sum, n=txouts[-1].n, script=txouts[-1].script_pubkey)
-
-    mutable_tx = make_raw_transaction(inputs['utxos'], txouts)
-    signed = sign_transaction(provider, mutable_tx, key)
-
+    signed = _increase_fee_and_sign(provider, key, change_sum, inputs, txouts)
     return signed.hexlify()
 
 
@@ -231,24 +239,23 @@ def card_issue(provider: Provider, key: Kutil, deck: Deck,
     mutable_tx = make_raw_transaction(inputs['utxos'], txouts)
     signed = sign_transaction(provider, mutable_tx, key)
 
+    fee = Decimal(calculate_tx_fee(signed.size))
+
     # if 0.01 ppc fee is enough to cover the tx size
-    if network_params.min_tx_fee == calculate_tx_fee(signed.size):
+    if Decimal(network_params.min_tx_fee) == calculate_tx_fee(signed.size):
         return signed.hexlify()
 
-    fee = calculate_tx_fee(signed.size)
-    change_sum = float(inputs['total']) - float(fee) - float(pa_params.P2TH_fee)
+    change_sum = Decimal(inputs['total'] - fee - pa_params.P2TH_fee)
 
-    # change output is last of transaction outputs
-    txouts[-1] = tx_output(value=change_sum, n=txouts[-1].n, script=txouts[-1].script)
-
-    mutable_tx = make_raw_transaction(inputs['utxos'], txouts)
-    signed = sign_transaction(provider, mutable_tx, key)
-
+    signed = _increase_fee_and_sign(provider, key, change_sum, inputs, txouts)
     return signed.hexlify()
 
 
-def card_burn(deck: Deck, card: CardTransfer, inputs: list, change_address: str) -> str:
+def card_burn(provider: Provider, key: Kutil, deck: Deck,
+              card: CardTransfer, inputs: list,
+              change_address: str) -> str:
     '''Create card burn transaction, cards are burned by sending the cards back to deck issuer.
+       : key - Kutil object which we'll use to sign the tx
        : deck - Deck object
        : card - CardTransfer object
        : inputs - utxos (has to be owned by deck issuer)
@@ -260,7 +267,7 @@ def card_burn(deck: Deck, card: CardTransfer, inputs: list, change_address: str)
     network_params = query(deck.network)
     pa_params = param_query(deck.network)
 
-    outputs = [
+    txouts = [
         tx_output(value=pa_params.P2TH_fee, n=0, script=p2pkh_script(deck.p2th_address)),  # deck p2th
         tx_output(value=0, n=1, script=nulldata_script(card.metainfo_to_protobuf)),  # op_return
         tx_output(value=0, n=2, script=p2pkh_script(card.receiver[0]))  # p2pkh receiver[0]
@@ -269,11 +276,26 @@ def card_burn(deck: Deck, card: CardTransfer, inputs: list, change_address: str)
     #  first round of txn making is done by presuming minimal fee
     change_sum = Decimal(inputs['total'] - network_params.min_tx_fee - pa_params.P2TH_fee)
 
-    outputs.append(
+    txouts.append(
         tx_output(value=change_sum, n=len(outputs)+1, script=p2pkh_script(change_address))
         )
 
-    return make_raw_transaction(inputs['utxos'], outputs)
+    mutable_tx = make_raw_transaction(inputs['utxos'], txouts)
+    signed = sign_transaction(provider, mutable_tx, key)
+
+    # if 0.01 ppc fee is enough to cover the tx size
+    if network_params.min_tx_fee == calculate_tx_fee(signed.size):
+        return signed.hexlify()
+
+    fee = Decimal(calculate_tx_fee(signed.size))
+
+    if Decimal(network_params.min_tx_fee) == fee:
+        return signed.hexlify()
+
+    change_sum = Decimal(inputs['total'] - fee - pa_params.P2TH_fee)
+
+    signed = _increase_fee_and_sign(provider, key, change_sum, inputs, txouts)
+    return signed.hexlify()
 
 
 def card_transfer(deck: Deck, card: CardTransfer, inputs: list, change_address: str) -> str:
@@ -304,4 +326,19 @@ def card_transfer(deck: Deck, card: CardTransfer, inputs: list, change_address: 
         tx_output(value=change_sum, n=len(outputs)+1, script=p2pkh_script(change_address))
         )
 
-    return make_raw_transaction(inputs['utxos'], outputs)
+    mutable_tx = make_raw_transaction(inputs['utxos'], txouts)
+    signed = sign_transaction(provider, mutable_tx, key)
+
+    # if 0.01 ppc fee is enough to cover the tx size
+    if network_params.min_tx_fee == calculate_tx_fee(signed.size):
+        return signed.hexlify()
+
+    fee = Decimal(calculate_tx_fee(signed.size))
+
+    if Decimal(network_params.min_tx_fee) == fee:
+        return signed.hexlify()
+
+    change_sum = Decimal(inputs['total'] - fee - pa_params.P2TH_fee)
+
+    signed = _increase_fee_and_sign(provider, key, change_sum, inputs, txouts)
+    return signed.hexlify()

@@ -6,7 +6,7 @@ from math import ceil
 from decimal import Decimal, getcontext
 getcontext().prec = 6
 from btcpy.structs.address import Address
-from btcpy.structs.transaction import TxOut, TxIn, Sequence, Locktime, MutableTransaction
+from btcpy.structs.transaction import TxOut, TxIn, Sequence, Locktime, Transaction, MutableTransaction
 from btcpy.structs.script import StackData, ScriptSig, NulldataScript, ScriptSig, ScriptPubKey
 from btcpy.structs.script import P2pkhScript, MultisigScript, P2shScript
 from .networks import query
