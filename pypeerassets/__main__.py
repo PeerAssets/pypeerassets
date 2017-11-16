@@ -212,20 +212,20 @@ def card_issue(provider: Provider, key: Kutil, deck: Deck,
     pa_params = param_query(deck.network)
 
     txouts = [
-        tx_output(value=pa_params.P2TH_fee, seq=0, script=p2pkh_script(deck.p2th_address)),  # deck p2th
-        tx_output(value=0, seq=1, script=nulldata_script(card.metainfo_to_protobuf))  # op_return
+        tx_output(value=pa_params.P2TH_fee, n=0, script=p2pkh_script(deck.p2th_address)),  # deck p2th
+        tx_output(value=0, n=1, script=nulldata_script(card.metainfo_to_protobuf))  # op_return
     ]
 
     for addr, index in zip(card.receiver, range(len(card.receiver))):
         txouts.append(   # TxOut for each receiver, index + 2 because we have two outs already
-            tx_output(value=0, seq=index+2, script=p2pkh_script(addr))
+            tx_output(value=0, n=index+2, script=p2pkh_script(addr))
         )
 
     #  first round of txn making is done by presuming minimal fee
     change_sum = Decimal(inputs['total'] - network_params.min_tx_fee - pa_params.P2TH_fee)
 
     txouts.append(
-        tx_output(value=change_sum, seq=len(txouts)+1, script=p2pkh_script(change_address))
+        tx_output(value=change_sum, n=len(txouts)+1, script=p2pkh_script(change_address))
         )
 
     mutable_tx = make_raw_transaction(inputs['utxos'], txouts)
@@ -239,7 +239,7 @@ def card_issue(provider: Provider, key: Kutil, deck: Deck,
     change_sum = float(inputs['total']) - float(fee) - float(pa_params.P2TH_fee)
 
     # change output is last of transaction outputs
-    txouts[-1] = tx_output(value=change_sum, seq=txouts[-1].seq, script=txouts[-1].script)
+    txouts[-1] = tx_output(value=change_sum, n=txouts[-1].n, script=txouts[-1].script)
 
     mutable_tx = make_raw_transaction(inputs['utxos'], txouts)
     signed = sign_transaction(provider, mutable_tx, key)
@@ -261,16 +261,16 @@ def card_burn(deck: Deck, card: CardTransfer, inputs: list, change_address: str)
     pa_params = param_query(deck.network)
 
     outputs = [
-        tx_output(value=pa_params.P2TH_fee, seq=0, script=p2pkh_script(deck.p2th_address)),  # deck p2th
-        tx_output(value=0, seq=1, script=nulldata_script(card.metainfo_to_protobuf)),  # op_return
-        tx_output(value=0, seq=2, script=p2pkh_script(card.receiver[0]))  # p2pkh receiver[0]
+        tx_output(value=pa_params.P2TH_fee, n=0, script=p2pkh_script(deck.p2th_address)),  # deck p2th
+        tx_output(value=0, n=1, script=nulldata_script(card.metainfo_to_protobuf)),  # op_return
+        tx_output(value=0, n=2, script=p2pkh_script(card.receiver[0]))  # p2pkh receiver[0]
     ]
 
     #  first round of txn making is done by presuming minimal fee
     change_sum = Decimal(inputs['total'] - network_params.min_tx_fee - pa_params.P2TH_fee)
 
     outputs.append(
-        tx_output(value=change_sum, seq=len(outputs)+1, script=p2pkh_script(change_address))
+        tx_output(value=change_sum, n=len(outputs)+1, script=p2pkh_script(change_address))
         )
 
     return make_raw_transaction(inputs['utxos'], outputs)
@@ -288,20 +288,20 @@ def card_transfer(deck: Deck, card: CardTransfer, inputs: list, change_address: 
     pa_params = param_query(deck.network)
 
     outputs = [
-        tx_output(value=pa_params.P2TH_fee, seq=0, script=p2pkh_script(deck.p2th_address)),  # deck p2th
-        tx_output(value=0, seq=1, script=nulldata_script(card.metainfo_to_protobuf))  # op_return
+        tx_output(value=pa_params.P2TH_fee, n=0, script=p2pkh_script(deck.p2th_address)),  # deck p2th
+        tx_output(value=0, n=1, script=nulldata_script(card.metainfo_to_protobuf))  # op_return
     ]
 
     for addr, index in zip(card.receiver, range(len(card.receiver))):
         outputs.append(   # TxOut for each receiver, index + 2 because we have two outs already
-            tx_output(value=0, seq=index+2, script=p2pkh_script(addr))
+            tx_output(value=0, n=index+2, script=p2pkh_script(addr))
         )
 
     #  first round of txn making is done by presuming minimal fee
     change_sum = Decimal(inputs['total'] - network_params.min_tx_fee - pa_params.P2TH_fee)
 
     outputs.append(
-        tx_output(value=change_sum, seq=len(outputs)+1, script=p2pkh_script(change_address))
+        tx_output(value=change_sum, n=len(outputs)+1, script=p2pkh_script(change_address))
         )
 
     return make_raw_transaction(inputs['utxos'], outputs)
