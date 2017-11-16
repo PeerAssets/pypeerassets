@@ -5,6 +5,8 @@ from operator import itemgetter
 from pypeerassets.exceptions import InsufficientFunds
 from pypeerassets.constants import param_query, params
 from btcpy.structs.transaction import MutableTxIn, Sequence, ScriptSig
+from decimal import Decimal, getcontext
+getcontext().prec = 6
 
 try:
     from peercoin_rpc import Client
@@ -26,7 +28,7 @@ class RpcNode(Client):
         Argument is intiger, returns list of apropriate UTXO's'''
 
         utxos = []
-        utxo_sum = float(-0.01)  # starts from negative due to minimal fee
+        utxo_sum = Decimal(-0.01)  # starts from negative due to minimal fee
         for tx in sorted(self.listunspent(address=address), key=itemgetter('confirmations')):
 
             if tx["address"] not in (self.network_p2th.P2TH_addr,
@@ -39,7 +41,7 @@ class RpcNode(Client):
                                     script_sig=ScriptSig.empty())
                          )
 
-                utxo_sum += float(tx["amount"])
+                utxo_sum += Decimal(tx["amount"])
                 if utxo_sum >= total_amount:
                     return {'utxos': utxos, 'total': utxo_sum}
 
