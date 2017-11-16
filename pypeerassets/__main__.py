@@ -222,7 +222,7 @@ def card_issue(provider: Provider, key: Kutil, deck: Deck,
         )
 
     #  first round of txn making is done by presuming minimal fee
-    change_sum = float(inputs['total']) - float(network_params.min_tx_fee) - float(pa_params.P2TH_fee)
+    change_sum = Decimal(inputs['total'] - network_params.min_tx_fee - pa_params.P2TH_fee)
 
     txouts.append(
         tx_output(value=change_sum, seq=len(txouts)+1, script=p2pkh_script(change_address))
@@ -267,7 +267,7 @@ def card_burn(deck: Deck, card: CardTransfer, inputs: list, change_address: str)
     ]
 
     #  first round of txn making is done by presuming minimal fee
-    change_sum = float(inputs['total']) - float(network_params.min_tx_fee) - float(pa_params.P2TH_fee)
+    change_sum = Decimal(inputs['total'] - network_params.min_tx_fee - pa_params.P2TH_fee)
 
     outputs.append(
         tx_output(value=change_sum, seq=len(outputs)+1, script=p2pkh_script(change_address))
@@ -298,7 +298,7 @@ def card_transfer(deck: Deck, card: CardTransfer, inputs: list, change_address: 
         )
 
     #  first round of txn making is done by presuming minimal fee
-    change_sum = float(inputs['total']) - float(network_params.min_tx_fee) - float(pa_params.P2TH_fee)
+    change_sum = Decimal(inputs['total'] - network_params.min_tx_fee - pa_params.P2TH_fee)
 
     outputs.append(
         tx_output(value=change_sum, seq=len(outputs)+1, script=p2pkh_script(change_address))
