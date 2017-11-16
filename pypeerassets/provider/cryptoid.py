@@ -1,7 +1,7 @@
 import requests
 from operator import itemgetter
 from .common import Provider
-from decimal import Decimal
+from decimal import Decimal, getcontext
 from pypeerassets.exceptions import InsufficientFunds
 from btcpy.structs.transaction import TxIn, Sequence, ScriptSig
 
@@ -17,6 +17,8 @@ class Cryptoid(Provider):
         """
 
         self.net = self._netname(network)['short']
+        if 'ppc' in self.net:
+            getcontext().prec = 6  # set to six decimals if it's Peercoin
 
     key = '7547f94398e3'
     api_calls = ('getblockcount', 'getdifficulty', 'getbalance',
@@ -100,11 +102,11 @@ class Cryptoid(Provider):
         return cls.api_req('unspent' + "&active=" + address)['unspent_outputs']
 
     @classmethod
-    def select_inputs(cls, amount: float, address: str):
+    def select_inputs(cls, amount: int, address: str):
         '''select UTXOs'''
 
         utxos = []
-        utxo_sum = 1000000  # starts from negative due to minimal fee
+        utxo_sum = Decimal(-0.01)  # starts from negative due to minimal fee
         for tx in sorted(cls.listunspent(address=address), key=itemgetter('confirmations')):
 
             #if tx["address"] not in (cls.network_properties.P2TH_addr,
@@ -117,7 +119,7 @@ class Cryptoid(Provider):
                          script_sig=ScriptSig.empty())
                          )
 
-                utxo_sum += int(tx['value'] * 10)  # get it to proper number of decimals
+                utxo_sum += Decimal(int(tx['value']) / 100000000) 
                 if utxo_sum >= amount:
                     return {'utxos': utxos, 'total': utxo_sum}
 
