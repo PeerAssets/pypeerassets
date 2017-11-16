@@ -136,7 +136,7 @@ def deck_spawn(provider: Provider, key: Kutil, deck: Deck, inputs: dict, change_
     txouts[-1] = tx_output(value=change_sum, n=txouts[-1].n, script=txouts[-1].script_pubkey)
 
     mutable_tx = make_raw_transaction(inputs['utxos'], txouts)
-    signed = key.sign_transaction(parent_output, mutable_tx)
+    signed = sign_transaction(provider, mutable_tx, key)
 
     return signed.hexlify()
 
@@ -242,10 +242,9 @@ def card_issue(provider: Provider, key: Kutil, deck: Deck,
     txouts[-1] = tx_output(value=change_sum, seq=txouts[-1].seq, script=txouts[-1].script)
 
     mutable_tx = make_raw_transaction(inputs['utxos'], txouts)
-    signed = key.sign_transaction(parent_output, mutable_tx)
+    signed = sign_transaction(provider, mutable_tx, key)
 
     return signed.hexlify()
-
 
 
 def card_burn(deck: Deck, card: CardTransfer, inputs: list, change_address: str) -> str:
