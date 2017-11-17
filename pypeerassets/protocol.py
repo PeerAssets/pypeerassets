@@ -8,59 +8,46 @@ from .paproto_pb2 import CardTransfer as cardtransferproto
 from .pautils import amount_to_exponent, issue_mode_to_enum
 from .exceptions import InvalidDeckIssueModeCombo
 from operator import itemgetter
+from enum import IntFlag
 
-issue_modes = (
-               'NONE',
-               ###
-               # https://github.com/PeerAssets/rfcs/blob/master/0001-peerassets-transaction-specification.proto#L19
-               # No issuance allowed.
 
-               'MULTI',
-               ###
-               # https://github.com/PeerAssets/rfcs/blob/master/0001-peerassets-transaction-specification.proto#L22
-               # Multiple card_issue transactions allowed.
+class IssueMode(IntFlag):
 
-               'ONCE',
-               ###
-               # https://github.com/PeerAssets/rfcs/blob/master/0001-peerassets-transaction-specification.proto#L21
-               # A single card_issue transaction allowed.
+    NONE = 0
+    # https://github.com/PeerAssets/rfcs/blob/master/0001-peerassets-transaction-specification.proto#L19
+    # No issuance allowed.
 
-               'MONO',
-               ###
-               # https://github.com/PeerAssets/rfcs/blob/master/0001-peerassets-transaction-specification.proto#L23
-               # All card transaction amounts are equal to 1.
+    CUSTOM = 1
+    # https://github.com/PeerAssets/rfcs/blob/master/0001-peerassets-transaction-specification.proto#L20
+    # Custom issue mode, verified by client aware of this.
 
-               'SINGLET',
-               ###
-               # https://github.com/PeerAssets/rfcs/blob/master/0001-peerassets-transaction-specification.proto#L30
-               # A single MONO card_issue transsaction allowed.
+    ONCE = 2
+    # https://github.com/PeerAssets/rfcs/blob/master/0001-peerassets-transaction-specification.proto#L21
+    # A single card_issue transaction allowed.
 
-               'CUSTOM',
-               ###
-               # https://github.com/PeerAssets/rfcs/blob/master/0001-peerassets-transaction-specification.proto#L20
-               # Custom issue mode, verified by client aware of this.
+    MULTI = 4
+    # https://github.com/PeerAssets/rfcs/blob/master/0001-peerassets-transaction-specification.proto#L22
+    # Multiple card_issue transactions allowed.
 
-               'UNFLUSHABLE',
-               ###
-               # https://github.com/PeerAssets/rfcs/blob/master/0001-peerassets-transaction-specification.proto#L24
-               # The UNFLUSHABLE issue mode invalidates any card transfer
-               # transaction except for the card issue transaction.
-               # Meaning that only the issuing entity is able to change
-               # the balance of a specific address.
-               # To correctly calculate the balance of a PeerAssets addr
-               # a client should only consider the card transfer
-               # transactions originating from the deck owner.
+    MONO = 8
+    # https://github.com/PeerAssets/rfcs/blob/master/0001-peerassets-transaction-specification.proto#L23
+    # All card transaction amounts are equal to 1.
 
-               'SUBSCRIPTION'
-               ###
-               # https://github.com/PeerAssets/rfcs/blob/master/0001-peerassets-transaction-specification.proto#L26
-               # The SUBSCRIPTION issue mode marks an address holding tokens
-               # as subscribed for a limited timeframe. This timeframe is
-               # defined by the balance of the account and the time at which
-               # the first cards of this token are received.
-               # To check validity of a subscription one should take the timestamp
-               # of the first received cards and add the address' balance to it in hours.
-               )
+    UNFLUSHABLE = 16
+    # https://github.com/PeerAssets/rfcs/blob/master/0001-peerassets-transaction-specification.proto#L24
+    # The UNFLUSHABLE issue mode invalidates any card transfer transaction except for the card issue transaction.
+    # Meaning that only the issuing entity is able to change the balance of a specific address.
+    # To correctly calculate the balance of a PeerAssets addres a client should only consider the card transfer
+    # transactions originating from the deck owner.
+
+    SUBSCRIPTION = 52  # 32 used by SUBSCRIPTION (52 = 32 | 4 | 16)
+    # https://github.com/PeerAssets/rfcs/blob/master/0001-peerassets-transaction-specification.proto#L26
+    # The SUBSCRIPTION issue mode marks an address holding tokens as subscribed for a limited timeframe. This timeframe is
+    # defined by the balance of the account and the time at which the first cards of this token are received.
+    # To check validity of a subscription one should take the timestamp of the first received cards and add the address' balance to it in hours.
+
+    SINGLET = 10  # SINGLET is a combination of ONCE and MONO (2 | 8)
+    #  Singlet deck, one MONO card issunce allowed
 
 
 class Deck:
