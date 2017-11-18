@@ -52,7 +52,7 @@ class IssueMode(IntFlag):
 
 class Deck:
 
-    def __init__(self, name: str, number_of_decimals: int, issue_mode: str,
+    def __init__(self, name: str, number_of_decimals: int, issue_mode: int,
                  network: str, production: bool, version: int,
                  asset_specific_data="", issuer="", fee=0, time=None, id=None) -> None:
         '''
@@ -100,7 +100,7 @@ class Deck:
         deck.name = self.name
         deck.number_of_decimals = self.number_of_decimals
         deck.fee = amount_to_exponent(self.fee, self.number_of_decimals)
-        deck.issue_mode = issue_mode_to_enum(deck, self.issue_mode)
+        deck.issue_mode = self.issue_mode
         if not isinstance(self.asset_specific_data, bytes):
             deck.asset_specific_data = self.asset_specific_data.encode()
         else:
