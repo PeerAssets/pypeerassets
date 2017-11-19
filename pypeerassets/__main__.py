@@ -165,8 +165,8 @@ def find_card_transfers(provider: Provider, deck: Deck) -> Generator:
     '''find all <deck> card transfers'''
 
     if isinstance(provider, RpcNode):
-        card_transfers = (provider.getrawtransaction(i["txid"], 1) for i in
-                          provider.listtransactions(deck.id))
+        batch_data = [('getrawtransaction', [i["txid"], 1] ) for i in provider.listtransactions(deck.id)]
+        card_transfers = [i['result'] for i in provider.batch(batch_data)]
     else:
         card_transfers = (provider.getrawtransaction(i, 1) for i in
                           provider.listtransactions(deck.p2th_address))
