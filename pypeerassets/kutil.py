@@ -52,7 +52,7 @@ class Kutil:
     def load_network_parameters(self, network: str) -> None:
         '''loads network parameters and sets class variables'''
 
-        for field, var in zip(query(network)._fields, query(network)):
+        for field, var in zip(net_query(network)._fields, net_query(network)):
             setattr(self, field, var)
 
     def wif_to_privkey(self, wif: str) -> dict:
