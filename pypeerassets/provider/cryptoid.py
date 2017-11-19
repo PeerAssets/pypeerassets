@@ -10,7 +10,6 @@ class Cryptoid(Provider):
 
     '''API wrapper for http://chainz.cryptoid.info blockexplorer.'''
 
-    @classmethod
     def __init__(self, network: str):
         """
         : network = peercoin [ppc], peercoin-testnet [tppc] ...
@@ -38,7 +37,6 @@ class Cryptoid(Provider):
 
         return net
 
-    @classmethod
     def api_req(self, query: str) -> dict:
 
         api_url = 'https://chainz.cryptoid.info/{net}/api.dws'.format(
@@ -55,62 +53,50 @@ class Cryptoid(Provider):
         assert response.status_code == 200, {'error': 'API error: ' + str(response.status_code)}
         return response.json()
 
-    @classmethod
     def block_req(self, query: str) -> dict:
 
         response = self.api_session.get(query)
         assert response.status_code == 200, {'error': 'API error: ' + str(response.status_code)}
         return response.json()
 
-    @classmethod
-    def getblockcount(cls) -> int:
+    def getblockcount(self) -> int:
 
-        return cls.api_req('getblockcount')
+        return self.api_req('getblockcount')
 
-    @classmethod
-    def getblock(cls, blockhash: str) -> dict:
+    def getblock(self, blockhash: str) -> dict:
         '''query block using <blockhash> as key.'''
 
-        query = cls.explorer_url + 'block.raw.dws?coin={net}&hash={blockhash}'.format(net=cls.format_name(cls.net),
+        query = self.explorer_url + 'block.raw.dws?coin={net}&hash={blockhash}'.format(net=cls.format_name(cls.net),
                                                                                       blockhash=blockhash)
-        return cls.block_req(query)
+        return self.block_req(query)
 
-    @classmethod
-    def getblockhash(cls, blocknum: int) -> str:
+    def getblockhash(self, blocknum: int) -> str:
         '''get blockhash'''
 
-        return cls.api_req('getblockhash' + '&height=' + str(blocknum))
+        return self.api_req('getblockhash' + '&height=' + str(blocknum))
 
-    @classmethod
-    def getdifficulty(cls) -> float:
+    def getdifficulty(self) -> float:
 
-        return cls.api_req('getdifficulty')
+        return self.api_req('getdifficulty')
 
-    @classmethod
-    def getbalance(cls, address: str) -> float:
+    def getbalance(self, address: str) -> float:
 
-        return float(cls.api_req('getbalance' + "&a=" + address))
+        return Decimal(self.api_req('getbalance' + "&a=" + address))
 
-    @classmethod
-    def getreceivedbyaddress(cls, address: str) -> float:
+    def getreceivedbyaddress(self, address: str) -> float:
 
-        return float(cls.api_req('getreceivedbyaddress' + "&a=" + address))
+        return Decimal(self.api_req('getreceivedbyaddress' + "&a=" + address))
 
-    @classmethod
-    def listunspent(cls, address: str) -> list:
+    def listunspent(self, address: str) -> list:
 
-        return cls.api_req('unspent' + "&active=" + address)['unspent_outputs']
+        return self.api_req('unspent' + "&active=" + address)['unspent_outputs']
 
-    @classmethod
-    def select_inputs(cls, amount: int, address: str):
+    def select_inputs(self, address: str, amount: int):
         '''select UTXOs'''
 
         utxos = []
         utxo_sum = Decimal(-0.01)  # starts from negative due to minimal fee
-        for tx in sorted(cls.listunspent(address=address), key=itemgetter('confirmations')):
-
-            #if tx["address"] not in (cls.network_properties.P2TH_addr,
-            #                         cls.network_properties.test_P2TH_addr):
+        for tx in sorted(self.listunspent(address=address), key=itemgetter('confirmations')):
 
                 utxos.append(
                     TxIn(txid=tx['tx_hash'],
@@ -119,30 +105,28 @@ class Cryptoid(Provider):
                          script_sig=ScriptSig.empty())
                          )
 
-                utxo_sum += Decimal(int(tx['value']) / 100000000) 
+                utxo_sum += Decimal(int(tx['value']) / 100000000)
                 if utxo_sum >= amount:
                     return {'utxos': utxos, 'total': utxo_sum}
 
         if utxo_sum < amount:
             raise InsufficientFunds('Insufficient funds.')
 
-    @classmethod
-    def getrawtransaction(cls, txid: str, decrypt=1) -> dict:
+    def getrawtransaction(self, txid: str, decrypt=1) -> dict:
 
-        query = cls.explorer_url + 'tx.raw.dws?coin={net}&id={txid}'.format(net=cls.format_name(cls.net),
-                                                                            txid=txid)
+        query = self.explorer_url + 'tx.raw.dws?coin={net}&id={txid}'.format(net=self.format_name(self.net),
+                                                                             txid=txid)
         if not decrypt:
             query += '&hex'
-            return cls.block_req(query)['hex']
+            return self.block_req(query)['hex']
 
-        return cls.block_req(query)
+        return self.block_req(query)
 
-    @classmethod
-    def listtransactions(cls, address: str) -> list:
+    def listtransactions(self, address: str) -> list:
 
-        query = cls.explorer_url + 'address.summary.dws?coin={net}&id={addr}'.format(net=cls.format_name(cls.net),
-                                                                                     addr=address)
-        resp = cls.block_req(query)
+        query = self.explorer_url + 'address.summary.dws?coin={net}&id={addr}'.format(net=self.format_name(self.net),
+                                                                                      addr=address)
+        resp = self.block_req(query)
         if resp:
             return [i[1].lower() for i in resp['tx']]
         else:
