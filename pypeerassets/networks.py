@@ -1,9 +1,8 @@
 from collections import namedtuple
-from decimal import Decimal, getcontext
-getcontext().prec = 6
+from decimal import Decimal
 
 
-Network = namedtuple('Network', [
+NetworkParams = namedtuple('NetworkParams', [
     'network_name',
     'network_shortname',
     'pubkeyhash',
@@ -25,21 +24,23 @@ For abbreviation prefix testnet of the network with "t".
 
 networks = (
     # Peercoin mainnet
-    Network("peercoin", "ppc", b'37', b'b7', b'75', b'e6e8e9e5',
-            b'\x17PPCoin Signed Message:\n', Decimal(0.01), Decimal(0.01), True, 1000000),
+    NetworkParams("peercoin", "ppc", b'37', b'b7', b'75', b'e6e8e9e5',
+                  b'\x17PPCoin Signed Message:\n', Decimal(0.01),
+                  0, True, Decimal('1e6')),
     # Peercoin testnet
-    Network("peercoin-testnet", "tppc", b'6f', b'ef', b'c4', b'cbf2c0ef',
-            b'\x17PPCoin Signed Message:\n', Decimal(0.01), Decimal(0.01), True, 1000000),
+    NetworkParams("peercoin-testnet", "tppc", b'6f', b'ef', b'c4', b'cbf2c0ef',
+                  b'\x17PPCoin Signed Message:\n', Decimal(0.01),
+                  0, True, Decimal('1e6')),
     # Bitcoin mainnet
-    Network("bitcoin", "btc", b'00', b'80', b'05', b'd9b4bef9',
-            b'\x18Bitcoin Signed Message:\n', 0, 0, False, 100000000),
+    NetworkParams("bitcoin", "btc", b'00', b'80', b'05', b'd9b4bef9',
+                  b'\x18Bitcoin Signed Message:\n', 0, 0, False, Decimal('1e8')),
     # Bitcoin testnet
-    Network("bitcoin-testnet", "tbtc", b'6f', b'ef', b'c4', b'dab5bffa',
-            b'\x18Bitcoin Signed Message:\n', 0, 0, False, 100000000)
+    NetworkParams("bitcoin-testnet", "tbtc", b'6f', b'ef', b'c4', b'dab5bffa',
+                  b'\x18Bitcoin Signed Message:\n', 0, 0, False, Decimal('1e8'))
 )
 
 
-def query(query):
+def net_query(query):
     '''find matching parameter among the networks'''
 
     for network in networks:
