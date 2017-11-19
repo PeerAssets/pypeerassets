@@ -14,7 +14,7 @@ from .pautils import (load_deck_p2th_into_local_node,
                       validate_deckspawn_p2th, validate_card_transfer_p2th,
                       parse_card_transfer_metainfo, postprocess_card
                       )
-from .voting import *
+#from .voting import *
 from .exceptions import *
 from .transactions import (nulldata_script, tx_output, p2pkh_script,
                            find_parent_outputs, calculate_tx_fee,
