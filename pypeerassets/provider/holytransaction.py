@@ -5,6 +5,7 @@ See https://peercoin.holytransaction.com/info for more information.
 '''
 
 import requests
+from decimal import Decimal
 from .common import Provider
 
 
@@ -16,7 +17,6 @@ class Holy(Provider):
     transactions for each address.
     """
 
-    @classmethod
     def __init__(self, network: str):
         """
         : network = ppc, peercoin-testnet ...
@@ -32,7 +32,6 @@ class Holy(Provider):
         self.ext_api_methods = ("getaddress", "getbalance")
         self.api_session = requests.Session()
 
-    @classmethod
     def req(self, query: str, params: dict):
         """Send request, return response."""
 
@@ -44,22 +43,18 @@ class Holy(Provider):
 
         return response
 
-    @classmethod
     def getdifficulty(self) -> dict:
         """Returns current difficulty."""
         return self.req("getdifficulty", {}).json()
 
-    @classmethod
     def getblockcount(self) -> int:
         """Returns block count."""
         return int(self.req("getblockcount", {}).content.decode())
 
-    @classmethod
     def getblockhash(self, blocknum: int) -> str:
         """Returns the hash of the block at ; index 0 is the genesis block."""
         return self.req("getblockhash", {"index": blocknum}).content.decode()
 
-    @classmethod
     def getblock(self, hash: str) -> dict:
         """Returns information about the block with the given hash."""
         return self.req("getblock", {"hash": hash}).json()
@@ -76,18 +71,15 @@ class Holy(Provider):
         else:
             return res.content
 
-    @classmethod
     def getaddress(self, address: str) -> dict:
         """Returns information for given address."""
         return self.req("getaddress", {"getaddress": address}).json()
 
-    @classmethod
-    def getbalance(self, address: str) -> float:
+    def getbalance(self, address: str) -> Decimal:
         """Returns current balance of given address."""
 
-        return float(self.req("getbalance", {"getbalance": address}).content.decode())
+        return Decimal(self.req("getbalance", {"getbalance": address}).content.decode())
 
-    @classmethod
     def listtransactions(self, address: str) -> list:
         """list transactions of this <address>"""
 
