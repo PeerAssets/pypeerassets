@@ -2,8 +2,9 @@
 '''Communicate with local or remote peercoin-daemon via JSON-RPC'''
 
 from operator import itemgetter
+from .common import Provider
 from pypeerassets.exceptions import InsufficientFunds
-from pypeerassets.constants import param_query, params
+from pypeerassets.pa_constants import param_query
 from btcpy.structs.transaction import MutableTxIn, Sequence, ScriptSig
 from decimal import Decimal, getcontext
 getcontext().prec = 6
@@ -15,12 +16,8 @@ except:
                             use pip to install it.")
 
 
-class RpcNode(Client):
+class RpcNode(Client, Provider):
     '''JSON-RPC connection to local Peercoin node'''
-
-    @property
-    def network_p2th(self):
-        return param_query(self.network)
 
     def select_inputs(self, total_amount, address=None):
         '''finds apropriate utxo's to include in rawtx, while being careful
