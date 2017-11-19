@@ -8,27 +8,23 @@ class Mintr(Provider):
     it only implements queries relevant to peerassets.
     This wrapper does some tweaks to output to match original RPC response.'''
 
-    @classmethod
-    def __init__(cls, network="peercoin"):
+    def __init__(self, network="peercoin"):
 
-        cls.net = cls._netname(network)['long']
-        cls.api_session = requests.Session()
+        self.net = self._netname(network)['long']
+        self.api_session = requests.Session()
 
-    @classmethod
-    def get(cls, query):
+    def get(self, query):
 
-        api_url = "https://{netname}.mintr.org/api/".format(netname=cls.net)
+        api_url = "https://{netname}.mintr.org/api/".format(netname=self.net)
         requests.packages.urllib3.disable_warnings()
         return requests.get(api_url + query, verify=False).json()
 
-    @classmethod
-    def getinfo(cls):
+    def getinfo(self):
         '''mock response, to allow compatibility with local rpc node'''
 
         return {"testnet": False}
 
-    @classmethod
-    def getrawtransaction(cls, txid, verbose=1):
+    def getrawtransaction(self, txid, verbose=1):
         '''this mimics the behaviour of local node `getrawtransaction` query with argument 1'''
 
         def wrapper(raw):
@@ -55,17 +51,16 @@ class Mintr(Provider):
             return raw
 
         if verbose == 0:
-            return cls.get("tx/hash/" + txid)
+            return self.get("tx/hash/" + txid)
         else:
-            resp = cls.get("tx/hash/" + txid + "/full")
+            resp = self.get("tx/hash/" + txid + "/full")
             if not resp == {'error': 'Unknown API call'}:
                 return wrapper(resp)
 
-    @classmethod
-    def listtransactions(cls, addr):
+    def listtransactions(self, addr):
         '''get information about <address>'''
 
-        response = cls.get("address/balance/" + addr + "/full")
+        response = self.get("address/balance/" + addr + "/full")
         assert response != {'error': 'Could not decode hash'}, {"error": "Can not find the address."}
 
         txid = []
@@ -86,8 +81,7 @@ class Mintr(Provider):
 
         return txid
 
-    @classmethod
-    def getblock(cls, blockhash: str) -> dict:
+    def getblock(self, blockhash: str) -> dict:
         '''get full block data, query by <blockhash>'''
 
         def _wrapper(raw):
@@ -102,7 +96,7 @@ class Mintr(Provider):
 
             return raw
 
-        resp = cls.get("block/height/" + blockhash + "/full")
+        resp = self.get("block/height/" + blockhash + "/full")
 
         if resp != {'error': 'Could not decode hash'}:
             return _wrapper(resp)
