@@ -20,8 +20,8 @@ from .transactions import (nulldata_script, tx_output, p2pkh_script,
                            find_parent_outputs, calculate_tx_fee,
                            make_raw_transaction, TxOut,
                            Transaction, MutableTransaction)
-from .constants import param_query, params
-from .networks import query, networks
+from .pa_constants import param_query, params
+from .networks import net_query, networks
 from decimal import Decimal, getcontext
 getcontext().prec = 6
 
@@ -119,7 +119,7 @@ def deck_spawn(provider: Provider, key: Kutil, deck: Deck, inputs: dict, change_
        : change_address - address to send the change to
     '''
 
-    network_params = query(deck.network)
+    network_params = net_query(deck.network)
     pa_params = param_query(deck.network)
 
     if deck.production:
@@ -218,7 +218,7 @@ def card_issue(provider: Provider, key: Kutil, deck: Deck,
        : change_address - address to send the change to
     '''
 
-    network_params = query(deck.network)
+    network_params = net_query(deck.network)
     pa_params = param_query(deck.network)
 
     txouts = [
@@ -266,7 +266,7 @@ def card_burn(provider: Provider, key: Kutil, deck: Deck,
 
     assert deck.issuer == card.receiver[0], {"error": "First recipient must be deck issuer."}
 
-    network_params = query(deck.network)
+    network_params = net_query(deck.network)
     pa_params = param_query(deck.network)
 
     txouts = [
@@ -308,7 +308,7 @@ def card_transfer(deck: Deck, card: CardTransfer, inputs: list, change_address: 
        : change_address - address to send the change to
        '''
 
-    network_params = query(deck.network)
+    network_params = net_query(deck.network)
     pa_params = param_query(deck.network)
 
     outputs = [
