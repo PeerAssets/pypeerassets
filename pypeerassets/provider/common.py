@@ -1,20 +1,20 @@
-from pypeerassets.networks import query
+'''Common provider class with basic features.'''
+
 from pypeerassets.exceptions import UnsupportedNetwork
-from pypeerassets.constants import param_query
-from pypeerassets.networks import query
+from pypeerassets.pa_constants import PAParams, param_query
+from pypeerassets.networks import NetworkParams, net_query
 import requests
 
 
 class Provider:
 
-    @staticmethod
     def _netname(name: str) -> dict:
         '''resolute network name,
         required because some providers use shortnames and other use longnames.'''
 
         try:
-            long = query(name).network_name
-            short = query(name).network_shortname
+            long = net_query(name).network_name
+            short = net_query(name).network_shortname
         except AttributeError:
             raise UnsupportedNetwork('''This blockchain network is not supported by the pypeerassets, check networks.py for list of supported networks.''')
 
@@ -28,16 +28,16 @@ class Provider:
         return self._netname(self.net)['long']
 
     @property
-    def network_parameters(self):
+    def pa_parameters(self) -> PAParams:
         '''load network PeerAssets parameters.'''
 
         return param_query(self.network)
 
     @property
-    def network_properties(self):
-        '''network properties [min_fee, denomination, ...]'''
+    def network_properties(self) -> NetworkParams:
+        '''network parameters [min_fee, denomination, ...]'''
 
-        return query(self.network)
+        return net_query(self.network)
 
     @property
     def is_testnet(self) -> bool:
