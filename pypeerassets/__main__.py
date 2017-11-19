@@ -195,6 +195,7 @@ def find_card_transfers(provider: Provider, deck: Deck) -> Generator:
 
             cards = postprocess_card(card_metainfo, raw_tx, sender,
                                      vouts, blockseq, blocknum, deck)
+            cards = [CardTransfer(**card) for card in cards]
 
         except (InvalidCardTransferP2TH, CardVersionMistmatch, CardNumberOfDecimalsMismatch) as e:
             return False
@@ -204,7 +205,7 @@ def find_card_transfers(provider: Provider, deck: Deck) -> Generator:
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as th:
         for result in th.map(card_parser, ((provider, deck, i) for i in card_transfers)):
             if result:
-                return (CardTransfer(**i) for i in result)
+                yield result
 
 
 def card_issue(provider: Provider, key: Kutil, deck: Deck,
