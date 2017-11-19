@@ -8,7 +8,7 @@ from .exceptions import (InvalidDeckSpawn, InvalidDeckMetainfo,
                          InvalidDeckIssueMode, InvalidDeckVersion)
 from .exceptions import (InvalidCardTransferP2TH, CardVersionMistmatch,
                          CardNumberOfDecimalsMismatch, InvalidNulldataOutput)
-from .constants import param_query, params
+from .pa_constants import param_query, params
 from typing import Iterator
 from .paproto_pb2 import DeckSpawn, CardTransfer
 

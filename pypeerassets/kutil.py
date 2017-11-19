@@ -1,5 +1,5 @@
 
-from pypeerassets.networks import query
+from pypeerassets.networks import net_query
 from pypeerassets.base58 import b58encode, b58decode
 from hashlib import sha256, new
 from binascii import unhexlify, hexlify
