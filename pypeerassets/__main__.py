@@ -164,9 +164,13 @@ def deck_transfer(provider: Provider, key: Kutil, deck: Deck,
 def find_card_transfers(provider: Provider, deck: Deck) -> Generator:
     '''find all <deck> card transfers'''
 
+    card_transfers = []
+
     if isinstance(provider, RpcNode):
-        card_transfers = (provider.getrawtransaction(i["txid"], 1) for i in
-                          provider.listtransactions(deck.id))
+        batch_data = [('getrawtransaction', [i["txid"], 1] ) for i in provider.listtransactions(deck.id)]
+        result = provider.batch(batch_data)
+        if result is not None:
+            card_transfers = [i['result'] for i in result if result ]  
     else:
         card_transfers = (provider.getrawtransaction(i, 1) for i in
                           provider.listtransactions(deck.p2th_address))
@@ -195,6 +199,7 @@ def find_card_transfers(provider: Provider, deck: Deck) -> Generator:
 
             cards = postprocess_card(card_metainfo, raw_tx, sender,
                                      vouts, blockseq, blocknum, deck)
+            cards = [CardTransfer(**card) for card in cards]
 
         except (InvalidCardTransferP2TH, CardVersionMistmatch, CardNumberOfDecimalsMismatch) as e:
             return False
@@ -204,7 +209,7 @@ def find_card_transfers(provider: Provider, deck: Deck) -> Generator:
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as th:
         for result in th.map(card_parser, ((provider, deck, i) for i in card_transfers)):
             if result:
-                return (CardTransfer(**i) for i in result)
+                yield result
 
 
 def card_issue(provider: Provider, key: Kutil, deck: Deck,
