@@ -22,6 +22,7 @@ from .transactions import (nulldata_script, tx_output, p2pkh_script,
                            Transaction, MutableTransaction)
 from .pa_constants import param_query, params
 from .networks import net_query, networks
+from .kutil import Kutil
 from decimal import Decimal, getcontext
 getcontext().prec = 6
 
@@ -109,9 +110,9 @@ def find_deck(provider: Provider, key: str, version: int, prod=True) -> list:
     Find specific deck by key, with key being:
     <id>, <name>, <issuer>, <issue_mode>, <number_of_decimals>
     '''
-
+    p2th = Kutil(privkey=unhexlify(key),network=provider.network).wif
     rawtx = provider.getrawtransaction( key, 1)
-    deck = deck_parser( (provider, rawtx, 1) )
+    deck = deck_parser( (provider, rawtx, 1, p2th) )
 
     return [deck]
 
@@ -187,6 +188,7 @@ def find_card_transfers(provider: Provider, deck: Deck) -> Generator:
         provider = args[0]
         deck = args[1]
         raw_tx = args[2]
+        cards = []
 
         try:
             validate_card_transfer_p2th(deck, raw_tx)  # validate P2TH first
