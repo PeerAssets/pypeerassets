@@ -134,18 +134,6 @@ class Deck:
         return ', '.join(r)
 
 
-def deck_issue_mode_logic_check(issue_mode: list) -> bool:
-    '''verify do combined issue modes pass simple logic tests'''
-
-    error = {'error': 'Invalid issue_mode combination.'}
-
-    if 'MULTI' and 'ONCE' in issue_mode:
-        raise InvalidDeckIssueModeCombo(error)
-
-    if 'MULTI' and 'SINGLET' in issue_mode:
-        raise InvalidDeckIssueModeCombo(error)
-
-
 class CardTransfer:
 
     def __init__(self, deck: Deck, receiver=[], amount=[], version=1,
