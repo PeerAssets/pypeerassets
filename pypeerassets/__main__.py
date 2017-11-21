@@ -5,7 +5,7 @@ import concurrent.futures
 from binascii import unhexlify
 from typing import Union, Generator
 from .protocol import *
-from .provider import Provider
+from .provider import Provider, RpcNode
 from .pautils import (load_deck_p2th_into_local_node, 
                       find_tx_sender,
                       find_deck_spawns, tx_serialization_order,
@@ -25,15 +25,17 @@ from .networks import net_query, networks
 from decimal import Decimal, getcontext
 getcontext().prec = 6
 
-def deck_parser( args: Union[ Provider, dict, int], prod: bool=True) -> Deck:
+
+def deck_parser(args: Union[Provider, dict, int, str], prod: bool=True) -> Deck:
     '''deck parser function'''
-    
+
     provider = args[0]
     raw_tx = args[1]
     deck_version = args[2]
+    p2th = args[3]
 
     try:
-        validate_deckspawn_p2th(provider, raw_tx, prod=prod)
+        validate_deckspawn_p2th(provider, raw_tx, p2th)
 
         d = parse_deckspawn_metainfo(read_tx_opreturn(raw_tx), deck_version)
 
@@ -52,6 +54,7 @@ def deck_parser( args: Union[ Provider, dict, int], prod: bool=True) -> Deck:
     except (InvalidDeckSpawn, InvalidDeckMetainfo, InvalidDeckVersion, InvalidNulldataOutput) as err:
         pass
 
+
 def find_all_valid_decks(provider: Provider, deck_version: int, prod: bool=True) -> Generator:
     '''
     Scan the blockchain for PeerAssets decks, returns list of deck objects.
@@ -65,14 +68,16 @@ def find_all_valid_decks(provider: Provider, deck_version: int, prod: bool=True)
     else:
         pa_params = param_query(provider.network)
         if prod:
+            p2th = pa_params.P2TH_addr
             deck_spawns = (provider.getrawtransaction(i, 1) for i in
-                           provider.listtransactions(pa_params.P2TH_addr))
+                           provider.listtransactions(p2th))
         if not prod:
+            p2th = pa_params.test_P2TH_addr
             deck_spawns = (provider.getrawtransaction(i, 1) for i in
-                           provider.listtransactions(pa_params.test_P2TH_addr))
+                           provider.listtransactions(p2th))
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as th:
-        for result in th.map(deck_parser, ((provider, deck, deck_version) for deck in deck_spawns)):
+        for result in th.map(deck_parser, ((provider, rawtx, deck_version, p2th) for rawtx in deck_spawns)):
             if result:
                 yield result
 
