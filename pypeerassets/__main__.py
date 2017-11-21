@@ -63,18 +63,19 @@ def find_all_valid_decks(provider: Provider, deck_version: int, prod: bool=True)
     : test True/False - test or production P2TH
     '''
 
+    pa_params = param_query(provider.network)
+
+    if prod:
+        p2th = pa_params.P2TH_addr
+    else:
+        p2th = pa_params.test_P2TH_addr
+
     if isinstance(provider, RpcNode):
         deck_spawns = (provider.getrawtransaction(i, 1) for i in find_deck_spawns(provider))
+
     else:
-        pa_params = param_query(provider.network)
-        if prod:
-            p2th = pa_params.P2TH_addr
-            deck_spawns = (provider.getrawtransaction(i, 1) for i in
-                           provider.listtransactions(p2th))
-        if not prod:
-            p2th = pa_params.test_P2TH_addr
-            deck_spawns = (provider.getrawtransaction(i, 1) for i in
-                           provider.listtransactions(p2th))
+        deck_spawns = (provider.getrawtransaction(i, 1) for i in
+                       provider.listtransactions(p2th))
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as th:
         for result in th.map(deck_parser, ((provider, rawtx, deck_version, p2th) for rawtx in deck_spawns)):
