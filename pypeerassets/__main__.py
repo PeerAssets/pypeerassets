@@ -5,7 +5,7 @@ import concurrent.futures
 from binascii import unhexlify
 from typing import Union, Generator
 from .protocol import *
-from .provider import *
+from .provider import Provider
 from .pautils import (load_deck_p2th_into_local_node, 
                       find_tx_sender,
                       find_deck_spawns, tx_serialization_order,
