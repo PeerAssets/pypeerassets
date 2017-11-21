@@ -8,6 +8,7 @@ import requests
 
 class Provider:
 
+    @staticmethod
     def _netname(name: str) -> dict:
         '''resolute network name,
         required because some providers use shortnames and other use longnames.'''
