@@ -66,8 +66,8 @@ class Cryptoid(Provider):
     def getblock(self, blockhash: str) -> dict:
         '''query block using <blockhash> as key.'''
 
-        query = self.explorer_url + 'block.raw.dws?coin={net}&hash={blockhash}'.format(net=cls.format_name(cls.net),
-                                                                                      blockhash=blockhash)
+        query = self.explorer_url + 'block.raw.dws?coin={net}&hash={blockhash}'.format(net=self.format_name(self.net),
+                                                                                       blockhash=blockhash)
         return self.block_req(query)
 
     def getblockhash(self, blocknum: int) -> str:
