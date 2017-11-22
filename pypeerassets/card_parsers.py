@@ -37,3 +37,9 @@ def mono_parser(cards):
 
     return [i for i in cards if i.type == "CardIssue"
             and exponent_to_amount(i.amount[0], i.number_of_decimals) == 1]
+
+
+def unflushable_parser(cards):
+    '''parser for UNFLUSHABLE [16] issue mode'''
+
+    return [i for i in cards if i.type == "CardIssue"]
