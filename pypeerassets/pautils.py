@@ -200,7 +200,7 @@ def parse_card_transfer_metainfo(protobuf: bytes, deck_version: int) -> dict:
     return {
         "version": card.version,
         "number_of_decimals": card.number_of_decimals,
-        "amount": card.amount,
+        "amount": list(card.amount),
         "asset_specific_data": card.asset_specific_data
     }
 
