@@ -106,15 +106,18 @@ def _increase_fee_and_sign(provider: Provider, key: Kutil, change_sum: Decimal,
 
 
 def find_deck(provider: Provider, key: str, version: int, prod=True) -> list:
-    '''
-    Find specific deck by key, with key being:
-    <id>, <name>, <issuer>, <issue_mode>, <number_of_decimals>
-    '''
-    p2th = Kutil(privkey=unhexlify(key),network=provider.network).wif
-    rawtx = provider.getrawtransaction( key, 1)
-    deck = deck_parser( (provider, rawtx, 1, p2th) )
+    '''Find specific deck by deck id.'''
 
-    return [deck]
+    pa_params = param_query(provider.network)
+    if prod:
+        p2th = pa_params.P2TH_addr
+    else:
+        p2th = pa_params.test_P2TH_addr
+
+    rawtx = provider.getrawtransaction(key, 1)
+    deck = deck_parser((provider, rawtx, 1, p2th))
+
+    return deck
 
 
 def deck_spawn(provider: Provider, key: Kutil, deck: Deck, inputs: dict, change_address: str) -> str:
