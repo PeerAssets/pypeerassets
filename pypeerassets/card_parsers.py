@@ -1,5 +1,7 @@
 '''parse cards according to deck issue mode'''
 
+from .pautils import exponent_to_amount
+
 
 def none_parser(cards):
     '''parser for NONE [0] issue mode'''
@@ -33,4 +35,5 @@ def multi_parser(cards):
 def mono_parser(cards):
     '''parser for MONO [8] issue mode'''
 
-    return [i for i in cards if i.type == "CardIssue" and i.amount == 1]
+    return [i for i in cards if i.type == "CardIssue"
+            and exponent_to_amount(i.amount[0], i.number_of_decimals) == 1]
