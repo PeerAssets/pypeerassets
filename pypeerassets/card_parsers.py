@@ -33,4 +33,4 @@ def multi_parser(cards):
 def mono_parser(cards):
     '''parser for MONO [8] issue mode'''
 
-    return [next(i for i in cards if i.type == "CardIssue" and i.amount[0] == 1)]
+    return [i for i in cards if i.amount[0] != 1]
