@@ -28,8 +28,8 @@ class RpcNode(Client, Provider):
         utxo_sum = Decimal(-0.01)  # starts from negative due to minimal fee
         for tx in sorted(self.listunspent(address=address), key=itemgetter('confirmations')):
 
-            if tx["address"] not in (self.network_p2th.P2TH_addr,
-                                     self.network_p2th.test_P2TH_addr):
+            if tx["address"] not in (self.pa_parameters.P2TH_addr,
+                                     self.pa_parameters.test_P2TH_addr):
 
                 utxos.append(
                         MutableTxIn(txid=tx['txid'],
