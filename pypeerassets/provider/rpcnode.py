@@ -7,6 +7,7 @@ from pypeerassets.exceptions import InsufficientFunds
 from pypeerassets.pa_constants import param_query
 from btcpy.structs.transaction import MutableTxIn, Sequence, ScriptSig
 from decimal import Decimal, getcontext
+from json import dumps
 getcontext().prec = 6
 
 try:
@@ -68,7 +69,8 @@ class RpcNode(Client, Provider):
         modified version to allow filtering by address.
         '''
         if address:
-            return [u for u in self.req("listunspent", [minconf, maxconf]) if u["address"] == address]
+            address = [address]
+            return self.req("listunspent", [minconf, maxconf, address] )
         else:
             return self.req("listunspent", [minconf, maxconf])
 
