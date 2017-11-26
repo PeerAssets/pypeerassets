@@ -43,3 +43,13 @@ def unflushable_parser(cards):
     '''parser for UNFLUSHABLE [16] issue mode'''
 
     return [i for i in cards if i.type == "CardIssue"]
+
+
+parsers = {
+    'NONE': none_parser,
+    'CUSTOM': none_parser,
+    'ONCE': once_parser,
+    'MULTI': multi_parser,
+    'MONO': mono_parser,
+    'UNFLUSHABLE': unflushable_parser
+}
