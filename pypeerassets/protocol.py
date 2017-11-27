@@ -8,6 +8,7 @@ from .paproto_pb2 import CardTransfer as cardtransferproto
 from .pautils import amount_to_exponent, issue_mode_to_enum
 from .exceptions import InvalidDeckIssueModeCombo
 from operator import itemgetter
+from .card_parsers import *
 from enum import IntFlag
 
 
@@ -221,34 +222,24 @@ class CardTransfer:
         return ', '.join(r)
 
 
-def validate_card_issue_modes(deck: Deck, cards: list) -> list:
-    """validate card transfers against deck issue mode"""
+def validate_card_issue_modes(issue_mode: int, cards: list) -> list:
+    """validate cards against deck_issue modes"""
 
-    error = {"error": "Invalid issue mode."}
+    # start from highest possible issue mode, omit 0
+    issue_values = reversed([e.value for e in IssueMode][1:])
 
-    if ("ONCE", "MULTI") in deck.issue_mode:
-        return error
+    if issue_mode == 0:
+        return None
 
-    # first card is single and amount is 1 for SINGLET
-    if deck.issue_mode == "SINGLET":
-        c = next(i for i in cards if i.type == "CardIssue")
-        if c.amounts[0] != 1:
-            return None
-        else:
-            return [c]
+    for i in issue_values:
+        if bool(i & IssueMode(issue_mode)):
+            try:
+                print('Applying {0} parser.'.format(IssueMode(i).name))
+                cards = parsers[IssueMode(i).value](cards)
+            except KeyError:
+                pass  # if no parser
 
-    # only first is valid for ONCE
-    if "ONCE" in deck.issue_mode:
-        return [next(i for i in cards if i.type == "CardIssue")]
-
-    if "MULTI" in deck.issue_mode:  # everything goes for multi
-        return cards
-
-    if "CUSTOM" in deck.issue_mode:  # custom issuance mode
-        return cards  # what to do with this?
-
-    else:
-        return error
+    return cards
 
 
 class DeckState:
