@@ -46,10 +46,10 @@ def unflushable_parser(cards):
 
 
 parsers = {
-    0: none_parser,
-    1: custom_parser,
-    2: once_parser,
-    4: multi_parser,
-    8: mono_parser,
-    16: unflushable_parser
+    'NONE': none_parser,
+    'CUSTOM': none_parser,
+    'ONCE': once_parser,
+    'MULTI': multi_parser,
+    'MONO': mono_parser,
+    'UNFLUSHABLE': unflushable_parser
 }
