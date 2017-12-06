@@ -9,45 +9,45 @@ from .pautils import amount_to_exponent, issue_mode_to_enum
 from .exceptions import InvalidDeckIssueModeCombo
 from operator import itemgetter
 from .card_parsers import *
-from enum import IntFlag
+from enum import Enum
 
 
-class IssueMode(IntFlag):
+class IssueMode(Enum):
 
-    NONE = 0
+    NONE = 0x00
     # https://github.com/PeerAssets/rfcs/blob/master/0001-peerassets-transaction-specification.proto#L19
     # No issuance allowed.
 
-    CUSTOM = 1
+    CUSTOM = 0x01
     # https://github.com/PeerAssets/rfcs/blob/master/0001-peerassets-transaction-specification.proto#L20
     # Custom issue mode, verified by client aware of this.
 
-    ONCE = 2
+    ONCE = 0x02
     # https://github.com/PeerAssets/rfcs/blob/master/0001-peerassets-transaction-specification.proto#L21
     # A single card_issue transaction allowed.
 
-    MULTI = 4
+    MULTI = 0x04
     # https://github.com/PeerAssets/rfcs/blob/master/0001-peerassets-transaction-specification.proto#L22
     # Multiple card_issue transactions allowed.
 
-    MONO = 8
+    MONO = 0x08
     # https://github.com/PeerAssets/rfcs/blob/master/0001-peerassets-transaction-specification.proto#L23
     # All card transaction amounts are equal to 1.
 
-    UNFLUSHABLE = 16
+    UNFLUSHABLE = 0x10
     # https://github.com/PeerAssets/rfcs/blob/master/0001-peerassets-transaction-specification.proto#L24
     # The UNFLUSHABLE issue mode invalidates any card transfer transaction except for the card issue transaction.
     # Meaning that only the issuing entity is able to change the balance of a specific address.
     # To correctly calculate the balance of a PeerAssets addres a client should only consider the card transfer
     # transactions originating from the deck owner.
 
-    SUBSCRIPTION = 52  # 32 used by SUBSCRIPTION (52 = 32 | 4 | 16)
+    SUBSCRIPTION = 0x34  # 32 used by SUBSCRIPTION (52 = 32 | 4 | 16)
     # https://github.com/PeerAssets/rfcs/blob/master/0001-peerassets-transaction-specification.proto#L26
     # The SUBSCRIPTION issue mode marks an address holding tokens as subscribed for a limited timeframe. This timeframe is
     # defined by the balance of the account and the time at which the first cards of this token are received.
     # To check validity of a subscription one should take the timestamp of the first received cards and add the address' balance to it in hours.
 
-    SINGLET = 10  # SINGLET is a combination of ONCE and MONO (2 | 8)
+    SINGLET = 0x0a  # SINGLET is a combination of ONCE and MONO (2 | 8)
     #  Singlet deck, one MONO card issunce allowed
 
 
@@ -225,19 +225,15 @@ class CardTransfer:
 def validate_card_issue_modes(issue_mode: int, cards: list) -> list:
     """validate cards against deck_issue modes"""
 
-    # start from highest possible issue mode, omit 0
-    issue_values = reversed([e.value for e in IssueMode][1:])
+    supported_mask = 63  # sum of all issue_mode values
 
-    if issue_mode == 0:
+    if not bool(issue_mode & supported_mask):
         return None
 
-    for i in issue_values:
-        if bool(i & IssueMode(issue_mode)):
-            try:
-                print('Applying {0} parser.'.format(IssueMode(i).name))
-                cards = parsers[IssueMode(i).value](cards)
-            except KeyError:
-                pass  # if no parser
+    for i in [1 << x for x in range(len(IssueMode))]:
+        if bool(i & issue_mode):
+            print('Applying {0} parser.'.format(IssueMode(i).name))
+            cards = parsers[IssueMode(i).name](cards)
 
     return cards
 
