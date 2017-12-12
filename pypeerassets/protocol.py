@@ -228,7 +228,7 @@ def validate_card_issue_modes(issue_mode: int, cards: list) -> list:
     supported_mask = 63  # sum of all issue_mode values
 
     if not bool(issue_mode & supported_mask):
-        return None
+        return []  # return empty list
 
     for i in [1 << x for x in range(len(IssueMode))]:
         if bool(i & issue_mode):
