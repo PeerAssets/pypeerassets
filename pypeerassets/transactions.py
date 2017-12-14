@@ -52,4 +52,4 @@ def find_parent_outputs(provider, utxo: TxIn):
     '''due to design of the btcpy library, TxIn object must be converted to TxOut object before signing'''
 
     index = utxo.txout  # utxo index
-    return TxOut.from_json(provider.getrawtransaction(utxo.txid)['vout'][index])
+    return TxOut.from_json(provider.getrawtransaction(utxo.txid, 1)['vout'][index])
