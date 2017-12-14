@@ -29,7 +29,7 @@ def test_find_cards():
 
     deck = pa.find_deck(provider, 'b6a95f94fef093ee9009b04a09ecb9cb5cba20ab6f13fe0926aeb27b8671df43', 1)
 
-    cards = list(pa.find_card_transfers(provider, deck))
+    cards = pa.find_card_transfers(provider, deck)
 
     assert cards
     assert isinstance(cards[0], pa.CardTransfer)
