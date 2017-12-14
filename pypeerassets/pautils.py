@@ -250,13 +250,15 @@ def postprocess_card(card_metainfo: CardTransfer, raw_tx: dict, sender: str,
             c["cardseq"] = vout[2:].index(v)
 
             cards.append(c)
+
         return cards
+
     else:
         _card["receiver"] = vout[2]["scriptPubKey"]["addresses"]
         _card["amount"] = card_metainfo["amount"]
         _card["cardseq"] = 0
 
-    return (_card, )
+    return [_card]
 
 
 def amount_to_exponent(amount: float, number_of_decimals: int) -> int:
