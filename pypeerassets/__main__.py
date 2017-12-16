@@ -171,10 +171,10 @@ def deck_transfer(provider: Provider, key: Kutil, deck: Deck,
     raise NotImplementedError
 
 
-def find_card_transfers(provider: Provider, deck: Deck) -> list:
+def find_card_transfers(provider: Provider, deck: Deck) -> Generator:
     '''find all <deck> card transfers'''
 
-    processed_cards = []
+    card_transfers = []
 
     if isinstance(provider, RpcNode):
         batch_data = [('getrawtransaction', [i["txid"], 1] ) for i in provider.listtransactions(deck.id)]
@@ -191,6 +191,7 @@ def find_card_transfers(provider: Provider, deck: Deck) -> list:
         provider = args[0]
         deck = args[1]
         raw_tx = args[2]
+        cards = []
 
         try:
             validate_card_transfer_p2th(deck, raw_tx)  # validate P2TH first
@@ -207,10 +208,9 @@ def find_card_transfers(provider: Provider, deck: Deck) -> list:
             except KeyError:
                 blocknum = None
 
-            _cards = postprocess_card(card_metainfo, raw_tx, sender,
-                                      vouts, blockseq, blocknum, deck)
-
-            cards = [CardTransfer(**card) for card in _cards]
+            cards = postprocess_card(card_metainfo, raw_tx, sender,
+                                     vouts, blockseq, blocknum, deck)
+            cards = [CardTransfer(**card) for card in cards]
 
         except (InvalidCardTransferP2TH, CardVersionMistmatch, CardNumberOfDecimalsMismatch) as e:
             return False
@@ -220,9 +220,7 @@ def find_card_transfers(provider: Provider, deck: Deck) -> list:
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as th:
         for result in th.map(card_parser, ((provider, deck, i) for i in card_transfers)):
             if result:
-                processed_cards.extend(result)
-
-    return processed_cards
+                yield result
 
 
 def card_issue(provider: Provider, key: Kutil, deck: Deck,
