@@ -4,7 +4,7 @@ Find card transfers for <deck>.
 
 import sys
 import pypeerassets as pa
-provider = pa.RpcNode(testnet=True)
+provider = pa.Cryptoid(network="tppc")
 
 print("Searching for deck {deck}.".format(deck=sys.argv[1]))
 deck = pa.find_deck(provider, sys.argv[1])[0]
