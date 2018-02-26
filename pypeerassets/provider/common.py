@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from pypeerassets.exceptions import UnsupportedNetwork
 from pypeerassets.pa_constants import PAParams, param_query
 from pypeerassets.networks import NetworkParams, net_query
-import requests
+import urllib.request
 
 
 class Provider(ABC):
@@ -53,15 +53,15 @@ class Provider(ABC):
     @classmethod
     def sendrawtransaction(cls, rawtxn: str) -> dict:
         '''sendrawtransaction remote API
-        : rawtxn - must be submitted as string'''
+        :rawtxn - must be submitted as string'''
 
         if cls.is_testnet:
-            url = 'http://talk.peercoin.net:5555/pushapi/testnet/sendrawtransaction/'
+            url = 'https://testnet-explorer.peercoin.net/api/sendrawtransaction?hex={0}'.format(rawtxn)
         else:
-            url = 'http://talk.peercoin.net:5555/pushapi/sendrawtransaction/'
+            url = 'https://explorer.peercoin.net/api/sendrawtransaction?hex={0}'.format(rawtxn)
 
-        resp = requests.get(url + rawtxn)
-        return resp.content.decode()
+        resp = urllib.request.urlopen(url)
+        return resp.read().decode('utf-8')
 
     @abstractmethod
     def getblockhash(self, blocknum: int) -> str:
