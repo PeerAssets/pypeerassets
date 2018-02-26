@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 from pypeerassets.exceptions import UnsupportedNetwork
 from pypeerassets.pa_constants import PAParams, param_query
 from pypeerassets.networks import NetworkParams, net_query
+from decimal import Decimal
 import urllib.request
 
 
@@ -83,11 +84,11 @@ class Provider(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def getbalance(self, address: str) -> float:
+    def getbalance(self, address: str) -> Decimal:
         raise NotImplementedError
 
     @abstractmethod
-    def getreceivedbyaddress(self, address: str) -> float:
+    def getreceivedbyaddress(self, address: str) -> Decimal:
         raise NotImplementedError
 
     @abstractmethod
