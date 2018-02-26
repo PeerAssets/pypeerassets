@@ -10,7 +10,7 @@ class Cryptoid(Provider):
 
     '''API wrapper for http://chainz.cryptoid.info blockexplorer.'''
 
-    def __init__(self, network: str):
+    def __init__(self, network: str) -> None:
         """
         : network = peercoin [ppc], peercoin-testnet [tppc] ...
         """
@@ -79,11 +79,11 @@ class Cryptoid(Provider):
 
         return self.api_req('getdifficulty')
 
-    def getbalance(self, address: str) -> float:
+    def getbalance(self, address: str) -> Decimal:
 
         return Decimal(self.api_req('getbalance' + "&a=" + address))
 
-    def getreceivedbyaddress(self, address: str) -> float:
+    def getreceivedbyaddress(self, address: str) -> Decimal:
 
         return Decimal(self.api_req('getreceivedbyaddress' + "&a=" + address))
 
