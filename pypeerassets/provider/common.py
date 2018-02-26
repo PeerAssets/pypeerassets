@@ -74,12 +74,12 @@ class Provider(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def getblock(self) -> dict:
+    def getblock(self, hash) -> dict:
         '''query block using <blockhash> as key.'''
         raise NotImplementedError
 
     @abstractmethod
-    def getdifficulty(self) -> float:
+    def getdifficulty(self) -> dict:
         raise NotImplementedError
 
     @abstractmethod
