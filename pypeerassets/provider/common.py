@@ -1,12 +1,13 @@
 '''Common provider class with basic features.'''
 
+from abc import ABC, abstractmethod
 from pypeerassets.exceptions import UnsupportedNetwork
 from pypeerassets.pa_constants import PAParams, param_query
 from pypeerassets.networks import NetworkParams, net_query
 import requests
 
 
-class Provider:
+class Provider(ABC):
 
     @staticmethod
     def _netname(name: str) -> dict:
@@ -61,3 +62,46 @@ class Provider:
 
         resp = requests.get(url + rawtxn)
         return resp.content.decode()
+
+    @abstractmethod
+    def getblockhash(self, blocknum: int) -> str:
+        '''get blockhash using blocknum query'''
+        raise NotImplementedError
+
+    @abstractmethod
+    def getblockcount(self) -> int:
+        '''get block count'''
+        raise NotImplementedError
+
+    @abstractmethod
+    def getblock(self) -> dict:
+        '''query block using <blockhash> as key.'''
+        raise NotImplementedError
+
+    @abstractmethod
+    def getdifficulty(self) -> float:
+        raise NotImplementedError
+
+    @abstractmethod
+    def getbalance(self, address: str) -> float:
+        raise NotImplementedError
+
+    @abstractmethod
+    def getreceivedbyaddress(self, address: str) -> float:
+        raise NotImplementedError
+
+    @abstractmethod
+    def listunspent(self, address: str) -> list:
+        raise NotImplementedError
+
+    @abstractmethod
+    def select_inputs(self, address: str, amount: int) -> dict:
+        raise NotImplementedError
+
+    @abstractmethod
+    def getrawtransaction(self, txid: str, decrypt=1) -> dict:
+        raise NotImplementedError
+
+    @abstractmethod
+    def listtransactions(self, address: str) -> list:
+        raise NotImplementedError
