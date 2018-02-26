@@ -4,10 +4,8 @@
 from operator import itemgetter
 from .common import Provider
 from pypeerassets.exceptions import InsufficientFunds
-from pypeerassets.pa_constants import param_query
 from btcpy.structs.transaction import MutableTxIn, Sequence, ScriptSig
 from decimal import Decimal, getcontext
-from json import dumps
 getcontext().prec = 6
 
 try:
