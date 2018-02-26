@@ -88,3 +88,12 @@ class Holy(Provider):
             return [i["addresses"] for i in r["last_txs"]]
         except KeyError:
             print({'error': 'Address not found.'})
+
+    def listunspent(self, address: str) -> list:
+        raise NotImplementedError
+
+    def select_inputs(self, address: str, amount: int) -> dict:
+        raise NotImplementedError
+
+    def getreceivedbyaddress(self, address: str) -> float:
+        raise NotImplementedError
