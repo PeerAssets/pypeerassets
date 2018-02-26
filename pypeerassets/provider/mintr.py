@@ -102,3 +102,24 @@ class Mintr(Provider):
             return _wrapper(resp)
         else:
             return resp
+
+    def getbalance(self):
+        raise NotImplementedError
+
+    def getblockcount(self):
+        raise NotImplementedError
+
+    def getblockhash(self):
+        raise NotImplementedError
+
+    def getdifficulty(self):
+        raise NotImplementedError
+
+    def getreceivedbyaddress(self):
+        raise NotImplementedError
+
+    def listunspent(self):
+        raise NotImplementedError
+
+    def select_inputs(self):
+        raise NotImplementedError
