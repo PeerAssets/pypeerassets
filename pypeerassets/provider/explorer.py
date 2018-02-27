@@ -106,8 +106,25 @@ class Explorer(Provider):
 
         return self.ext_fetch('listunspent/' + address)['unspent_outputs']
 
-    def select_inputs(self, address, amount):
-        raise NotImplementedError
+    def select_inputs(self, address: str, amount: int) -> list:
+
+        utxos = []
+        utxo_sum = Decimal(-0.01)  # starts from negative due to minimal fee
+        for tx in self.listunspent(address=address):
+
+                utxos.append(
+                    TxIn(txid=tx['tx_hash'],
+                         txout=tx['tx_ouput_n'],
+                         sequence=Sequence.max(),
+                         script_sig=ScriptSig.empty())
+                         )
+
+                utxo_sum += Decimal(tx['value'] /  10**8)
+                if utxo_sum >= amount:
+                    return {'utxos': utxos, 'total': utxo_sum}
+
+        if utxo_sum < amount:
+            raise InsufficientFunds('Insufficient funds.')
 
     def txinfo(self, txid: str) -> dict:
         '''Returns information about given transaction.'''
