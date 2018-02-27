@@ -91,7 +91,7 @@ class Cryptoid(Provider):
 
         return self.api_req('unspent' + "&active=" + address)['unspent_outputs']
 
-    def select_inputs(self, address: str, amount: int):
+    def select_inputs(self, address: str, amount: int) -> dict:
         '''select UTXOs'''
 
         utxos = []

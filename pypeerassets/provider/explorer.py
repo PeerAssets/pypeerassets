@@ -106,7 +106,7 @@ class Explorer(Provider):
 
         return self.ext_fetch('listunspent/' + address)['unspent_outputs']
 
-    def select_inputs(self, address: str, amount: int) -> list:
+    def select_inputs(self, address: str, amount: int) -> dict:
 
         utxos = []
         utxo_sum = Decimal(-0.01)  # starts from negative due to minimal fee
