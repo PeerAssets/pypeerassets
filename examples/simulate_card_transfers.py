@@ -1,8 +1,10 @@
 '''
-Crude script which simulates PeerAssets card exchange by
+Crude script which simulates PeerAssets workflow by:
+1) generate a new, random deck
 1) generating a number of random keypairs
 2) fund the random addresses,
-3) send out random card_transfers from random keypairs 
+3) send out random card_transfers from random keypairs
+4) save data into session class and persist it
 
 use to populate card_tranfers on the deck and test functionality.
 '''
@@ -13,28 +15,88 @@ MAX_TRANFERS = 3600
 MAX_BURNS = 800
 
 import pypeerassets as pa
-from binascii import hexlify
+from decimal import Decimal
+import string
 import random
 import datetime, time
 import pickle
 import logging
 
-logging.basicConfig(filename='pypa.log',level=logging.INFO)
+logging.basicConfig(filename='pypa_simulation.log',level=logging.INFO)
 logging.info("Started new session: {0}".format(datetime.datetime.now().isoformat()))
 
-provider = pa.RpcNode(testnet=True)
-deck = pa.find_deck(provider, "clementines")[0]
-change_addr = deck.issuer
+wif = 'cRvV1mhVvr9FTkGdUYkYXcBbomNgAmpfzhvhTep861thfp6noqyy'
+provider = pa.Cryptoid(network='tppc')
+change_addr = pa.Kutil(wif=wif, network='peercoin-testnet').address
 
-try: # try to load keypairs from the file
-    keypairs = pickle.load(open("keypairs.db", "rb"))
-except:
-    keys = [pa.Kutil(network="tppc") for i in range(MAX_RECEIVERS)]
-    keypairs = {k.address:v.wif for k, v in zip(keys, keys)}
 
 class Session:
+    '''temporary variable store'''
     pass
 
+
+def deck_spawn():
+    '''spawn a new, random deck'''
+
+    key = pa.Kutil(wif=wif, network='peercoin-testnet')
+
+    name = ''.join([random.choice(string.ascii_letters + string.digits) for n in range(8)])
+
+    deck = pa.Deck(name=name, number_of_decimals=3,
+                   issue_mode=4,
+                   version=1, fee=0
+                   )
+
+    unspent = provider.select_inputs(key.address, 0.02)
+
+    new_deck = pa.deck_spawn(provider, key, deck, unspent, change_addr)
+
+    Session.deck = deck
+
+    print(new_deck)
+
+
+def make_tx(receiver_address, amount, inputs, key):
+    '''create a transaction'''
+
+    network_params = pa.net_query('tppc')
+
+    #  first round of txn making is done by presuming minimal fee
+    change_sum = Decimal(inputs['total'] - network_params.min_tx_fee)
+
+    txouts = [
+        pa.transactions.tx_output(value=amount, n=0,
+                                  script=pa.transactions.p2pkh_script(receiver_address)),
+        pa.transactions.tx_output(value=change_sum, n=1,
+                                  script=pa.transactions.p2pkh_script(change_address))  # change
+              ]
+
+    mutable_tx = pa.transactions.make_raw_transaction(inputs['utxos'], txouts)
+    signed = pa.transactions.sign_transaction(provider, mutable_tx, key)
+
+    fee = Decimal(pa.transactions.calculate_tx_fee(signed.size))
+
+    # if 0.01 ppc fee is enough to cover the tx size
+    if Decimal(network_params.min_tx_fee) == fee:
+        return signed.hexlify()
+
+    change_sum = Decimal(inputs['total'] - fee - amount)
+
+    signed = pa.transactions.increase_fee_and_sign(provider, key, change_sum, inputs, txouts)
+    return signed.hexlify()
+
+
+def check_utxo(addr):
+    '''check if key has any UTXOs'''
+
+    return bool(provider.listunspent(key))
+
+
+def distribute_coin(addr):
+    '''send some coins to addr'''
+
+
+"""
 def total_issuance():
     return len([ct for ct in pa.find_card_transfers(provider, deck) if ct.type is "CardIssue"])
 
@@ -151,12 +213,15 @@ def c_burn():
 
 #######################################################################
 
+"""
+
 Session.total_issuance = total_issuance()
 print(Session.total_issuance)
 Session.total_burns = total_burns()
 print(Session.total_burns)
 Session.total_transfers = total_tranfers()
 print(Session.total_transfers)
+
 
 while Session.total_issuance + Session.total_burns + Session.total_transfers < MAX_TRANSACTIONS:
     
@@ -179,7 +244,26 @@ while Session.total_issuance + Session.total_burns + Session.total_transfers < M
         print("Will sleep for: {0} seconds.".format(t))
         time.sleep(t)
 
-## when done write keypairs to file
-with open('keypairs.db', 'wb') as outfile:
-    pickle.dump(keypairs, outfile)
 
+def load_session():
+
+    try:  # try to load session from the file
+        session = pickle.load(open("session.db", "rb"))
+    except:
+        session = Session
+        session.keys = [pa.Kutil(network="tppc") for i in range(MAX_RECEIVERS)]
+        session.keypairs = {k.address:v.wif for k, v in zip(keys, keys)}
+
+
+def save_session():
+    # when done write session to file
+    with open('session.db', 'wb') as outfile:
+        pickle.dump(Session, outfile)
+
+
+if __name__ == "__main__":
+
+    load_session()
+
+    if not session.deck:
+        deck_spawn()

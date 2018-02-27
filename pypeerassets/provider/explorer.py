@@ -28,12 +28,13 @@ class Explorer(Provider):
         if self.is_testnet:
             apiurl = 'https://testnet-explorer.peercoin.net/api/'
 
-        query = urlopen(apiurl + command).read()
+        query = urlopen(apiurl + command)
+        assert query.getcode() == 200
 
         try:
-            return json.loads(query)
+            return json.loads(query.read())
         except JSONDecodeError:
-            return query.decode()
+            return query.read().decode()
 
     def ext_fetch(self, command):
 
@@ -41,12 +42,13 @@ class Explorer(Provider):
         if self.is_testnet:
             extapiurl = 'https://testnet-explorer.peercoin.net/ext/'
 
-        query = urlopen(extapiurl + command).read()
+        query = urlopen(extapiurl + command)
+        assert query.getcode() == 200
 
         try:
-            return json.loads(query)
+            return json.loads(query.read())
         except JSONDecodeError:
-            return query.decode()
+            return query.read().decode()
 
     def getdifficulty(self) -> dict:
         '''Returns the current difficulty.'''
