@@ -189,7 +189,10 @@ def validate_card_transfer_p2th(deck, raw_tx: dict) -> None:
 
 
 def parse_card_transfer_metainfo(protobuf: bytes, deck_version: int) -> dict:
-    '''decode card_spawn protobuf message and validate it against deck.version'''
+    '''decode card_spawn protobuf message and validate it against deck.version
+    :protobuf - bytes from op_return message
+    :deck_version - integer
+    '''
 
     card = CardTransfer()
     card.ParseFromString(protobuf)
