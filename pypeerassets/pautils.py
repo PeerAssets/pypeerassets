@@ -7,7 +7,8 @@ from .exceptions import P2THImportFailed
 from .exceptions import (InvalidDeckSpawn, InvalidDeckMetainfo,
                          InvalidDeckIssueMode, InvalidDeckVersion)
 from .exceptions import (InvalidCardTransferP2TH, CardVersionMistmatch,
-                         CardNumberOfDecimalsMismatch, InvalidNulldataOutput)
+                         CardNumberOfDecimalsMismatch, InvalidNulldataOutput,
+                         DeckP2THImportError)
 from .pa_constants import param_query
 from typing import Iterator
 from .paproto_pb2 import DeckSpawn, CardTransfer
@@ -176,7 +177,9 @@ def load_deck_p2th_into_local_node(provider, deck) -> None:
 
     provider.importprivkey(deck.p2th_wif, deck.asset_id)
     check_addr = provider.validateaddress(deck.p2th_address)
-    assert check_addr["isvalid"] and check_addr["ismine"], error
+
+    if not check_addr["isvalid"] and not check_addr["ismine"]:
+        raise DeckP2THImportError(error)
 
 
 def validate_card_transfer_p2th(deck, raw_tx: dict) -> None:
