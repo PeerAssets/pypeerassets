@@ -42,7 +42,7 @@ class Kutil:
         if from_wif is not None:
             self._private_key = PrivateKey.from_wif(from_wif)
 
-        if not self._private_key:
+        if not privkey:
             if from_string == from_wif is None:  # generate a new privkey
                 self._private_key = PrivateKey(bytearray(urandom(32)))
 
