@@ -1,4 +1,3 @@
-
 from pypeerassets.networks import net_query
 from pypeerassets.base58 import b58encode, b58decode
 from hashlib import sha256, new
@@ -12,15 +11,17 @@ from btcpy.setup import setup
 
 class Kutil:
 
-    def __init__(self, network: str, privkey: bytes=None, seed: str=None,
-                 wif: str=None) -> None:
+    def __init__(self, network: str, privkey: PrivateKey=None, from_bytes: bytes=None,
+                 from_string: str=None, from_wif: str=None) -> None:
         '''
            High level helper class for handling public key cryptography.
 
-           : wif - <WIF> import private key from your wallet in WIF format
-           : privkey - <privkey> import private key in binary format
+           : privkey - use PrivateKey class from btcpy library
+           : from_wif - <WIF> import private key from your wallet in WIF format
+           : from_bytes - import private key in binary format
            : network - specify network [ppc, tppc, btc]
-           : seed - specify seed (string) to make the privkey from'''
+           : from_string - specify seed (string) to make the privkey from
+           '''
 
         self.network = network
 
@@ -33,20 +34,21 @@ class Kutil:
             pass
 
         if privkey is not None:
-            self._private_key = PrivateKey(privkey)
+            self._private_key = privkey
 
-        if seed is not None:
-            self._private_key = PrivateKey(sha256(seed.encode()).digest())
+        if from_string is not None:
+            self._private_key = PrivateKey(sha256(from_string.encode()).digest())
 
-        if wif is not None:
-            self._private_key = PrivateKey.from_wif(wif)
-            #self._wif_prefix = key['net_prefix']
+        if from_wif is not None:
+            self._private_key = PrivateKey.from_wif(from_wif)
 
-        if privkey == seed == wif is None:  # generate a new privkey
-            self._private_key = PrivateKey(bytearray(urandom(32)))
+        if not self._private_key:
+            if from_string == from_wif is None:  # generate a new privkey
+                self._private_key = PrivateKey(bytearray(urandom(32)))
 
         self.privkey = self._private_key.hexlify()
-        self.pubkey = PublicKey.from_priv(self._private_key).hexlify()
+        self._public_key = PublicKey.from_priv(self._private_key)
+        self.pubkey = self._public_key.hexlify()
         self.load_network_parameters(network)
 
     def load_network_parameters(self, network: str) -> None:
@@ -57,6 +59,7 @@ class Kutil:
 
     def wif_to_privkey(self, wif: str) -> dict:
         '''import WIF'''
+
         if not 51 <= len(wif) <= 52:
             return 'Invalid WIF length'
 
