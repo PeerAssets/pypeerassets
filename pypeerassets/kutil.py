@@ -40,10 +40,7 @@ class Kutil:
             self._private_key = PrivateKey(sha256(from_string.encode()).digest())
 
         if from_wif is not None:
-            #Convert WIF into bytearray - btcpy cannot be used
-            #Due to missing PPC prefixes
-            wifFromPriv = self.wif_to_privkey(from_wif)
-            self._private_key = wifFromPriv['privkey']
+            self._private_key = self.wif_to_privkey(from_wif)['privkey']
             
         if not privkey:
             if from_string == from_wif is None:  # generate a new privkey
