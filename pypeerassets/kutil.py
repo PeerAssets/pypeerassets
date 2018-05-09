@@ -1,7 +1,7 @@
 from pypeerassets.networks import net_query
-from pypeerassets.base58 import b58encode, b58decode
-from hashlib import sha256, new
-from binascii import unhexlify, hexlify
+from pypeerassets.base58 import b58decode
+from hashlib import sha256
+from binascii import hexlify
 from os import urandom
 from btcpy.structs.crypto import PublicKey, PrivateKey
 from btcpy.structs.transaction import MutableTransaction, TxOut
@@ -49,13 +49,6 @@ class Kutil:
         self.privkey = self._private_key.hexlify()
         self._public_key = PublicKey.from_priv(self._private_key)
         self.pubkey = self._public_key.hexlify()
-        self.load_network_parameters(network)
-
-    def load_network_parameters(self, network: str) -> None:
-        '''loads network parameters and sets class variables'''
-
-        for field, var in zip(net_query(network)._fields, net_query(network)):
-            setattr(self, field, var)
 
     def wif_to_privkey(self, wif: str) -> dict:
         '''import WIF'''
@@ -70,24 +63,13 @@ class Kutil:
     def address(self) -> str:
         '''generate an address from pubkey'''
 
-        key = unhexlify(self.pubkey)  # compressed pubkey as default
-
-        keyhash = unhexlify(self.pubkeyhash + hexlify(new('ripemd160',
-                                                      sha256(key).digest()).digest()))
-
-        checksum = sha256(sha256(keyhash).digest()).digest()[0:4]
-        address = keyhash + checksum
-        return b58encode(address)
+        return str(self._public_key.to_address())
 
     @property
     def wif(self) -> str:
         '''convert raw private key to WIF'''
 
-        extkey = unhexlify(self.wif_prefix + self.privkey.encode() + b'01')  # compressed by default
-        extcheck = extkey + sha256(sha256(extkey).digest()).digest()[0:4]
-        wif = b58encode(extcheck)
-
-        return wif
+        return self._private_key.to_wif()
 
     def sign_transaction(self, txin: TxOut,
                          tx: MutableTransaction) -> MutableTransaction:
