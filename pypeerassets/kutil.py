@@ -40,21 +40,15 @@ class Kutil:
             self._private_key = PrivateKey(sha256(from_string.encode()).digest())
 
         if from_wif is not None:
-            #Convert WIF into bytearray - btcpy cannot be used
-            #Due to missing PPC prefixes
-            wifFromPriv = self.wif_to_privkey(from_wif)
-            self._private_key = wifFromPriv['privkey']
-            
+            self._private_key = PrivateKey.from_wif(from_wif)
+
         if not privkey:
             if from_string == from_wif is None:  # generate a new privkey
                 self._private_key = PrivateKey(bytearray(urandom(32)))
 
-        #Hexlify the bytearray _private_key
-        self.privkey = hexlify(self._private_key)
-        #Get publickey from btcpy 
-        self._public_key = PrivateKey(self._private_key).pub()
-        #Set pubkey to the hexlified output of above
-        self.pubkey = (self._public_key.__str__())
+        self.privkey = self._private_key.hexlify()
+        self._public_key = PublicKey.from_priv(self._private_key)
+        self.pubkey = self._public_key.hexlify()
         self.load_network_parameters(network)
 
     def load_network_parameters(self, network: str) -> None:
@@ -89,15 +83,15 @@ class Kutil:
     def wif(self) -> str:
         '''convert raw private key to WIF'''
 
-        #No need to encode, privkey is already byte format
-        extkey = unhexlify(self.wif_prefix + self.privkey + b'01')  # compressed by default
+        extkey = unhexlify(self.wif_prefix + self.privkey.encode() + b'01')  # compressed by default
         extcheck = extkey + sha256(sha256(extkey).digest()).digest()[0:4]
         wif = b58encode(extcheck)
+
         return wif
 
     def sign_transaction(self, txin: TxOut,
                          tx: MutableTransaction) -> MutableTransaction:
         '''sign the parent txn outputs P2PKH'''
-        #Pass PrivateKey object from btcpy
-        solver = P2pkhSolver(PrivateKey(self._private_key))
+
+        solver = P2pkhSolver(self._private_key)
         return tx.spend([txin], [solver])
