@@ -46,11 +46,11 @@ class Kutil:
             if from_string == from_wif is None:  # generate a new privkey
                 self._private_key = PrivateKey(bytearray(urandom(32)))
 
-        #Hexlify the bytearray _private_key
+        # Hexlify the bytearray _private_key
         self.privkey = hexlify(self._private_key)
-        #Get publickey from btcpy 
+        # Get publickey from btcpy 
         self._public_key = PrivateKey(self._private_key).pub()
-        #Set pubkey to the hexlified output of above
+        # Set pubkey to the hexlified output of above
         self.pubkey = (self._public_key.__str__())
         self.load_network_parameters(network)
 
