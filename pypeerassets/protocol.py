@@ -55,7 +55,7 @@ class Deck:
 
     def __init__(self, name: str, number_of_decimals: int, issue_mode: int,
                  network: str, production: bool, version: int,
-                 asset_specific_data="", issuer="", fee=0, time=None, id=None) -> None:
+                 asset_specific_data: bytes=None, issuer="", fee=0, time=None, id=None) -> None:
         '''
         Initialize deck object, load from dictionary Deck(**dict) or initilize
         with kwargs Deck("deck", 3, "ONCE")
@@ -102,10 +102,11 @@ class Deck:
         deck.number_of_decimals = self.number_of_decimals
         deck.fee = amount_to_exponent(self.fee, self.number_of_decimals)
         deck.issue_mode = self.issue_mode
-        if not isinstance(self.asset_specific_data, bytes):
-            deck.asset_specific_data = self.asset_specific_data.encode()
-        else:
-            deck.asset_specific_data = self.asset_specific_data
+        if deck.asset_specific_data:
+            if not isinstance(self.asset_specific_data, bytes):
+                deck.asset_specific_data = self.asset_specific_data.encode()
+            else:
+                deck.asset_specific_data = self.asset_specific_data
 
         proto = deck.SerializeToString()
 
