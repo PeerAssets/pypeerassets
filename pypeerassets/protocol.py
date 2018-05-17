@@ -119,13 +119,18 @@ class Deck:
     def metainfo_to_dict(self) -> dict:
         '''encode deck into dictionary'''
 
-        return {
+        r = {
             "version": self.version,
             "name": self.name,
             "number_of_decimals": self.number_of_decimals,
             "issue_mode": self.issue_mode,
             "fee": self.fee
         }
+
+        if self.asset_specific_data:
+            r.update({'asset_specific_data': self.asset_specific_data})
+
+        return r
 
     def __str__(self):
 
