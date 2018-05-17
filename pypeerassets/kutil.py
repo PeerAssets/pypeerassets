@@ -1,4 +1,3 @@
-from pypeerassets.base58 import b58decode
 from hashlib import sha256
 from binascii import hexlify
 from os import urandom
