@@ -1,3 +1,4 @@
+
 from hashlib import sha256
 from binascii import hexlify
 from os import urandom
@@ -47,15 +48,6 @@ class Kutil:
         self.privkey = self._private_key.hexlify()
         self._public_key = PublicKey.from_priv(self._private_key)
         self.pubkey = self._public_key.hexlify()
-
-    def wif_to_privkey(self, wif: str) -> dict:
-        '''import WIF'''
-
-        if not 51 <= len(wif) <= 52:
-            return 'Invalid WIF length'
-
-        b58_wif = b58decode(wif)
-        return {'privkey': b58_wif[1:33], 'net_prefix': hexlify(b58_wif[0:1])}
 
     @property
     def address(self) -> str:
