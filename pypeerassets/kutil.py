@@ -1,4 +1,3 @@
-from pypeerassets.networks import net_query
 from pypeerassets.base58 import b58decode
 from hashlib import sha256
 from binascii import hexlify
