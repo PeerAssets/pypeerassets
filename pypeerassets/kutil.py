@@ -10,7 +10,7 @@ from btcpy.setup import setup
 
 class Kutil:
 
-    def __init__(self, network: str, privkey: PrivateKey=None, from_bytes: bytes=None,
+    def __init__(self, network: str, privkey: bytes=None, from_bytes: bytes=None,
                  from_string: str=None, from_wif: str=None) -> None:
         '''
            High level helper class for handling public key cryptography.
@@ -26,14 +26,14 @@ class Kutil:
 
         try:
             if self.network.startswith('t'):
-                setup('testnet')
+                setup(symbol=network[1:], network='testnet')
             else:
-                setup('mainnet')
+                setup(symbol=network, network='mainnet')
         except ValueError:
             pass
 
         if privkey is not None:
-            self._private_key = privkey
+            self._private_key = PrivateKey(privkey)
 
         if from_string is not None:
             self._private_key = PrivateKey(sha256(from_string.encode()).digest())
@@ -45,9 +45,9 @@ class Kutil:
             if from_string == from_wif is None:  # generate a new privkey
                 self._private_key = PrivateKey(bytearray(urandom(32)))
 
-        self.privkey = self._private_key.hexlify()
+        self.privkey = self._private_key.__str__
         self._public_key = PublicKey.from_priv(self._private_key)
-        self.pubkey = self._public_key.hexlify()
+        self.pubkey = self._public_key.__str__
 
     @property
     def address(self) -> str:
