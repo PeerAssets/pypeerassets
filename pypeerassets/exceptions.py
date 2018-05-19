@@ -1,6 +1,10 @@
 '''all custom exceptions should go here'''
 
 
+class EmptyP2THDirectory(Exception):
+    '''no transactions on this P2TH directory'''
+
+
 class P2THImportFailed(Exception):
     '''Importing of PeerAssets P2TH privkeys failed.'''
 

@@ -75,8 +75,11 @@ def find_all_valid_decks(provider: Provider, deck_version: int, prod: bool=True)
         deck_spawns = (provider.getrawtransaction(i, 1) for i in find_deck_spawns(provider))
 
     else:
-        deck_spawns = (provider.getrawtransaction(i, 1) for i in
-                       provider.listtransactions(p2th))
+        try:
+            deck_spawns = (provider.getrawtransaction(i, 1) for i in
+                           provider.listtransactions(p2th))
+        except TypeError as err:  # it will except if no transactions are found on this P2TH
+            raise EmptyP2THDirectory(err)
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as th:
         for result in th.map(deck_parser, ((provider, rawtx, deck_version, p2th) for rawtx in deck_spawns)):
