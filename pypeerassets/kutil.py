@@ -10,12 +10,12 @@ from btcpy.setup import setup
 
 class Kutil:
 
-    def __init__(self, network: str, privkey: PrivateKey=None, from_bytes: bytes=None,
-                 from_string: str=None, from_wif: str=None) -> None:
+    def __init__(self, network: str, privkey: bytearray=None, from_string: str=None,
+                 from_wif: str=None) -> None:
         '''
            High level helper class for handling public key cryptography.
 
-           : privkey - use PrivateKey class from btcpy library
+           : privkey - privatekey bytes
            : from_wif - <WIF> import private key from your wallet in WIF format
            : from_bytes - import private key in binary format
            : network - specify network [ppc, tppc, btc]
@@ -33,7 +33,7 @@ class Kutil:
             pass
 
         if privkey is not None:
-            self._private_key = privkey
+            self._private_key = PrivateKey(privkey)
 
         if from_string is not None:
             self._private_key = PrivateKey(sha256(from_string.encode()).digest())

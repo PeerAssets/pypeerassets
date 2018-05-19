@@ -1,4 +1,5 @@
 import pytest
+from os import urandom
 from pypeerassets.kutil import Kutil
 
 
@@ -24,7 +25,9 @@ def test_key_generation_from_seed():
 def test_address_generation():
     '''test if addresses are properly made'''
 
-    assert Kutil(network="ppc").address.startswith("P")
+    privkey = bytearray(urandom(32))
+
+    assert Kutil(network="ppc", privkey=privkey).address.startswith("P")
 
     assert isinstance(Kutil(network='ppc').address, str)
     assert len(Kutil(network='ppc').address) == 34
