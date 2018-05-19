@@ -45,9 +45,9 @@ class Kutil:
             if from_string == from_wif is None:  # generate a new privkey
                 self._private_key = PrivateKey(bytearray(urandom(32)))
 
-        self.privkey = self._private_key.__str__
+        self.privkey = self._private_key.__str__()
         self._public_key = PublicKey.from_priv(self._private_key)
-        self.pubkey = self._public_key.__str__
+        self.pubkey = self._public_key.__str__()
 
     @property
     def address(self) -> str:
