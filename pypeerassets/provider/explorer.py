@@ -144,6 +144,8 @@ class Explorer(Provider):
 
     def listtransactions(self, address: str) -> list:
 
-        r = self.getaddress(address)['last_txs']
-
-        return [i['addresses'] for i in r]
+        try:
+            r = self.getaddress(address)['last_txs']
+            return [i['addresses'] for i in r]
+        except KeyError:
+            return None

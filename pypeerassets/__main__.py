@@ -185,8 +185,11 @@ def find_card_transfers(provider: Provider, deck: Deck) -> Generator:
         if result is not None:
             card_transfers = [i['result'] for i in result if result ]  
     else:
-        card_transfers = (provider.getrawtransaction(i, 1) for i in
-                          provider.listtransactions(deck.p2th_address))
+        try:
+            card_transfers = (provider.getrawtransaction(i, 1) for i in
+                              provider.listtransactions(deck.p2th_address))
+        except TypeError:
+            raise EmptyP2THDirectory({'error': 'No cards found on this deck.'})
 
     def card_parser(args) -> list:
         '''this function wraps all the card transfer parsing'''
