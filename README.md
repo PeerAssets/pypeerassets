@@ -17,3 +17,10 @@ Library is coded with Python3 in mind, compatibility with older Python releases 
 
 `https://github.com/PeerAssets/pypeerassets`
 
+### VirtualEnv Development
+
+There are some snags to setting up a python virtualenv in the typical fashion at the moment.
+
+However, if you manage to locally install `btcpy` you can comment it out in the `requirements.txt` file and then `pip install -r requirements.txt` and `pip install -r requirements-dev.txt` cleanly. Then you can type `pytest` to get the tests to run <3
+
+They're failing at the moment but we'll address that soon :)
