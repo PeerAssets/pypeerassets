@@ -55,7 +55,7 @@ class Deck:
 
     def __init__(self, name: str, number_of_decimals: int, issue_mode: int,
                  network: str, production: bool, version: int,
-                 asset_specific_data: bytes=None, issuer="", fee=0, time=None, id=None) -> None:
+                 asset_specific_data: bytes=None, issuer="", time=None, id=None) -> None:
         '''
         Initialize deck object, load from dictionary Deck(**dict) or initilize
         with kwargs Deck("deck", 3, "ONCE")
@@ -64,7 +64,6 @@ class Deck:
         self.version = version  # protocol version
         self.name = name  # deck name
         self.issue_mode = issue_mode  # deck issue mode
-        self.fee = fee
         assert isinstance(number_of_decimals, int), {"error": "number_of_decimals must be an integer"}
         self.number_of_decimals = number_of_decimals
         self.asset_specific_data = asset_specific_data  # optional metadata for the deck
@@ -100,7 +99,6 @@ class Deck:
         deck.version = self.version
         deck.name = self.name
         deck.number_of_decimals = self.number_of_decimals
-        deck.fee = amount_to_exponent(self.fee, self.number_of_decimals)
         deck.issue_mode = self.issue_mode
         if deck.asset_specific_data:
             if not isinstance(self.asset_specific_data, bytes):
@@ -123,8 +121,7 @@ class Deck:
             "version": self.version,
             "name": self.name,
             "number_of_decimals": self.number_of_decimals,
-            "issue_mode": self.issue_mode,
-            "fee": self.fee
+            "issue_mode": self.issue_mode
         }
 
         if self.asset_specific_data:
