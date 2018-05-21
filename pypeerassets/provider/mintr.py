@@ -1,5 +1,7 @@
-import requests
-from .common import Provider
+import json
+from urllib.request import Request, urlopen
+
+from pypeerassets.provider.common import Provider
 
 
 class Mintr(Provider):
@@ -11,13 +13,15 @@ class Mintr(Provider):
     def __init__(self):
 
         self.net = self._netname("peercoin")['long']
-        self.api_session = requests.Session()
 
     def get(self, query):
 
-        api_url = "https://mintr.peercoinexplorer.net/api/"
-        requests.packages.urllib3.disable_warnings()
-        return requests.get(api_url + query, verify=False).json()
+        url = "https://mintr.peercoinexplorer.net/api/" + query
+        request = Request(url, headers={"User-Agent": "pypeerassets"})
+        response = urlopen(request)
+        if response.getcode() != 200:
+            raise Exception(response.reason)
+        return json.loads(response.read().decode())
 
     def getinfo(self):
         '''mock response, to allow compatibility with local rpc node'''
