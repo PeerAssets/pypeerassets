@@ -144,9 +144,8 @@ def parse_deckspawn_metainfo(protobuf: bytes, version: int) -> dict:
         "name": deck.name,
         "issue_mode": deck.issue_mode,
         "number_of_decimals": deck.number_of_decimals,
-        "asset_specific_data": deck.asset_specific_data,
-        "fee": exponent_to_amount(deck.fee, deck.number_of_decimals)  # deck.fee is encoded as exponent
-    }
+        "asset_specific_data": deck.asset_specific_data
+        }
 
 
 def validate_deckspawn_p2th(provider, rawtx, p2th):
