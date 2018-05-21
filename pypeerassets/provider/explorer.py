@@ -107,7 +107,7 @@ class Explorer(Provider):
         '''Returns unspent transactions for given address.'''
 
         try:
-            self.ext_fetch('listunspent/' + address)['unspent_outputs']
+            return self.ext_fetch('listunspent/' + address)['unspent_outputs']
         except KeyError:
             raise InsufficientFunds('Insufficient funds.')
 
