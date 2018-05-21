@@ -1,0 +1,65 @@
+from pypeerassets.provider.explorer import Explorer
+
+
+def test_explorer_is_testnet():
+
+    explorer = Explorer(network="ppc")
+
+    assert isinstance(explorer.is_testnet, bool)
+    assert explorer.is_testnet is False
+
+
+def test_explorer_network():
+
+    assert Explorer(network="ppc").network == "peercoin"
+
+
+def test_explorer_getblockcount():
+
+    assert isinstance(Explorer(network="ppc").getblockcount(), int)
+
+
+def test_explorer_getblock():
+
+    provider = Explorer(network="ppc")
+    assert isinstance(provider.getblock('00000000000da9a26b4f4ce3f1f286438ec2198e5f60d108fafa700061b486e7'), dict)
+
+
+def test_explorer_get_block_hash():
+
+    assert isinstance(Explorer(network="ppc").getblockhash(3378), str)
+
+
+def test_explorer_getdifficulty():
+
+    assert isinstance(Explorer(network="ppc").getdifficulty(), dict)
+
+
+def test_explorer_getbalance():
+
+    assert isinstance(Explorer(network="ppc").getbalance(
+                      'PHvDhfz1dGyPbZZ3Qnp56y92zmy98sncZT'), Decimal)
+
+
+def test_explorer_getreceivedbyaddress():
+
+    assert isinstance(Explorer(network="ppc").getreceivedbyaddress(
+                      'PHvDhfz1dGyPbZZ3Qnp56y92zmy98sncZT'), Decimal)
+
+
+def test_explorer_listunspent():
+
+    assert isinstance(Explorer(network="ppc").listunspent(
+                      'PAdonateFczhZuKLkKHozrcyMJW7Y6TKvw'), list)
+
+
+def test_explorer_getrawtransaction():
+
+    assert isinstance(Explorer(network="ppc").getrawtransaction(
+                      '34d19bf5a5c757d5bcbf83a91ad9bc04365c58a035a6bf728bce8013ad04c173'), dict)
+
+
+def test_explorer_listtransactions():
+
+    assert isinstance(Explorer(network="ppc").listtransactions(
+                      'PHvDhfz1dGyPbZZ3Qnp56y92zmy98sncZT'), list)

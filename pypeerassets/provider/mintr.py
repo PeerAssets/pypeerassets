@@ -8,14 +8,14 @@ class Mintr(Provider):
     it only implements queries relevant to peerassets.
     This wrapper does some tweaks to output to match original RPC response.'''
 
-    def __init__(self, network="peercoin"):
+    def __init__(self):
 
-        self.net = self._netname(network)['long']
+        self.net = self._netname("peercoin")['long']
         self.api_session = requests.Session()
 
     def get(self, query):
 
-        api_url = "https://{netname}.mintr.org/api/".format(netname=self.net)
+        api_url = "https://mintr.peercoinexplorer.net/api/"
         requests.packages.urllib3.disable_warnings()
         return requests.get(api_url + query, verify=False).json()
 
@@ -65,11 +65,11 @@ class Mintr(Provider):
 
         txid = []
         for i in response["transactions"]:
-            t = {"confirmations": i["confirmations"],
-                 "time": i["time"],
-                 "txid": i["tx_hash"],
-                 "address": response["address"]
-                }
+            t = {
+                "time": i["time"],
+                "txid": i["tx_hash"],
+                "address": response["address"],
+            }
             if i["sent"] == "":
                 t["amount"] = i["received"]
                 t["category"] = "send"
