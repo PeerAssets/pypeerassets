@@ -2,7 +2,7 @@ import pytest
 from typing import Generator
 from pypeerassets import find_deck
 from pypeerassets import Deck
-from pypeerassets import paproto
+from pypeerassets.paproto_pb2 import DeckSpawn
 from pypeerassets.pautils import *
 from pypeerassets.exceptions import *
 from pypeerassets import RpcNode, Mintr, Cryptoid
@@ -136,7 +136,7 @@ def generate_dummy_deck():
 def test_deck_issue_mode():
     '''test enum to issue_mode conversion'''
 
-    deck_meta = paproto.DeckSpawn()
+    deck_meta = DeckSpawn()
     deck_meta.issue_mode = 3
 
     assert isinstance(deck_issue_mode(deck_meta), Generator)
@@ -147,7 +147,7 @@ def test_issue_mode_to_enum():
     '''test issue mode to enum conversion'''
 
     deck = generate_dummy_deck().metainfo_to_protobuf
-    deck_meta = paproto.DeckSpawn()
+    deck_meta = DeckSpawn()
     deck_meta.ParseFromString(deck)
 
     assert isinstance(issue_mode_to_enum(deck_meta,
