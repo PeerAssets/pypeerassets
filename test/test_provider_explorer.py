@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from pypeerassets.provider.explorer import Explorer
 
 

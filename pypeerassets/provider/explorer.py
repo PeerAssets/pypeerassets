@@ -1,11 +1,11 @@
-import json
-from json import JSONDecodeError
-from urllib.request import urlopen
-from .common import Provider
 from decimal import Decimal, getcontext
-from pypeerassets.exceptions import InsufficientFunds
-from btcpy.structs.transaction import TxIn, Sequence, ScriptSig
-from pypeerassets.exceptions import UnsupportedNetwork
+import json
+from urllib.request import urlopen
+
+from btcpy.structs.transaction import ScriptSig, Sequence, TxIn
+
+from pypeerassets.exceptions import InsufficientFunds, UnsupportedNetwork
+from pypeerassets.provider.common import Provider
 
 
 class Explorer(Provider):
@@ -28,13 +28,14 @@ class Explorer(Provider):
         if self.is_testnet:
             apiurl = 'https://testnet-explorer.peercoin.net/api/'
 
-        query = urlopen(apiurl + command)
-        assert query.getcode() == 200
+        response = urlopen(apiurl + command)
+        if response.getcode() != 200:
+            raise Exception(response.reason)
 
         try:
-            return json.loads(query.read())
-        except JSONDecodeError:
-            return query.read().decode()
+            return json.loads(response.read().decode())
+        except json.decoder.JSONDecodeError:
+            return response.read().decode()
 
     def ext_fetch(self, command):
 
@@ -42,13 +43,14 @@ class Explorer(Provider):
         if self.is_testnet:
             extapiurl = 'https://testnet-explorer.peercoin.net/ext/'
 
-        query = urlopen(extapiurl + command)
-        assert query.getcode() == 200
+        response = urlopen(extapiurl + command)
+        if response.getcode() != 200:
+            raise Exception(response.reason)
 
         try:
-            return json.loads(query.read())
-        except JSONDecodeError:
-            return query.read().decode()
+            return json.loads(response.read().decode())
+        except json.decoder.JSONDecodeError:
+            return response.read().decode()
 
     def getdifficulty(self) -> dict:
         '''Returns the current difficulty.'''
