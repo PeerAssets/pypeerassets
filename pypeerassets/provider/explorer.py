@@ -106,7 +106,10 @@ class Explorer(Provider):
     def listunspent(self, address: str) -> list:
         '''Returns unspent transactions for given address.'''
 
-        return self.ext_fetch('listunspent/' + address)['unspent_outputs']
+        try:
+            self.ext_fetch('listunspent/' + address)['unspent_outputs']
+        except KeyError:
+            raise InsufficientFunds('Insufficient funds.')
 
     def select_inputs(self, address: str, amount: int) -> dict:
 
