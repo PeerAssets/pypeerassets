@@ -1,14 +1,21 @@
-import requests
-from operator import itemgetter
-from .common import Provider
 from decimal import Decimal, getcontext
-from pypeerassets.exceptions import InsufficientFunds
+import json
+from operator import itemgetter
+from urllib.request import Request, urlopen
+
 from btcpy.structs.transaction import TxIn, Sequence, ScriptSig
+
+from pypeerassets.exceptions import InsufficientFunds
+from pypeerassets.provider.common import Provider
 
 
 class Cryptoid(Provider):
 
     '''API wrapper for http://chainz.cryptoid.info blockexplorer.'''
+
+    api_key = '7547f94398e3'
+    api_url_fmt = 'https://chainz.cryptoid.info/{net}/api.dws'
+    explorer_url = 'https://chainz.cryptoid.info/explorer/'
 
     def __init__(self, network: str) -> None:
         """
@@ -16,15 +23,10 @@ class Cryptoid(Provider):
         """
 
         self.net = self._netname(network)['short']
+        self.api_url = self.api_url_fmt.format(net=self.format_name(self.net))
         if 'ppc' in self.net:
             getcontext().prec = 6  # set to six decimals if it's Peercoin
 
-    key = '7547f94398e3'
-    api_calls = ('getblockcount', 'getdifficulty', 'getbalance',
-                 'getreceivedbyaddress', 'listunspent')
-    private = ('getbalance', 'unspent')
-    explorer_url = 'https://chainz.cryptoid.info/explorer/'
-    api_session = requests.Session()
 
     @staticmethod
     def format_name(net: str) -> str:
@@ -37,27 +39,21 @@ class Cryptoid(Provider):
 
         return net
 
+    @staticmethod
+    def get_url(url: str) -> dict:
+        '''Perform a GET request for the url and return a dictionary parsed from
+        the JSON response.'''
+
+        request = Request(url, headers={"User-Agent": "pypeerassets"})
+        response = urlopen(request)
+        if response.getcode() != 200:
+            raise Exception(response.reason)
+        return json.loads(response.read().decode())
+
     def api_req(self, query: str) -> dict:
 
-        api_url = 'https://chainz.cryptoid.info/{net}/api.dws'.format(
-                                                               net=self.format_name(self.net))
-
-        if (p in self.api_calls for p in query):
-            query = api_url + "?q=" + query
-
-            if (p in self.private for p in query):
-                query += "&key=" + self.key
-
-            response = self.api_session.get(query)
-
-        assert response.status_code == 200, {'error': 'API error: ' + str(response.status_code)}
-        return response.json()
-
-    def block_req(self, query: str) -> dict:
-
-        response = self.api_session.get(query)
-        assert response.status_code == 200, {'error': 'API error: ' + str(response.status_code)}
-        return response.json()
+        url = self.api_url + "?q=" + query + "&key=" + self.api_key
+        return self.get_url(url)
 
     def getblockcount(self) -> int:
 
@@ -68,7 +64,7 @@ class Cryptoid(Provider):
 
         query = self.explorer_url + 'block.raw.dws?coin={net}&hash={blockhash}'.format(net=self.format_name(self.net),
                                                                                        blockhash=blockhash)
-        return self.block_req(query)
+        return self.get_url(query)
 
     def getblockhash(self, blocknum: int) -> str:
         '''get blockhash'''
@@ -118,15 +114,15 @@ class Cryptoid(Provider):
                                                                              txid=txid)
         if not decrypt:
             query += '&hex'
-            return self.block_req(query)['hex']
+            return self.get_url(query)['hex']
 
-        return self.block_req(query)
+        return self.get_url(query)
 
     def listtransactions(self, address: str) -> list:
 
         query = self.explorer_url + 'address.summary.dws?coin={net}&id={addr}'.format(net=self.format_name(self.net),
                                                                                       addr=address)
-        resp = self.block_req(query)
+        resp = self.get_url(query)
         if resp:
             return [i[1].lower() for i in resp['tx']]
         else:
