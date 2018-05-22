@@ -1,4 +1,20 @@
+import pytest
+
+from pypeerassets.exceptions import UnsupportedNetwork
 from pypeerassets.provider.mintr import Mintr
+
+
+def test_mintr_only_supports_peercoin_mainnet():
+	"""Mintr only supports the peercoin mainnet and will throw an
+	UnsupportedNetwork exception if configured for another network.
+	"""
+	Mintr(network="peercoin")
+
+	with pytest.raises(UnsupportedNetwork):
+		Mintr(network="tppc")
+
+	with pytest.raises(UnsupportedNetwork):
+		Mintr(network="bitcoin")
 
 
 def test_mintr_getinfo():

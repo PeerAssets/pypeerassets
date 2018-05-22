@@ -1,18 +1,22 @@
 import json
 from urllib.request import Request, urlopen
 
+from pypeerassets.exceptions import UnsupportedNetwork
 from pypeerassets.provider.common import Provider
 
 
 class Mintr(Provider):
 
-    '''API wrapper for mintr.org blockexplorer,
-    it only implements queries relevant to peerassets.
-    This wrapper does some tweaks to output to match original RPC response.'''
+    '''API wrapper for the mintr.peercoinexplorer.net blockexplorer, it only
+    implements queries relevant to peerassets. This wrapper does some tweaks to
+    output to match original RPC response.
+    '''
 
-    def __init__(self):
+    def __init__(self, network="peercoin"):
 
-        self.net = self._netname("peercoin")['long']
+        self.net = self._netname(network)['long']
+        if self.net != "peercoin":
+            raise UnsupportedNetwork("Mintr only supports the peercoin mainnet.")
 
     def get(self, query):
 
