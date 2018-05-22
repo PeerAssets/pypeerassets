@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from pypeerassets.provider.cryptoid import Cryptoid
 
 
@@ -38,13 +40,13 @@ def test_cryptoid_getdifficulty():
 def test_cryptoid_getbalance():
 
     assert isinstance(Cryptoid(network="ppc").getbalance(
-                      'PHvDhfz1dGyPbZZ3Qnp56y92zmy98sncZT'), float)
+                      'PHvDhfz1dGyPbZZ3Qnp56y92zmy98sncZT'), Decimal)
 
 
 def test_cryptoid_getreceivedbyaddress():
 
     assert isinstance(Cryptoid(network="ppc").getreceivedbyaddress(
-                      'PHvDhfz1dGyPbZZ3Qnp56y92zmy98sncZT'), float)
+                      'PHvDhfz1dGyPbZZ3Qnp56y92zmy98sncZT'), Decimal)
 
 
 def test_cryptoid_listunspent():
