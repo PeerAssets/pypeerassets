@@ -24,7 +24,7 @@ def test_find_tx_sender(prov):
         assert find_tx_sender(provider, rawtx) == 'PNHGzKupyvo2YZVb1CTdRxtCGBB5ykgiug'
 
     if prov == "mintr":
-        provider = Mintr(network="peercoin")
+        provider = Mintr()
         rawtx = provider.getrawtransaction("397bda2f5e6608c872a663b2e5482d95db8ecfad00757823f0f12caa45a213a6")
         assert find_tx_sender(provider, rawtx) == 'PNHGzKupyvo2YZVb1CTdRxtCGBB5ykgiug'
 
@@ -50,7 +50,7 @@ def test_find_deck_spawns(prov):
         provider = Holy(network="peercoin-testnet")
 
     if prov == "mintr":
-        provider = Mintr(network="peercoin")
+        provider = Mintr()
 
     if prov == "cryptoid":
         provider = Cryptoid(network="peercoin")

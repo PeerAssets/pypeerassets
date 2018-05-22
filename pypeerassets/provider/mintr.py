@@ -1,23 +1,31 @@
-import requests
-from .common import Provider
+import json
+from urllib.request import Request, urlopen
+
+from pypeerassets.exceptions import UnsupportedNetwork
+from pypeerassets.provider.common import Provider
 
 
 class Mintr(Provider):
 
-    '''API wrapper for mintr.org blockexplorer,
-    it only implements queries relevant to peerassets.
-    This wrapper does some tweaks to output to match original RPC response.'''
+    '''API wrapper for the mintr.peercoinexplorer.net blockexplorer, it only
+    implements queries relevant to peerassets. This wrapper does some tweaks to
+    output to match original RPC response.
+    '''
 
     def __init__(self, network="peercoin"):
 
         self.net = self._netname(network)['long']
-        self.api_session = requests.Session()
+        if self.net != "peercoin":
+            raise UnsupportedNetwork("Mintr only supports the peercoin mainnet.")
 
     def get(self, query):
 
-        api_url = "https://{netname}.mintr.org/api/".format(netname=self.net)
-        requests.packages.urllib3.disable_warnings()
-        return requests.get(api_url + query, verify=False).json()
+        url = "https://mintr.peercoinexplorer.net/api/" + query
+        request = Request(url, headers={"User-Agent": "pypeerassets"})
+        response = urlopen(request)
+        if response.getcode() != 200:
+            raise Exception(response.reason)
+        return json.loads(response.read().decode())
 
     def getinfo(self):
         '''mock response, to allow compatibility with local rpc node'''
@@ -65,11 +73,11 @@ class Mintr(Provider):
 
         txid = []
         for i in response["transactions"]:
-            t = {"confirmations": i["confirmations"],
-                 "time": i["time"],
-                 "txid": i["tx_hash"],
-                 "address": response["address"]
-                }
+            t = {
+                "time": i["time"],
+                "txid": i["tx_hash"],
+                "address": response["address"],
+            }
             if i["sent"] == "":
                 t["amount"] = i["received"]
                 t["category"] = "send"
