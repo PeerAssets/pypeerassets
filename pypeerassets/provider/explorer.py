@@ -123,10 +123,10 @@ class Explorer(Provider):
                     TxIn(txid=tx['tx_hash'],
                          txout=tx['tx_ouput_n'],
                          sequence=Sequence.max(),
-                         script_sig=ScriptSig.empty())
+                         script_sig=ScriptSig.unhexlify(tx['script']))
                          )
 
-                utxo_sum += Decimal(tx['value'] /  10**8)
+                utxo_sum += Decimal(tx['value'] / 10**8)
                 if utxo_sum >= amount:
                     return {'utxos': utxos, 'total': utxo_sum}
 

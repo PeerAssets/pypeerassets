@@ -65,3 +65,18 @@ def test_explorer_listtransactions():
 
     assert isinstance(Explorer(network="ppc").listtransactions(
                       'PHvDhfz1dGyPbZZ3Qnp56y92zmy98sncZT'), list)
+
+
+def test_explorer_select_inputs():
+
+    address = 'mvoSaPN8yTYWW7Tv3fVYTQnhkBuBWxpSP4'
+    provider = Explorer(network='tppc')
+
+    inputs = provider.select_inputs(address, 0.02)['utxos'][0]
+
+    assert inputs.to_json() == {'scriptSig': {'asm': 'OP_DUP OP_HASH160 a7a826829741268ae2dd45942371000ea95d8524 OP_EQUALVERIFY OP_CHECKSIG',
+                                'hex': '76a914a7a826829741268ae2dd45942371000ea95d852488ac'},
+                                'sequence': '4294967295',
+                                'txid': 'c637b4deb1ef552be42fd45a7cf8e4df0c7eeb5c4546d4343035ecf9669115ce',
+                                'vout': 0
+                                }
