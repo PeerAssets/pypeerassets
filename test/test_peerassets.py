@@ -31,7 +31,7 @@ def test_find_cards():
     cards = pa.find_card_transfers(provider, deck)
 
     assert cards
-    assert isinstance(cards[0], pa.CardTransfer)
+    assert isinstance(next(cards), pa.CardTransfer)
 
 
 def test_deck_spawn():
