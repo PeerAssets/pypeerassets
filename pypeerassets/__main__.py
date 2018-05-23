@@ -121,7 +121,7 @@ def find_deck(provider: Provider, key: str, version: int, prod=True) -> Deck:
     return deck
 
 
-def deck_spawn(provider: Provider, key: Kutil, deck: Deck, inputs: dict,
+def deck_spawn(provider: Provider, deck: Deck, inputs: dict,
                change_address: str) -> Transaction:
     '''Creates Deck spawn raw transaction.
        : key - Kutil object which we'll use to sign the tx
@@ -152,7 +152,7 @@ def deck_spawn(provider: Provider, key: Kutil, deck: Deck, inputs: dict,
     return unsigned_tx
 
 
-def deck_transfer(provider: Provider, key: Kutil, deck: Deck,
+def deck_transfer(provider: Provider, deck: Deck,
                   inputs: list, change_address: str) -> Transaction:
     '''
     The deck transfer transaction is a special case of the deck spawn transaction.
