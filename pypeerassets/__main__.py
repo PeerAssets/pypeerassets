@@ -19,7 +19,7 @@ from .exceptions import *
 from .transactions import (nulldata_script, tx_output, p2pkh_script,
                            find_parent_outputs, calculate_tx_fee,
                            make_raw_transaction, TxOut,
-                           Transaction, MutableTransaction)
+                           Transaction)
 from .pa_constants import param_query, params
 from .networks import net_query, networks
 from .kutil import Kutil
@@ -87,12 +87,12 @@ def find_all_valid_decks(provider: Provider, deck_version: int, prod: bool=True)
                 yield result
 
 
-def sign_transaction(provider: Provider, mutable_tx: MutableTransaction,
+def sign_transaction(provider: Provider, unsigned_tx: Transaction,
                      key: Kutil) -> Transaction:
-    '''sign mutable transaction with Kutil'''
+    '''sign transaction with Kutil'''
 
-    parent_output = find_parent_outputs(provider, mutable_tx.ins[0])
-    return key.sign_transaction(parent_output, mutable_tx)
+    parent_output = find_parent_outputs(provider, unsigned_tx.ins[0])
+    return key.sign_transaction(parent_output, unsigned_tx)
 
 
 def _increase_fee_and_sign(provider: Provider, key: Kutil, change_sum: Decimal,
@@ -102,8 +102,8 @@ def _increase_fee_and_sign(provider: Provider, key: Kutil, change_sum: Decimal,
     # change output is last of transaction outputs
     txouts[-1] = tx_output(value=change_sum, n=txouts[-1].n, script=txouts[-1].script_pubkey)
 
-    mutable_tx = make_raw_transaction(inputs['utxos'], txouts)
-    signed = sign_transaction(provider, mutable_tx, key)
+    unsigned_tx = make_raw_transaction(inputs['utxos'], txouts)
+    signed = sign_transaction(provider, unsigned_tx, key)
 
     return signed
 
@@ -123,7 +123,8 @@ def find_deck(provider: Provider, key: str, version: int, prod=True) -> list:
     return deck
 
 
-def deck_spawn(provider: Provider, key: Kutil, deck: Deck, inputs: dict, change_address: str) -> str:
+def deck_spawn(provider: Provider, key: Kutil, deck: Deck, inputs: dict,
+               change_address: str) -> Transaction:
     '''Creates Deck spawn raw transaction.
        : key - Kutil object which we'll use to sign the tx
        : deck - Deck object
@@ -149,23 +150,12 @@ def deck_spawn(provider: Provider, key: Kutil, deck: Deck, inputs: dict, change_
         tx_output(value=change_sum, n=2, script=p2pkh_script(change_address))  # change
               ]
 
-    mutable_tx = make_raw_transaction(inputs['utxos'], txouts)
-    signed = sign_transaction(provider, mutable_tx, key)
-
-    fee = Decimal(calculate_tx_fee(signed.size))
-
-    # if 0.01 ppc fee is enough to cover the tx size
-    if Decimal(network_params.min_tx_fee) == fee:
-        return signed.hexlify()
-
-    change_sum = Decimal(inputs['total'] - fee - pa_params.P2TH_fee)
-
-    signed = _increase_fee_and_sign(provider, key, change_sum, inputs, txouts)
-    return signed.hexlify()
+    unsigned_tx = make_raw_transaction(inputs['utxos'], txouts)
+    return unsigned_tx
 
 
 def deck_transfer(provider: Provider, key: Kutil, deck: Deck,
-                  inputs: list, change_address: str):
+                  inputs: list, change_address: str) -> Transaction:
     '''
     The deck transfer transaction is a special case of the deck spawn transaction.
     Instead of registering a new asset, the deck transfer transaction transfers ownership from vin[1] to vin[0],
@@ -231,7 +221,7 @@ def find_card_transfers(provider: Provider, deck: Deck) -> Generator:
 
 def card_issue(provider: Provider, key: Kutil, deck: Deck,
                card: CardTransfer, inputs: dict,
-               change_address: str) -> str:
+               change_address: str) -> Transaction:
     '''Create card issue transaction.
        : key - Kutil object which we'll use to sign the tx
        : deck - Deck object
@@ -260,24 +250,13 @@ def card_issue(provider: Provider, key: Kutil, deck: Deck,
         tx_output(value=change_sum, n=len(txouts)+1, script=p2pkh_script(change_address))
         )
 
-    mutable_tx = make_raw_transaction(inputs['utxos'], txouts)
-    signed = sign_transaction(provider, mutable_tx, key)
-
-    fee = Decimal(calculate_tx_fee(signed.size))
-
-    # if 0.01 ppc fee is enough to cover the tx size
-    if Decimal(network_params.min_tx_fee) == calculate_tx_fee(signed.size):
-        return signed.hexlify()
-
-    change_sum = Decimal(inputs['total'] - fee - pa_params.P2TH_fee)
-
-    signed = _increase_fee_and_sign(provider, key, change_sum, inputs, txouts)
-    return signed.hexlify()
+    unsigned_tx = make_raw_transaction(inputs['utxos'], txouts)
+    return unsigned_tx
 
 
 def card_burn(provider: Provider, key: Kutil, deck: Deck,
               card: CardTransfer, inputs: list,
-              change_address: str) -> str:
+              change_address: str) -> Transaction:
     '''Create card burn transaction, cards are burned by sending the cards back to deck issuer.
        : key - Kutil object which we'll use to sign the tx
        : deck - Deck object
@@ -304,25 +283,12 @@ def card_burn(provider: Provider, key: Kutil, deck: Deck,
         tx_output(value=change_sum, n=len(outputs)+1, script=p2pkh_script(change_address))
         )
 
-    mutable_tx = make_raw_transaction(inputs['utxos'], txouts)
-    signed = sign_transaction(provider, mutable_tx, key)
-
-    # if 0.01 ppc fee is enough to cover the tx size
-    if network_params.min_tx_fee == calculate_tx_fee(signed.size):
-        return signed.hexlify()
-
-    fee = Decimal(calculate_tx_fee(signed.size))
-
-    if Decimal(network_params.min_tx_fee) == fee:
-        return signed.hexlify()
-
-    change_sum = Decimal(inputs['total'] - fee - pa_params.P2TH_fee)
-
-    signed = _increase_fee_and_sign(provider, key, change_sum, inputs, txouts)
-    return signed.hexlify()
+    unsigned_tx = make_raw_transaction(inputs['utxos'], txouts)
+    return unsigned_tx
 
 
-def card_transfer(deck: Deck, card: CardTransfer, inputs: list, change_address: str) -> str:
+def card_transfer(deck: Deck, card: CardTransfer, inputs: list,
+                  change_address: str) -> Transaction:
     '''Standard peer-to-peer card transfer.
        : deck - Deck object
        : card - CardTransfer object
@@ -350,19 +316,5 @@ def card_transfer(deck: Deck, card: CardTransfer, inputs: list, change_address: 
         tx_output(value=change_sum, n=len(outputs)+1, script=p2pkh_script(change_address))
         )
 
-    mutable_tx = make_raw_transaction(inputs['utxos'], txouts)
-    signed = sign_transaction(provider, mutable_tx, key)
-
-    # if 0.01 ppc fee is enough to cover the tx size
-    if network_params.min_tx_fee == calculate_tx_fee(signed.size):
-        return signed.hexlify()
-
-    fee = Decimal(calculate_tx_fee(signed.size))
-
-    if Decimal(network_params.min_tx_fee) == fee:
-        return signed.hexlify()
-
-    change_sum = Decimal(inputs['total'] - fee - pa_params.P2TH_fee)
-
-    signed = _increase_fee_and_sign(provider, key, change_sum, inputs, txouts)
-    return signed.hexlify()
+    unsigned_tx = make_raw_transaction(inputs['utxos'], txouts)
+    return unsigned_tx

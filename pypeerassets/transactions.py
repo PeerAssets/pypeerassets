@@ -6,7 +6,7 @@ from math import ceil
 from decimal import Decimal, getcontext
 getcontext().prec = 6
 from btcpy.structs.address import Address
-from btcpy.structs.transaction import TxOut, TxIn, Sequence, Locktime, Transaction, MutableTransaction
+from btcpy.structs.transaction import TxOut, TxIn, Sequence, Locktime, Transaction
 from btcpy.structs.script import StackData, ScriptSig, NulldataScript, ScriptSig, ScriptPubKey
 from btcpy.structs.script import P2pkhScript, MultisigScript, P2shScript
 from .networks import net_query
@@ -45,7 +45,9 @@ def make_raw_transaction(inputs: list, outputs: list, locktime=Locktime(0),
                          timestamp: int=int(time()), version=1):
     '''create raw transaction'''
 
-    return MutableTransaction(version, timestamp, inputs, outputs, locktime)
+    return Transaction(version=version, timestamp=timestamp,
+                       ins=inputs, outs=outputs,
+                       locktime=locktime)
 
 
 def find_parent_outputs(provider, utxo: TxIn):
