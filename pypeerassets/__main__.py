@@ -2,26 +2,24 @@
 '''contains main protocol logic like assembly of proof-of-timeline and parsing deck info'''
 
 import concurrent.futures
-from binascii import unhexlify
 from typing import Union, Generator
 from .protocol import *
 from .provider import Provider, RpcNode
-from .pautils import (load_deck_p2th_into_local_node, 
-                      find_tx_sender,
+from .pautils import (find_tx_sender,
                       find_deck_spawns, tx_serialization_order,
-                      read_tx_opreturn, deck_issue_mode,
-                      issue_mode_to_enum, parse_deckspawn_metainfo,
+                      read_tx_opreturn,
+                      parse_deckspawn_metainfo,
                       validate_deckspawn_p2th, validate_card_transfer_p2th,
                       parse_card_transfer_metainfo, postprocess_card
                       )
 #from .voting import *
 from .exceptions import *
 from .transactions import (nulldata_script, tx_output, p2pkh_script,
-                           find_parent_outputs, calculate_tx_fee,
-                           make_raw_transaction, TxOut,
+                           find_parent_outputs,
+                           make_raw_transaction,
                            Transaction)
-from .pa_constants import param_query, params
-from .networks import net_query, networks
+from .pa_constants import param_query
+from .networks import net_query
 from .kutil import Kutil
 from decimal import Decimal, getcontext
 getcontext().prec = 6
