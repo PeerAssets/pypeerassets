@@ -228,22 +228,22 @@ def card_transfer(provider: Provider, card: CardTransfer, inputs: list,
     network_params = net_query(provider.network)
     pa_params = param_query(provider.network)
 
-    outputs = [
+    outs = [
         tx_output(value=pa_params.P2TH_fee, n=0, script=p2pkh_script(card.deck_p2th)),  # deck p2th
         tx_output(value=0, n=1, script=nulldata_script(card.metainfo_to_protobuf))  # op_return
     ]
 
     for addr, index in zip(card.receiver, range(len(card.receiver))):
-        outputs.append(   # TxOut for each receiver, index + 2 because we have two outs already
+        outs.append(   # TxOut for each receiver, index + 2 because we have two outs already
             tx_output(value=0, n=index+2, script=p2pkh_script(addr))
         )
 
     #  first round of txn making is done by presuming minimal fee
     change_sum = Decimal(inputs['total'] - network_params.min_tx_fee - pa_params.P2TH_fee)
 
-    outputs.append(
-        tx_output(value=change_sum, n=len(outputs)+1, script=p2pkh_script(change_address))
+    outs.append(
+        tx_output(value=change_sum, n=len(outs)+1, script=p2pkh_script(change_address))
         )
 
-    unsigned_tx = make_raw_transaction(inputs['utxos'], txouts)
+    unsigned_tx = make_raw_transaction(inputs['utxos'], outs)
     return unsigned_tx
