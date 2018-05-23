@@ -13,7 +13,7 @@ X-Python-Version: >= 3.4
 Package: python3-pypeerassets
 Architecture: all
 Section: python
-Depends: python-requests (>= 2.4.3-1), python3-secp256k1, python3-peercoinrpc, python3-protobuf, ${misc:Depends}, ${python3:Depends}
+Depends: python3-secp256k1, python3-peercoinrpc, python3-protobuf, ${misc:Depends}, ${python3:Depends}
 Description: Python library to communicate with peercoin daemon via JSON-RPC protocol.
   Python Library to communicate with peercoin daemon via JSON-RPC protocol implemented with popular python-requests library.
  .
