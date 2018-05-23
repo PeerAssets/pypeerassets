@@ -32,3 +32,17 @@ def test_find_cards():
 
     assert cards
     assert isinstance(cards[0], pa.CardTransfer)
+
+
+def test_deck_spawn():
+
+    provider = pa.Explorer(network='tppc')
+    key = pa.Kutil(network='tppc', privkey=bytearray.fromhex('f76e9331abd2cf811375d7192dfcb39d507bf16e58cfe72b0f2a5d5195172ab9'))
+    inputs = provider.select_inputs(key.address, 0.02)
+    change_address = key.address
+    deck = pa.Deck(name="just-testing.", number_of_decimals=1, issue_mode=1,
+                   network='peercoin-testnet', production=True, version=1)
+
+    deck_spawn = pa.deck_spawn(provider, key, deck, inputs, change_address)
+
+    assert isinstance(deck_spawn, pa.Transaction)
