@@ -108,7 +108,7 @@ def _increase_fee_and_sign(provider: Provider, key: Kutil, change_sum: Decimal,
     return signed
 
 
-def find_deck(provider: Provider, key: str, version: int, prod=True) -> list:
+def find_deck(provider: Provider, key: str, version: int, prod=True) -> Deck:
     '''Find specific deck by deck id.'''
 
     pa_params = param_query(provider.network)

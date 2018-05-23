@@ -62,7 +62,7 @@ def find_deck_spawns(provider, prod=True):
         else:
             raise NotImplementedError
 
-    if isinstance(provider, Holy) or isinstance(provider, Cryptoid):
+    if isinstance(provider, Cryptoid):
 
         if prod:
             decks = (i for i in provider.listtransactions(pa_params.P2TH_addr))
