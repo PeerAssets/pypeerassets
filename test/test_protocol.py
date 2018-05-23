@@ -24,7 +24,7 @@ def test_deck_object():
                              'number_of_decimals': 2,
                              'production': True,
                              'testnet': False,
-                             'version': 1,
+                             'version': 1
                             }
 
     assert deck.metainfo_to_protobuf == b'\x08\x01\x12\x05decky\x18\x02 \x04*\rJust testing.'
@@ -71,5 +71,6 @@ def test_card_transfer_object():
                                       'timestamp': 0,
                                       'txid': None,
                                       'type': 'CardTransfer',
-                                      'version': 1
+                                      'version': 1,
+                                      'deck_p2th': None
                                       }

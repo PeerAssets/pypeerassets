@@ -81,8 +81,11 @@ class Deck:
     def p2th_address(self) -> str:
         '''P2TH address of this deck'''
 
-        return Kutil(network=self.network,
-                     privkey=unhexlify(self.id)).address
+        if self.id:
+            return Kutil(network=self.network,
+                         privkey=bytes.fromhex(self.id)).address
+        else:
+            return None
 
     @property
     def p2th_wif(self) -> str:
@@ -164,6 +167,7 @@ class CardTransfer:
         assert len(amount) == len(receiver), {"error": "Amount must match receiver."}
         self.version = version
         self.deck_id = deck.id
+        self.deck_p2th = deck.p2th_address
         self.txid = txid
         self.sender = sender
         self.asset_specific_data = asset_specific_data
