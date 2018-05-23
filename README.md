@@ -1,26 +1,27 @@
 # pypeerassets
 
-Official Python implementation of the PeerAssets protocol.
+Official Python implementation of the [PeerAssets protocol](https://github.com/PeerAssets/WhitePaper).
 
-This library aims to implement the PeerAssets protocol itself, but also provide elementary interfaces with the underlying blockchain.
-Once completed library should be able to spawn asset decks, deduce proof-of-timeline for each deck and handle all asset transactions
-while not depending on local blockchain node until it needs to broadcast the transaction or fetch group of transactions.
-Furthermore, library will aim to cover the needs of DAC or DAC-like projects using the PeerAssets protocol.
+`pypeerassets` aims to implement the PeerAssets protocol itself **and** to provide elementary interfaces to underlying blockchains.
 
-Library is coded with Python3 in mind, compatibility with older Python releases is not in our scope.
+Once complete, the library will be able to spawn asset decks, deduce proof-of-timeline for asset decks and handle all asset transactions **while not** communicating with a blockchain node until it needs to broadcast a transaction or to fetch a group of transactions.
 
-### Dependencies
+Furthermore, `pypeerassets` aims to support the needs of DAC ([Decentralized Autonomous Corporation](https://en.wikipedia.org/wiki/Decentralized_autonomous_organization)) projects using the PeerAssets protocol.
 
-`pip install --user protobuf`
-
-### Clone
-
-`https://github.com/PeerAssets/pypeerassets`
+`pypeerassets` is lovingly crafted with python3 all around the world :heart: :snake: :globe_with_meridians:
 
 ### VirtualEnv Development
 
-There are some snags to setting up a python virtualenv in the typical fashion at the moment.
+Create a python3 virtualenv in the root directory:
 
-However, if you manage to locally install `btcpy` you can comment it out in the `requirements.txt` file and then `pip install -r requirements.txt` and `pip install -r requirements-dev.txt` cleanly. Then you can type `pytest` to get the tests to run <3
-
-They're failing at the moment but we'll address that soon :)
+```
+> virtualenv -p python3 venv
+...
+> source venv/bin/activate
+(venv) > pip install -r requirements.txt
+...
+(venv) > pip install -r requirements-dev.txt
+...
+(venv) > pytest
+...
+```
