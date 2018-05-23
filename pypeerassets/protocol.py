@@ -100,7 +100,7 @@ class Deck:
         deck.name = self.name
         deck.number_of_decimals = self.number_of_decimals
         deck.issue_mode = self.issue_mode
-        if deck.asset_specific_data:
+        if self.asset_specific_data:
             if not isinstance(self.asset_specific_data, bytes):
                 deck.asset_specific_data = self.asset_specific_data.encode()
             else:
