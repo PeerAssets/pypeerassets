@@ -219,88 +219,19 @@ def find_card_transfers(provider: Provider, deck: Deck) -> Generator:
                 yield result
 
 
-def card_issue(provider: Provider, key: Kutil, deck: Deck,
-               card: CardTransfer, inputs: dict,
-               change_address: str) -> Transaction:
-    '''Create card issue transaction.
-       : key - Kutil object which we'll use to sign the tx
-       : deck - Deck object
-       : card - CardTransfer object
-       : inputs - utxos (has to be owned by deck issuer)
-       : change_address - address to send the change to
-    '''
-
-    network_params = net_query(deck.network)
-    pa_params = param_query(deck.network)
-
-    txouts = [
-        tx_output(value=pa_params.P2TH_fee, n=0, script=p2pkh_script(deck.p2th_address)),  # deck p2th
-        tx_output(value=0, n=1, script=nulldata_script(card.metainfo_to_protobuf))  # op_return
-    ]
-
-    for addr, index in zip(card.receiver, range(len(card.receiver))):
-        txouts.append(   # TxOut for each receiver, index + 2 because we have two outs already
-            tx_output(value=0, n=index+2, script=p2pkh_script(addr))
-        )
-
-    #  first round of txn making is done by presuming minimal fee
-    change_sum = Decimal(inputs['total'] - network_params.min_tx_fee - pa_params.P2TH_fee)
-
-    txouts.append(
-        tx_output(value=change_sum, n=len(txouts)+1, script=p2pkh_script(change_address))
-        )
-
-    unsigned_tx = make_raw_transaction(inputs['utxos'], txouts)
-    return unsigned_tx
-
-
-def card_burn(provider: Provider, key: Kutil, deck: Deck,
-              card: CardTransfer, inputs: list,
-              change_address: str) -> Transaction:
-    '''Create card burn transaction, cards are burned by sending the cards back to deck issuer.
-       : key - Kutil object which we'll use to sign the tx
-       : deck - Deck object
-       : card - CardTransfer object
-       : inputs - utxos (has to be owned by deck issuer)
-       : change_address - address to send the change to
-       '''
-
-    assert deck.issuer == card.receiver[0], {"error": "First recipient must be deck issuer."}
-
-    network_params = net_query(deck.network)
-    pa_params = param_query(deck.network)
-
-    txouts = [
-        tx_output(value=pa_params.P2TH_fee, n=0, script=p2pkh_script(deck.p2th_address)),  # deck p2th
-        tx_output(value=0, n=1, script=nulldata_script(card.metainfo_to_protobuf)),  # op_return
-        tx_output(value=0, n=2, script=p2pkh_script(card.receiver[0]))  # p2pkh receiver[0]
-    ]
-
-    #  first round of txn making is done by presuming minimal fee
-    change_sum = Decimal(inputs['total'] - network_params.min_tx_fee - pa_params.P2TH_fee)
-
-    txouts.append(
-        tx_output(value=change_sum, n=len(outputs)+1, script=p2pkh_script(change_address))
-        )
-
-    unsigned_tx = make_raw_transaction(inputs['utxos'], txouts)
-    return unsigned_tx
-
-
-def card_transfer(deck: Deck, card: CardTransfer, inputs: list,
+def card_transfer(provider: Provider, card: CardTransfer, inputs: list,
                   change_address: str) -> Transaction:
-    '''Standard peer-to-peer card transfer.
-       : deck - Deck object
+    '''Prepare the CardTransfer Transaction object
        : card - CardTransfer object
        : inputs - utxos (has to be owned by deck issuer)
        : change_address - address to send the change to
        '''
 
-    network_params = net_query(deck.network)
-    pa_params = param_query(deck.network)
+    network_params = net_query(provider.network)
+    pa_params = param_query(provider.network)
 
     outputs = [
-        tx_output(value=pa_params.P2TH_fee, n=0, script=p2pkh_script(deck.p2th_address)),  # deck p2th
+        tx_output(value=pa_params.P2TH_fee, n=0, script=p2pkh_script(card.deck_p2th)),  # deck p2th
         tx_output(value=0, n=1, script=nulldata_script(card.metainfo_to_protobuf))  # op_return
     ]
 
