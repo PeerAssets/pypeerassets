@@ -220,6 +220,21 @@ class CardTransfer:
 
         return proto
 
+    @property
+    def metainfo_to_dict(self) -> dict:
+        '''encode card into dictionary'''
+
+        r = {
+            "version": self.version,
+            "amount": self.amount,
+            "number_of_decimals": self.number_of_decimals
+        }
+
+        if self.asset_specific_data:
+            r.update({'asset_specific_data': self.asset_specific_data})
+
+        return r
+
     def __str__(self):
 
         r = []
