@@ -38,6 +38,19 @@ def test_find_cards():
 def test_deck_spawn():
 
     provider = pa.Explorer(network='tppc')
+    inputs = provider.select_inputs("mthKQHpr7zUbMvLcj8GHs33mVcf91DtN6L", 0.02)
+    change_address = "mthKQHpr7zUbMvLcj8GHs33mVcf91DtN6L"
+    deck = pa.Deck(name="just-testing.", number_of_decimals=1, issue_mode=1,
+                   network='tppc', production=True, version=1)
+
+    deck_spawn = pa.deck_spawn(provider, deck, inputs, change_address)
+
+    assert isinstance(deck_spawn, pa.Transaction)
+
+
+def test_card_transfer():
+
+    provider = pa.Explorer(network='tppc')
     key = pa.Kutil(network='tppc', privkey=bytearray.fromhex('f76e9331abd2cf811375d7192dfcb39d507bf16e58cfe72b0f2a5d5195172ab9'))
     inputs = provider.select_inputs(key.address, 0.02)
     change_address = key.address
