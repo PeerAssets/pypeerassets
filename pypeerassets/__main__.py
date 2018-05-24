@@ -171,7 +171,7 @@ def find_card_transfers(provider: Provider, deck: Deck) -> Generator:
         batch_data = [('getrawtransaction', [i["txid"], 1] ) for i in provider.listtransactions(deck.id)]
         result = provider.batch(batch_data)
         if result is not None:
-            card_transfers = [i['result'] for i in result if result ]  
+            card_transfers = [i['result'] for i in result if result]
     else:
         if provider.listtransactions(deck.p2th_address):
             card_transfers = (provider.getrawtransaction(i, 1) for i in
