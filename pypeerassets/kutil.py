@@ -25,7 +25,7 @@ class Kutil:
         self.network = network
 
         try:
-            if self.network.startswith('t'):
+            if self.network.startswith('t') or self.network.endswith('-testnet'):
                 setup('testnet')
             else:
                 setup('mainnet')
