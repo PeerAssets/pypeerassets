@@ -141,7 +141,10 @@ class Explorer(Provider):
     def getbalance(self, address: str) -> Decimal:
         '''Returns current balance of given address.'''
 
-        return Decimal(self.ext_fetch('getbalance/' + address))
+        try:
+            return Decimal(self.ext_fetch('getbalance/' + address))
+        except TypeError:
+            return 0
 
     def getreceivedbyaddress(self, address: str) -> Decimal:
 
