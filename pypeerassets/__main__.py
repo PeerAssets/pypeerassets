@@ -2,7 +2,7 @@
 '''contains main protocol logic like assembly of proof-of-timeline and parsing deck info'''
 
 import concurrent.futures
-from typing import Union, Generator
+from typing import Generator, Iterable, Tuple
 from .protocol import *
 from .provider import Provider, RpcNode
 from .pautils import (find_tx_sender,
@@ -24,7 +24,7 @@ from decimal import Decimal, getcontext
 getcontext().prec = 6
 
 
-def deck_parser(args: Union[Provider, dict, int, str], prod: bool=True) -> Deck:
+def deck_parser(args: Tuple[Provider, dict, int, str], prod: bool=True) -> Optional[Deck]:
     '''deck parser function'''
 
     provider = args[0]
@@ -52,6 +52,8 @@ def deck_parser(args: Union[Provider, dict, int, str], prod: bool=True) -> Deck:
 
     except (InvalidDeckSpawn, InvalidDeckMetainfo, InvalidDeckVersion, InvalidNulldataOutput) as err:
         pass
+
+    return None
 
 
 def find_all_valid_decks(provider: Provider, deck_version: int, prod: bool=True) -> Generator:
@@ -85,7 +87,7 @@ def find_all_valid_decks(provider: Provider, deck_version: int, prod: bool=True)
                 yield result
 
 
-def find_deck(provider: Provider, key: str, version: int, prod=True) -> Deck:
+def find_deck(provider: Provider, key: str, version: int, prod: bool=True) -> Optional[Deck]:
     '''Find specific deck by deck id.'''
 
     pa_params = param_query(provider.network)
@@ -123,7 +125,7 @@ def deck_spawn(provider: Provider, deck: Deck, inputs: dict,
 
     txouts = [
         tx_output(value=pa_params.P2TH_fee, n=0, script=p2pkh_script(p2th_addr)),  # p2th
-        tx_output(value=0, n=1, script=nulldata_script(deck.metainfo_to_protobuf)),  # op_return
+        tx_output(value=Decimal(0), n=1, script=nulldata_script(deck.metainfo_to_protobuf)),  # op_return
         tx_output(value=change_sum, n=2, script=p2pkh_script(change_address))  # change
               ]
 
@@ -144,19 +146,24 @@ def deck_transfer(provider: Provider, deck: Deck,
 def get_card_transfers(provider: Provider, deck: Deck) -> Generator:
     '''get all <deck> card transfers, if cards match the protocol'''
 
+    card_transfers = cast(Iterable, [])
     if isinstance(provider, RpcNode):
+        if deck.id is None:
+            raise Exception("deck.id required to listtransactions")
         batch_data = [('getrawtransaction', [i["txid"], 1] ) for i in provider.listtransactions(deck.id)]
         result = provider.batch(batch_data)
         if result is not None:
             card_transfers = [i['result'] for i in result if result]
     else:
+        if deck.p2th_address is None:
+            raise Exception("deck.p2th_address required to listtransactions")
         if provider.listtransactions(deck.p2th_address):
             card_transfers = (provider.getrawtransaction(i, 1) for i in
                               provider.listtransactions(deck.p2th_address))
         else:
             raise EmptyP2THDirectory({'error': 'No cards found on this deck.'})
 
-    def card_parser(args) -> list:
+    def card_parser(args: Tuple[Provider, Deck, dict]) -> list:
         '''this function wraps all the card transfer parsing'''
 
         provider = args[0]
@@ -172,11 +179,11 @@ def get_card_transfers(provider: Provider, deck: Deck) -> Generator:
             try:  # try to get block seq number
                 blockseq = tx_serialization_order(provider, raw_tx["blockhash"], raw_tx["txid"])
             except KeyError:
-                blockseq = None
+                blockseq = 0
             try:  # try to get block number of block when this tx was written
                 blocknum = provider.getblock(raw_tx["blockhash"])["height"]
             except KeyError:
-                blocknum = None
+                blocknum = 0
             try:  # try to get tx confirmation count
                 tx_confirmations = raw_tx["confirmations"]
             except KeyError:
@@ -190,7 +197,7 @@ def get_card_transfers(provider: Provider, deck: Deck) -> Generator:
         except (InvalidCardTransferP2TH, CardVersionMismatch,
                 CardNumberOfDecimalsMismatch, InvalidVoutOrder,
                 RecieverAmountMismatch) as e:
-            return False
+            return []
 
         return cards
 
@@ -211,7 +218,7 @@ def find_all_valid_cards(provider: Provider, deck: Deck) -> Generator:
             yield card
 
 
-def card_transfer(provider: Provider, card: CardTransfer, inputs: list,
+def card_transfer(provider: Provider, card: CardTransfer, inputs: dict,
                   change_address: str) -> Transaction:
     '''Prepare the CardTransfer Transaction object
        : card - CardTransfer object
@@ -222,14 +229,17 @@ def card_transfer(provider: Provider, card: CardTransfer, inputs: list,
     network_params = net_query(provider.network)
     pa_params = param_query(provider.network)
 
+    if card.deck_p2th is None:
+        raise Exception("card.deck_p2th required for tx_output")
+
     outs = [
         tx_output(value=pa_params.P2TH_fee, n=0, script=p2pkh_script(card.deck_p2th)),  # deck p2th
-        tx_output(value=0, n=1, script=nulldata_script(card.metainfo_to_protobuf))  # op_return
+        tx_output(value=Decimal(0), n=1, script=nulldata_script(str.encode(card.metainfo_to_protobuf)))  # op_return
     ]
 
     for addr, index in zip(card.receiver, range(len(card.receiver))):
         outs.append(   # TxOut for each receiver, index + 2 because we have two outs already
-            tx_output(value=0, n=index+2, script=p2pkh_script(addr))
+            tx_output(value=Decimal(0), n=index+2, script=p2pkh_script(addr))
         )
 
     #  first round of txn making is done by presuming minimal fee

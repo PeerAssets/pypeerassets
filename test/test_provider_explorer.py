@@ -34,7 +34,9 @@ def test_explorer_get_block_hash():
 
 def test_explorer_getdifficulty():
 
-    assert isinstance(Explorer(network="ppc").getdifficulty(), dict)
+    difficulty = Explorer(network="ppc").getdifficulty()
+    assert isinstance(difficulty["proof-of-stake"], float)
+    assert isinstance(difficulty["proof-of-work"], float)
 
 
 def test_explorer_getbalance():

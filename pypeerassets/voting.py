@@ -1,19 +1,25 @@
 import warnings
+from typing import Iterable, List
+
 from pypeerassets.kutil import Kutil
 from pypeerassets.protocol import Deck
-from pypeerassets import pavoteproto_pb2
+from pypeerassets.provider import Provider
+from pypeerassets import pavoteproto_pb2 as pavoteproto
 from hashlib import sha256
 from binascii import unhexlify
 from pypeerassets import transactions
 from pypeerassets.pautils import read_tx_opreturn, find_tx_sender
-from .networks import query, networks
+from pypeerassets.networks import net_query
 
 
-def deck_vote_tag(deck):
+def deck_vote_tag(deck: Deck) -> str:
     '''deck vote tag address'''
 
-    deck_vote_tag_privkey = sha256(unhexlify(deck.asset_id) + b"vote_init").hexdigest()
-    deck_vote_tag_address = Kutil(network=deck.network, privkey=deck_vote_tag_privkey)
+    if deck.id is None:
+        raise Exception("deck.id is required")
+
+    deck_vote_tag_privkey = sha256(unhexlify(deck.id) + b"vote_init").hexdigest()
+    deck_vote_tag_address = Kutil(network=deck.network, privkey=bytearray.fromhex(deck_vote_tag_privkey))
     return deck_vote_tag_address.address
 
 
@@ -21,7 +27,7 @@ class Vote:
 
     def __init__(self, version: int, description: str, count_mode: str,
                  start_block: int, end_block: int, deck: Deck,
-                 choices=[], vote_metainfo="", vote_id=None, sender=None):
+                 choices: list=[], vote_metainfo: str="", vote_id: str=None, sender: str=None) -> None:
         '''initialize vote object'''
 
         self.version = version
@@ -36,7 +42,7 @@ class Vote:
         self.deck = deck
 
     @property
-    def to_protobuf(self):
+    def to_protobuf(self) -> str:
         '''encode vote into protobuf'''
 
         vote = pavoteproto.Vote()
@@ -60,7 +66,7 @@ class Vote:
         return proto
 
     @property
-    def to_dict(self):
+    def to_dict(self) -> dict:
         '''vote info as dict'''
 
         return {
@@ -74,8 +80,11 @@ class Vote:
         }
 
     @property
-    def vote_choice_address(self):
+    def vote_choice_address(self) -> List[str]:
         '''calculate the addresses on which the vote is casted.'''
+
+        if self.vote_id is None:
+            raise Exception("vote_id is required")
 
         addresses = []
         vote_init_txid = unhexlify(self.vote_id)
@@ -85,7 +94,7 @@ class Vote:
                                     list(self.choices).index(choice))
                                     ).hexdigest()
             addresses.append(Kutil(network=self.deck.network,
-                                   privkey=vote_cast_privkey).address)
+                                   privkey=bytearray.fromhex(vote_cast_privkey)).address)
 
         return addresses
 
@@ -110,10 +119,10 @@ def parse_vote_info(protobuf: bytes) -> dict:
     }
 
 
-def vote_init(vote: Vote, inputs: list, change_address: str) -> bytes:
+def vote_init(vote: Vote, inputs: dict, change_address: str) -> bytes:
     '''initialize vote transaction, must be signed by the deck_issuer privkey'''
 
-    network_params = query(vote.deck.network)
+    network_params = net_query(vote.deck.network)
     deck_vote_tag_address = deck_vote_tag(vote.deck)
 
     tx_fee = network_params.min_tx_fee  # settle for min tx fee for now
@@ -129,10 +138,10 @@ def vote_init(vote: Vote, inputs: list, change_address: str) -> bytes:
          "outputScript": transactions.monosig_script(change_address)
          }]
 
-    return transactions.make_raw_transaction(vote.deck.network, inputs['utxos'], outputs)
+    return transactions.make_raw_transaction(inputs['utxos'], outputs)
 
 
-def find_vote_inits(provider, deck):
+def find_vote_inits(provider: Provider, deck: Deck) -> Iterable[Vote]:
     '''find vote_inits on this deck'''
 
     vote_ints = provider.listtransactions(deck_vote_tag(deck))
@@ -149,11 +158,11 @@ def find_vote_inits(provider, deck):
             pass
 
 
-def vote_cast(vote: Vote, choice_index: int, inputs: list,
+def vote_cast(vote: Vote, choice_index: int, inputs: dict,
               change_address: str) -> bytes:
     '''vote cast transaction'''
 
-    network_params = query(vote.deck.network)
+    network_params = net_query(vote.deck.network)
     vote_cast_addr = vote.vote_choice_address[choice_index]
 
     tx_fee = network_params.min_tx_fee  # settle for min tx fee for now
@@ -168,14 +177,14 @@ def vote_cast(vote: Vote, choice_index: int, inputs: list,
          "outputScript": transactions.monosig_script(change_address)
          }]
 
-    return transactions.make_raw_transaction(vote.deck.network, inputs['utxos'], outputs)
+    return transactions.make_raw_transaction(inputs['utxos'], outputs)
 
 
 class VoteCast:
     '''vote cast object, internal represtentation of the vote_cast transaction'''
 
     def __init__(self, vote: Vote, sender: str, blocknum: int,
-                 confirmations: int, timestamp: int):
+                 confirmations: int, timestamp: int) -> None:
         self.vote = vote
         self.sender = sender
         self.blocknum = blocknum
@@ -183,7 +192,7 @@ class VoteCast:
         self.timestamp = timestamp
 
     @property
-    def is_valid(self):
+    def is_valid(self) -> bool:
         '''check if VoteCast is valid'''
 
         if not (self.blocknum >= self.vote.start_block and
@@ -196,7 +205,7 @@ class VoteCast:
         return True
 
 
-def find_vote_casts(provider, vote: Vote, choice_index: int):
+def find_vote_casts(provider: Provider, vote: Vote, choice_index: int) -> Iterable[VoteCast]:
     '''find and verify vote_casts on this vote_choice_address'''
 
     vote_casts = provider.listtransactions(vote.vote_choice_address[choice_index])

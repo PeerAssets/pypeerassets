@@ -66,7 +66,7 @@ def test_card_transfer_object():
 
     assert card_transfer.__dict__ == {'amount': [1],
                                       'asset_specific_data': None,
-                                      'blockhash': 0,
+                                      'blockhash': '',
                                       'blocknum': 0,
                                       'blockseq': 0,
                                       'cardseq': 0,

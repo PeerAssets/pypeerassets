@@ -15,6 +15,7 @@ from pypeerassets.paproto_pb2 import DeckSpawn
 from pypeerassets.pautils import *
 from pypeerassets.protocol import IssueMode
 
+
 @pytest.mark.xfail
 def test_load_p2th_privkeys_into_local_node():
 
