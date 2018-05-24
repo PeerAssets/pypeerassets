@@ -10,6 +10,7 @@ from .exceptions import InvalidDeckIssueModeCombo
 from operator import itemgetter
 from .card_parsers import *
 from enum import Enum
+from typing import List
 
 
 class IssueMode(Enum):
@@ -143,7 +144,7 @@ class Deck:
 
 class CardTransfer:
 
-    def __init__(self, deck: Deck, receiver: list=[], amount: list=[],
+    def __init__(self, deck: Deck, receiver: list=[], amount: List[int]=[],
                  version: int=1, blockhash: str=None, txid: str=None,
                  sender: str=None, asset_specific_data: bytes=None,
                  number_of_decimals: int=None, blockseq: int=None,
@@ -156,7 +157,7 @@ class CardTransfer:
 
         * deck - instance of Deck object
         * receiver - list of receivers
-        * amount - list of amounts to be sent, must be float
+        * amount - list of amounts to be sent, must be integer
         * version - protocol version, default 1
         * txid - transaction ID of CardTransfer
         * sender - transaction sender
