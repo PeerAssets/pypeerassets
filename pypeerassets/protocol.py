@@ -144,7 +144,7 @@ class Deck:
 class CardTransfer:
 
     def __init__(self, deck: Deck, receiver=[], amount=[], version=1,
-                 blockhash=None, txid=None, sender=None, asset_specific_data="",
+                 blockhash=None, txid=None, sender=None, asset_specific_data: bytes=None,
                  number_of_decimals=None, blockseq=None, cardseq=None,
                  blocknum=None, timestamp=None) -> None:
         '''CardTransfer object, used when parsing card_transfers from the blockchain
@@ -208,10 +208,11 @@ class CardTransfer:
         card.version = self.version
         card.amount.extend(self.amount)
         card.number_of_decimals = self.number_of_decimals
-        if not isinstance(self.asset_specific_data, bytes):
-            card.asset_specific_data = self.asset_specific_data.encode()
-        else:
-            card.asset_specific_data = self.asset_specific_data
+        if self.asset_specific_data:
+            if not isinstance(self.asset_specific_data, bytes):
+                card.asset_specific_data = self.asset_specific_data.encode()
+            else:
+                card.asset_specific_data = self.asset_specific_data
 
         proto = card.SerializeToString()
 
