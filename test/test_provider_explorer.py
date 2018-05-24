@@ -5,10 +5,10 @@ from pypeerassets.provider.explorer import Explorer
 
 def test_explorer_is_testnet():
 
-    explorer = Explorer(network="ppc")
+    explorer = Explorer(network="tppc")
 
     assert isinstance(explorer.is_testnet, bool)
-    assert explorer.is_testnet is False
+    assert explorer.is_testnet is True
 
 
 def test_explorer_network():
