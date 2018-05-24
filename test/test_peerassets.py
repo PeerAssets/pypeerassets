@@ -31,8 +31,7 @@ def test_find_cards():
     cards = pa.find_card_transfers(provider, deck)
 
     assert cards
-    with pytest.raises(pa.exceptions.EmptyP2THDirectory):
-        assert isinstance(next(cards), pa.CardTransfer)
+    assert isinstance(next(cards)[0], pa.CardTransfer)
 
 
 def test_deck_spawn():
