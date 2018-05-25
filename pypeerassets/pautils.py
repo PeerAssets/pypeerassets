@@ -1,8 +1,8 @@
 
 '''miscellaneous utilities.'''
 
-import binascii
 from .provider import *
+from btcpy.structs.script import NulldataScript
 from .exceptions import P2THImportFailed
 from .exceptions import (InvalidDeckSpawn, InvalidDeckMetainfo,
                          InvalidDeckIssueMode, InvalidDeckVersion)
@@ -85,9 +85,9 @@ def read_tx_opreturn(raw_tx: dict) -> bytes:
         raise InvalidVoutOrder({'error':
                                 'PA protocol requires that OP_RETURN is vout[1]'})
 
-    vout = raw_tx['vout'][1]
+    vout = raw_tx['vout'][1]['scriptPubKey']
+    asm = NulldataScript.unhexlify(vout['hex']).decompile()
 
-    asm = vout['scriptPubKey']['asm']
     n = asm.find('OP_RETURN')
     if n == -1:
         raise InvalidNulldataOutput({'error': 'OP_RETURN not found.'})
@@ -98,9 +98,9 @@ def read_tx_opreturn(raw_tx: dict) -> bytes:
         n = data.find(' ')
         #make sure that we don't include trailing opcodes
         if n == -1:
-            return binascii.unhexlify(data)
+            return bytes.fromhex(data)
         else:
-            return binascii.unhexlify(data[:n])
+            return bytes.fromhex(data[:n])
 
 
 def deck_issue_mode(proto: DeckSpawn) -> Iterator[str]:
