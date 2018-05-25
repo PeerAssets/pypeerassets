@@ -236,3 +236,21 @@ def test_validate_singlet_card_issue_mode():
     other = few_random_cards(deck, 9, 'transfer', 1)
 
     assert len(validate_card_issue_modes(deck.issue_mode, issues + other)) == 1
+
+
+def test_validate_subscription_card_issue_mode():
+    '''test card filtering against SUBSCRIPTION deck'''
+
+    deck = Deck(
+        name="decky",
+        number_of_decimals=0,
+        issue_mode=IssueMode.SUBSCRIPTION.value,
+        network="tppc",
+        production=True,
+        version=1,
+        )
+
+    issues = few_random_cards(deck, 10, 'issue')
+    other = few_random_cards(deck, 9, 'transfer', 1)
+
+    assert len(validate_card_issue_modes(deck.issue_mode, issues + other)) == 10
