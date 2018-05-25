@@ -128,7 +128,7 @@ def few_random_cards(deck: Deck, n: int, card_type: str='random') -> list:
 
 
 def test_validate_multi_card_issue_mode():
-    '''test card filtering against ONCE deck'''
+    '''test card filtering against MULTI deck'''
 
     deck = Deck(
         name="decky",
@@ -142,3 +142,20 @@ def test_validate_multi_card_issue_mode():
     cards = few_random_cards(deck, 4, 'issue')
 
     assert len(validate_card_issue_modes(deck.issue_mode, cards)) == 4
+
+
+def test_validate_once_card_issue_mode():
+    '''test card filtering against ONCE deck'''
+
+    deck = Deck(
+        name="decky",
+        number_of_decimals=2,
+        issue_mode=IssueMode.ONCE.value,
+        network="tppc",
+        production=True,
+        version=1,
+        )
+
+    cards = few_random_cards(deck, 8, 'issue')
+
+    assert len(validate_card_issue_modes(deck.issue_mode, cards)) == 1
