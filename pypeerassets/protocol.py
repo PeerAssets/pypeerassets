@@ -266,7 +266,7 @@ def validate_card_issue_modes(issue_mode: int, cards: list) -> list:
 
     for i in [1 << x for x in range(len(IssueMode))]:
         if bool(i & issue_mode):
-            print('Applying {0} parser.'.format(IssueMode(i).name))
+            print('Applying {0} parser [{1}].'.format(IssueMode(i).name, IssueMode(i).value))
             cards = parsers[IssueMode(i).name](cards)
 
     return cards
