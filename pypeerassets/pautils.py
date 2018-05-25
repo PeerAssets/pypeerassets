@@ -6,7 +6,7 @@ from .provider import *
 from .exceptions import P2THImportFailed
 from .exceptions import (InvalidDeckSpawn, InvalidDeckMetainfo,
                          InvalidDeckIssueMode, InvalidDeckVersion)
-from .exceptions import (InvalidCardTransferP2TH, CardVersionMistmatch,
+from .exceptions import (InvalidCardTransferP2TH, CardVersionMismatch,
                          CardNumberOfDecimalsMismatch, InvalidNulldataOutput,
                          DeckP2THImportError)
 from .pa_constants import param_query
@@ -200,7 +200,7 @@ def parse_card_transfer_metainfo(protobuf: bytes, deck_version: int) -> dict:
     card.ParseFromString(protobuf)
 
     if not card.version == deck_version:
-        raise CardVersionMistmatch({'error': 'card version does not match deck version.'})
+        raise CardVersionMismatch({'error': 'card version does not match deck version.'})
 
     return {
         "version": card.version,
