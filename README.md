@@ -1,5 +1,7 @@
 # pypeerassets
 
+[![Build Status](https://travis-ci.org/PeerAssets/pypeerassets.svg?branch=master)](https://travis-ci.org/PeerAssets/pypeerassets)
+
 Official Python implementation of the [PeerAssets protocol](https://github.com/PeerAssets/WhitePaper).
 
 `pypeerassets` aims to implement the PeerAssets protocol itself **and** to provide elementary interfaces to underlying blockchains.
