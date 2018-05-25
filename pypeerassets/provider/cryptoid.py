@@ -108,7 +108,7 @@ class Cryptoid(Provider):
         if utxo_sum < amount:
             raise InsufficientFunds('Insufficient funds.')
 
-    def getrawtransaction(self, txid: str, decrypt=1) -> dict:
+    def getrawtransaction(self, txid: str, decrypt=0) -> dict:
 
         query = self.explorer_url + 'tx.raw.dws?coin={net}&id={txid}'.format(net=self.format_name(self.net),
                                                                              txid=txid)

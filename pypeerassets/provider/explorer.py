@@ -77,7 +77,7 @@ class Explorer(Provider):
 
         return self.api_fetch('getblock?hash=' + hash)
 
-    def getrawtransaction(self, txid: str, decrypt=1) -> dict:
+    def getrawtransaction(self, txid: str, decrypt=0) -> dict:
         '''Returns raw transaction representation for given transaction id.
         decrypt can be set to 0(false) or 1(true).'''
 

@@ -32,8 +32,8 @@ class Mintr(Provider):
 
         return {"testnet": False}
 
-    def getrawtransaction(self, txid, verbose=1):
-        '''this mimics the behaviour of local node `getrawtransaction` query with argument 1'''
+    def getrawtransaction(self, txid, decrypt=0):
+        '''this mimics the behaviour of local node `getrawtransaction`'''
 
         def wrapper(raw):
             '''make Mintr API response just like RPC response'''
@@ -58,7 +58,7 @@ class Mintr(Provider):
 
             return raw
 
-        if verbose == 0:
+        if decrypt == 0:
             return self.get("tx/hash/" + txid)
         else:
             resp = self.get("tx/hash/" + txid + "/full")
