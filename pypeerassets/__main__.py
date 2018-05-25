@@ -206,7 +206,7 @@ def find_card_transfers(provider: Provider, deck: Deck) -> Generator:
                                      vouts, blockseq, blocknum, deck)
             cards = [CardTransfer(**card) for card in cards]
 
-        except (InvalidCardTransferP2TH, CardVersionMistmatch, CardNumberOfDecimalsMismatch) as e:
+        except (InvalidCardTransferP2TH, CardVersionMismatch, CardNumberOfDecimalsMismatch) as e:
             return False
 
         return cards
