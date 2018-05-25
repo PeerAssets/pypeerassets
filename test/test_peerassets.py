@@ -22,9 +22,10 @@ def test_find_deck():
                              }
 
 
-def test_find_cards():
+@pytest.mark.parametrize("prov", [pa.Explorer, pa.Cryptoid])
+def test_find_cards(prov):
 
-    provider = pa.Cryptoid(network="tppc")
+    provider = prov(network="tppc")
 
     deck = pa.find_deck(provider, 'b6a95f94fef093ee9009b04a09ecb9cb5cba20ab6f13fe0926aeb27b8671df43', 1)
 
