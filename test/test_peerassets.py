@@ -42,7 +42,8 @@ def test_deck_spawn():
     inputs = provider.select_inputs("mthKQHpr7zUbMvLcj8GHs33mVcf91DtN6L", 0.02)
     change_address = "mthKQHpr7zUbMvLcj8GHs33mVcf91DtN6L"
     deck = pa.Deck(name="just-testing.", number_of_decimals=1, issue_mode=1,
-                   network='tppc', production=True, version=1)
+                   network='tppc', production=True, version=1,
+                   asset_specific_data='https://talk.peercoin.net/')
 
     deck_spawn = pa.deck_spawn(provider, deck, inputs, change_address)
 
