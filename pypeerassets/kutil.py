@@ -1,6 +1,5 @@
 
 from hashlib import sha256
-from binascii import hexlify
 from os import urandom
 from btcpy.structs.crypto import PublicKey, PrivateKey
 from btcpy.structs.transaction import MutableTransaction, TxOut
