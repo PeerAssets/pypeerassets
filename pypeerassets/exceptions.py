@@ -49,6 +49,10 @@ class CardNumberOfDecimalsMismatch(Exception):
     '''card_tranfer number of decimals does not match deck rules.'''
 
 
+class RecieverAmountMismatch(Exception):
+    '''card_transfer list of recievers is not equal to list of amounts'''
+
+
 class InsufficientFunds(Exception):
     '''this address does not have enough assigned UTXOs'''
 

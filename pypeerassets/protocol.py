@@ -6,7 +6,7 @@ from .kutil import Kutil
 from .paproto_pb2 import DeckSpawn as deckspawnproto
 from .paproto_pb2 import CardTransfer as cardtransferproto
 from .pautils import amount_to_exponent, issue_mode_to_enum
-from .exceptions import InvalidDeckIssueModeCombo
+from .exceptions import InvalidDeckIssueModeCombo, RecieverAmountMismatch
 from operator import itemgetter
 from .card_parsers import *
 from enum import Enum
@@ -167,7 +167,9 @@ class CardTransfer:
         * asset_specific_data - extra metadata
         * number_of_decimals - number of decimals for amount, inherited from Deck object'''
 
-        assert len(amount) == len(receiver), {"error": "Amount must match receiver."}
+        if not len(amount) == len(receiver):
+            raise RecieverAmountMismatch({"error": "carn mmount must match card receiver."})
+
         self.version = version
         self.deck_id = deck.id
         self.deck_p2th = deck.p2th_address
