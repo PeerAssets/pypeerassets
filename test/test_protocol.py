@@ -1,5 +1,8 @@
 import pytest
-from pypeerassets.protocol import CardTransfer, Deck, IssueMode
+import random
+from pypeerassets import Kutil
+from pypeerassets.protocol import (CardTransfer, Deck, IssueMode,
+                                   validate_card_issue_modes)
 
 
 def test_deck_object():
@@ -92,3 +95,37 @@ def test_issue_mode_combos(combo):
 
     if combo == IssueMode.MONO:
         assert base_issue_mode.value + combo.value == 9
+
+
+def few_random_cards(deck: Deck, n: int) -> list:
+    '''returns <n> randomly generated cards'''
+
+    card_types = ['CardIssue', 'CardBurn', 'CardTransfer']
+
+    cards = [CardTransfer(
+        deck=deck,
+        receiver=[Kutil(network='tppc').address],
+        amount=[random.randint(1, 100)],
+        ) for i in range(n)]
+
+    for i in cards:
+        i.__setattr__('type', random.choice(card_types))
+
+    return cards
+
+
+def test_validate_multi_card_issue_mode():
+    '''test card filtering against ONCE deck'''
+
+    deck = Deck(
+        name="decky",
+        number_of_decimals=2,
+        issue_mode=IssueMode.MULTI.value,
+        network="tppc",
+        production=True,
+        version=1,
+        )
+
+    cards = few_random_cards(deck, 4)
+
+    assert len(validate_card_issue_modes(deck.issue_mode, cards)) == 4
