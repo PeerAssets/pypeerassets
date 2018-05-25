@@ -1,3 +1,4 @@
+import pytest
 from pypeerassets.protocol import CardTransfer, Deck, IssueMode
 
 
@@ -76,3 +77,18 @@ def test_card_transfer_object():
                                       'version': 1,
                                       'deck_p2th': None
                                       }
+
+
+@pytest.mark.parametrize("combo", [IssueMode.ONCE, IssueMode.MULTI, IssueMode.MONO])
+def test_issue_mode_combos(combo):
+
+    base_issue_mode = IssueMode.CUSTOM
+
+    if combo == IssueMode.ONCE:
+        assert base_issue_mode.value + combo.value == 3
+
+    if combo == IssueMode.MULTI:
+        assert base_issue_mode.value + combo.value == 5
+
+    if combo == IssueMode.MONO:
+        assert base_issue_mode.value + combo.value == 9
