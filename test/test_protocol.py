@@ -59,7 +59,7 @@ def test_card_transfer_object():
     assert card_transfer.metainfo_to_protobuf == b'\x08\x01\x12\x01\x01\x18\x02'
 
     assert card_transfer.__dict__ == {'amount': [1],
-                                      'asset_specific_data': '',
+                                      'asset_specific_data': None,
                                       'blockhash': 0,
                                       'blocknum': 0,
                                       'blockseq': 0,
