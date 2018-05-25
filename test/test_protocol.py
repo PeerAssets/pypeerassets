@@ -218,3 +218,21 @@ def test_validate_mono_card_issue_mode():
     invalid = few_random_cards(deck, 9, 'transfer', 2)
 
     assert len(validate_card_issue_modes(deck.issue_mode, issues + other + invalid)) == 19
+
+
+def test_validate_singlet_card_issue_mode():
+    '''test card filtering against SINGLET deck'''
+
+    deck = Deck(
+        name="decky",
+        number_of_decimals=0,
+        issue_mode=IssueMode.SINGLET.value,
+        network="tppc",
+        production=True,
+        version=1,
+        )
+
+    issues = few_random_cards(deck, 10, 'issue', 1)
+    other = few_random_cards(deck, 9, 'transfer', 1)
+
+    assert len(validate_card_issue_modes(deck.issue_mode, issues + other)) == 1
