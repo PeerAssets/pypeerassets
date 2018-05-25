@@ -33,10 +33,13 @@ def multi_parser(cards):
 
 
 def mono_parser(cards):
-    '''parser for MONO [8] issue mode'''
+    '''
+    parser for MONO [8] issue mode
+    MONO = 0x08; // All card transaction amounts are equal to 1
+    '''
 
-    return [i for i in cards if i.type == "CardIssue"
-            and exponent_to_amount(i.amount[0], i.number_of_decimals) == 1]
+    return [i for i in cards if
+            exponent_to_amount(i.amount[0], i.number_of_decimals) == 1]
 
 
 def unflushable_parser(cards):
