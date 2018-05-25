@@ -212,7 +212,8 @@ def parse_card_transfer_metainfo(protobuf: bytes, deck_version: int) -> dict:
 
 
 def postprocess_card(card_metainfo: CardTransfer, raw_tx: dict, sender: str,
-                     vout: list, blockseq: int, blocknum: int, deck) -> list:
+                     vout: list, blockseq: int, blocknum: int, 
+                     tx_confirmations: int, deck) -> list:
     '''Postprocessing of all the relevant card transfer information and
     the creation of CardTransfer object.
 
@@ -222,6 +223,7 @@ def postprocess_card(card_metainfo: CardTransfer, raw_tx: dict, sender: str,
     : vout: tx vout
     : blockseq: tx block sequence number
     : blocknum: block number
+    : tx_confirmations: number of tx confirms for the transaction
     : deck: deck object this card transfer belongs to'''
 
     nderror = {"error": "Number of decimals does not match."}
@@ -243,6 +245,8 @@ def postprocess_card(card_metainfo: CardTransfer, raw_tx: dict, sender: str,
         _card["blockseq"] = blockseq
     if blocknum:
         _card["blocknum"] = blocknum
+    if tx_confirmations:
+        _card['tx_confirmations'] = tx_confirmations
     _card["timestamp"] = raw_tx["time"]
     _card["sender"] = sender
     _card["asset_specific_data"] = card_metainfo["asset_specific_data"]

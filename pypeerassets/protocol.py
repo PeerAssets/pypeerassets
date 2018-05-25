@@ -150,7 +150,8 @@ class CardTransfer:
                  version: int=1, blockhash: str=None, txid: str=None,
                  sender: str=None, asset_specific_data: bytes=None,
                  number_of_decimals: int=None, blockseq: int=None,
-                 cardseq: int=None, blocknum: int=None, timestamp: int=None) -> None:
+                 cardseq: int=None, blocknum: int=None,
+                 timestamp: int=None, tx_confirmations: int=None) -> None:
 
         '''CardTransfer object, used when parsing card_transfers from the blockchain
         or when sending out new card_transfer.
@@ -166,6 +167,7 @@ class CardTransfer:
         * blockhash - block ID where the tx was first included
         * blockseq - order in which tx was serialized into block
         * timestamp - unix timestamp of the block where it was first included
+        * tx_confirmations - number of confirmations of the transaction
         * asset_specific_data - extra metadata
         * number_of_decimals - number of decimals for amount, inherited from Deck object'''
 
@@ -193,12 +195,14 @@ class CardTransfer:
             self.timestamp = timestamp
             self.blocknum = blocknum
             self.cardseq = cardseq
+            self.confirms = tx_confirmations
         else:
             self.blockhash = 0
             self.blockseq = 0
             self.blocknum = 0
             self.timestamp = 0
             self.cardseq = 0
+            self.confirms = 0
 
         if self.sender == deck.issuer:
             self.type = "CardIssue"

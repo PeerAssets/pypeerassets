@@ -65,6 +65,7 @@ def test_card_transfer_object():
                                       'blocknum': 0,
                                       'blockseq': 0,
                                       'cardseq': 0,
+                                      'confirms': 0,
                                       'deck_id': None,
                                       'number_of_decimals': 2,
                                       'receiver': ['PDZ9MPBPPjtT6qdJm98PhLVY9gNtFUoSLT'],

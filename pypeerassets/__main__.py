@@ -202,9 +202,13 @@ def find_card_transfers(provider: Provider, deck: Deck) -> Generator:
                 blocknum = provider.getblock(raw_tx["blockhash"])["height"]
             except KeyError:
                 blocknum = None
+            try:  # try to get tx confirmation count
+                tx_confirmations = raw_tx["confirmations"]
+            except KeyError:
+                tx_confirmations = 0
 
             cards = postprocess_card(card_metainfo, raw_tx, sender,
-                                     vouts, blockseq, blocknum, deck)
+                                     vouts, blockseq, blocknum, tx_confirmations, deck)
             cards = [CardTransfer(**card) for card in cards]
 
         except (InvalidCardTransferP2TH, CardVersionMismatch,
