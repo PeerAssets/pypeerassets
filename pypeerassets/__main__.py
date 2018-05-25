@@ -48,6 +48,7 @@ def deck_parser(args: Union[Provider, dict, int, str], prod: bool=True) -> Deck:
             d["issuer"] = find_tx_sender(provider, raw_tx)
             d["network"] = provider.network
             d["production"] = prod
+            d["tx_confirmations"] = raw_tx["confirmations"]
             return Deck(**d)
 
     except (InvalidDeckSpawn, InvalidDeckMetainfo, InvalidDeckVersion, InvalidNulldataOutput) as err:

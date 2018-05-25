@@ -18,6 +18,7 @@ def test_deck_object():
                              'asset_specific_data': 'Just testing.',
                              'issue_mode': IssueMode.MULTI.value,
                              'issue_time': None,
+                             'confirms': None,
                              'issuer': '',
                              'name': 'decky',
                              'network': 'ppc',
