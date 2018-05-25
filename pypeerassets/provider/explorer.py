@@ -32,10 +32,12 @@ class Explorer(Provider):
         if response.getcode() != 200:
             raise Exception(response.reason)
 
+        r = response.read()
+
         try:
-            return json.loads(response.read().decode())
+            return json.loads(r.decode())
         except json.decoder.JSONDecodeError:
-            return response.read().decode()
+            return r.decode()
 
     def ext_fetch(self, command):
 
