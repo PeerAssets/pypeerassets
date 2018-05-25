@@ -97,7 +97,8 @@ def test_issue_mode_combos(combo):
         assert base_issue_mode.value + combo.value == 9
 
 
-def few_random_cards(deck: Deck, n: int, card_type: str='random') -> list:
+def few_random_cards(deck: Deck, n: int, card_type: str='random',
+                     amount: int=None) -> list:
     '''returns <n> randomly generated cards'''
 
     types = ['CardIssue', 'CardBurn', 'CardTransfer']
@@ -123,6 +124,10 @@ def few_random_cards(deck: Deck, n: int, card_type: str='random') -> list:
     if card_type == 'burn':
         for i in cards:
             i.__setattr__('type', 'CardBurn')
+
+    if amount:  # if there is strict requirement for amount to be <int>
+        for i in cards:
+            i.amount = [amount]
 
     return cards
 
@@ -194,3 +199,22 @@ def test_validate_unflushable_card_issue_mode():
     random_cards = few_random_cards(deck, 16, 'transfer')
 
     assert len(validate_card_issue_modes(deck.issue_mode, cards_issues + random_cards)) == 8
+
+
+def test_validate_mono_card_issue_mode():
+    '''test card filtering against MONO deck'''
+
+    deck = Deck(
+        name="decky",
+        number_of_decimals=0,
+        issue_mode=IssueMode.MONO.value,
+        network="tppc",
+        production=True,
+        version=1,
+        )
+
+    issues = few_random_cards(deck, 10, 'issue', 1)
+    other = few_random_cards(deck, 9, 'transfer', 1)
+    invalid = few_random_cards(deck, 9, 'transfer', 2)
+
+    assert len(validate_card_issue_modes(deck.issue_mode, issues + other + invalid)) == 19
