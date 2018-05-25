@@ -1,5 +1,5 @@
+import pytest
 from decimal import Decimal
-
 from pypeerassets.provider.explorer import Explorer
 
 
@@ -55,10 +55,15 @@ def test_explorer_listunspent():
                       'PAdonateFczhZuKLkKHozrcyMJW7Y6TKvw'), list)
 
 
-def test_explorer_getrawtransaction():
+@pytest.mark.parametrize("decrypt", [0, 1])
+def test_explorer_getrawtransaction(decrypt):
 
-    assert isinstance(Explorer(network="ppc").getrawtransaction(
-                      '34d19bf5a5c757d5bcbf83a91ad9bc04365c58a035a6bf728bce8013ad04c173'), dict)
+    if decrypt:
+        assert isinstance(Explorer(network="ppc").getrawtransaction(
+                          '34d19bf5a5c757d5bcbf83a91ad9bc04365c58a035a6bf728bce8013ad04c173', decrypt), dict)
+    else:
+        assert isinstance(Explorer(network="ppc").getrawtransaction(
+                          '34d19bf5a5c757d5bcbf83a91ad9bc04365c58a035a6bf728bce8013ad04c173', decrypt), str)
 
 
 def test_explorer_listtransactions():
