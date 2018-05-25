@@ -42,7 +42,7 @@ class IssueMode(Enum):
     # To correctly calculate the balance of a PeerAssets addres a client should only consider the card transfer
     # transactions originating from the deck owner.
 
-    SUBSCRIPTION = 0x34  # 32 used by SUBSCRIPTION (52 = 32 | 4 | 16)
+    SUBSCRIPTION = 0x34  # SUBSCRIPTION (52 = 20 | 4 | 16)
     # https://github.com/PeerAssets/rfcs/blob/master/0001-peerassets-transaction-specification.proto#L26
     # The SUBSCRIPTION issue mode marks an address holding tokens as subscribed for a limited timeframe. This timeframe is
     # defined by the balance of the account and the time at which the first cards of this token are received.
