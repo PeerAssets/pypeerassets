@@ -55,3 +55,7 @@ class InsufficientFunds(Exception):
 
 class InvalidNulldataOutput(Exception):
     '''mallformed OP_RETURN transaction output.'''
+
+
+class InvalidVoutOrder(Exception):
+    '''mallformed vout sequence'''
