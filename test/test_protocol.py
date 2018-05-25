@@ -97,7 +97,7 @@ def test_issue_mode_combos(combo):
         assert base_issue_mode.value + combo.value == 9
 
 
-def few_random_cards(deck: Deck, n: int) -> list:
+def few_random_cards(deck: Deck, n: int, card_types: str='random') -> list:
     '''returns <n> randomly generated cards'''
 
     card_types = ['CardIssue', 'CardBurn', 'CardTransfer']
@@ -108,8 +108,17 @@ def few_random_cards(deck: Deck, n: int) -> list:
         amount=[random.randint(1, 100)],
         ) for i in range(n)]
 
-    for i in cards:
-        i.__setattr__('type', random.choice(card_types))
+    if card_types == 'random':
+        for i in cards:
+            i.__setattr__('type', random.choice(card_types))
+
+    if card_types == 'issue':
+        for i in cards:
+            i.__setattr__('type', 'CardIssue')
+
+    if card_types == 'burn':
+        for i in cards:
+            i.__setattr__('type', 'CardBurn')
 
     return cards
 
@@ -126,6 +135,6 @@ def test_validate_multi_card_issue_mode():
         version=1,
         )
 
-    cards = few_random_cards(deck, 4)
+    cards = few_random_cards(deck, 4, 'issue')
 
     assert len(validate_card_issue_modes(deck.issue_mode, cards)) == 4
