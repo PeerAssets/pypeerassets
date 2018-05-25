@@ -159,3 +159,20 @@ def test_validate_once_card_issue_mode():
     cards = few_random_cards(deck, 8, 'issue')
 
     assert len(validate_card_issue_modes(deck.issue_mode, cards)) == 1
+
+
+def test_validate_none_card_issue_mode():
+    '''test card filtering against None deck'''
+
+    deck = Deck(
+        name="decky",
+        number_of_decimals=0,
+        issue_mode=IssueMode.NONE.value,
+        network="tppc",
+        production=True,
+        version=1,
+        )
+
+    cards = few_random_cards(deck, 8, 'issue')
+
+    assert len(validate_card_issue_modes(deck.issue_mode, cards)) == 0
