@@ -295,6 +295,25 @@ def test_validate_10combo_card_issue_mode():
                deck.issue_mode, issues + other + mono_transfers)) == 3
 
 
+def test_validate_6combo_card_issue_mode():
+    '''combo ONCE [2] and MULTI [4]'''
+
+    deck = Deck(
+        name="decky",
+        number_of_decimals=1,
+        issue_mode=6,
+        network="tppc",
+        production=True,
+        version=1,
+        )
+
+    issues = few_random_cards(deck, 3, 'issue',)
+    other = few_random_cards(deck, 2, 'transfer')
+
+    assert len(validate_card_issue_modes(
+               deck.issue_mode, issues + other)) == 3
+
+
 @pytest.mark.parametrize("combo", list(
                          itertools.combinations(
                              [0, 1, 2, 4, 8, 16, 52, 10], 2))
