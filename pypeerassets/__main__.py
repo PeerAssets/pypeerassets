@@ -20,7 +20,6 @@ from .transactions import (nulldata_script, tx_output, p2pkh_script,
                            Transaction)
 from .pa_constants import param_query
 from .networks import net_query
-from .kutil import Kutil
 from decimal import Decimal, getcontext
 getcontext().prec = 6
 
@@ -84,27 +83,6 @@ def find_all_valid_decks(provider: Provider, deck_version: int, prod: bool=True)
         for result in th.map(deck_parser, ((provider, rawtx, deck_version, p2th) for rawtx in deck_spawns)):
             if result:
                 yield result
-
-
-def sign_transaction(provider: Provider, unsigned_tx: Transaction,
-                     key: Kutil) -> Transaction:
-    '''sign transaction with Kutil'''
-
-    parent_output = find_parent_outputs(provider, unsigned_tx.ins[0])
-    return key.sign_transaction(parent_output, unsigned_tx)
-
-
-def _increase_fee_and_sign(provider: Provider, key: Kutil, change_sum: Decimal,
-                           inputs: dict, txouts: list):
-    '''when minimal fee wont cut it'''
-
-    # change output is last of transaction outputs
-    txouts[-1] = tx_output(value=change_sum, n=txouts[-1].n, script=txouts[-1].script_pubkey)
-
-    unsigned_tx = make_raw_transaction(inputs['utxos'], txouts)
-    signed = sign_transaction(provider, unsigned_tx, key)
-
-    return signed
 
 
 def find_deck(provider: Provider, key: str, version: int, prod=True) -> Deck:
