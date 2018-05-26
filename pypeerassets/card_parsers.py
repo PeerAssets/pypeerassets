@@ -4,7 +4,10 @@ from pypeerassets.pautils import exponent_to_amount
 
 
 def none_parser(cards):
-    '''parser for NONE [0] issue mode'''
+    '''
+    parser for NONE [0] issue mode
+    No issuance allowed.
+    '''
 
     return None
 
@@ -50,7 +53,10 @@ def mono_parser(cards):
 
 
 def unflushable_parser(cards):
-    '''parser for UNFLUSHABLE [16] issue mode'''
+    '''
+    parser for UNFLUSHABLE [16] issue mode
+    No card transfer transactions allowed except for the card-issue transaction
+    '''
 
     return [i for i in cards if i.type == "CardIssue"]
 
