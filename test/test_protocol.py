@@ -232,10 +232,10 @@ def test_validate_singlet_card_issue_mode():
         version=1,
         )
 
-    issues = few_random_cards(deck, 10, 'issue', 1)
-    other = few_random_cards(deck, 9, 'transfer', 1)
+    first_issue = few_random_cards(deck, 10, 'issue', 1)  # first 10, with amount=1
+    second_issue = few_random_cards(deck, 5, 'issue')  # with random amounts
 
-    assert len(validate_card_issue_modes(deck.issue_mode, issues + other)) == 1
+    assert len(validate_card_issue_modes(deck.issue_mode, first_issue + second_issue)) == 1
 
 
 def test_validate_subscription_card_issue_mode():
