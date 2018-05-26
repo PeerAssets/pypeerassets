@@ -1,5 +1,6 @@
 import pytest
 import random
+import itertools
 from pypeerassets import Kutil
 from pypeerassets.protocol import (CardTransfer, Deck, IssueMode,
                                    validate_card_issue_modes)
@@ -272,3 +273,47 @@ def test_validate_3combo_card_issue_mode():
     other = few_random_cards(deck, 20, 'transfer')
 
     assert len(validate_card_issue_modes(deck.issue_mode, issues + other)) == 21
+
+
+@pytest.mark.parametrize("combo", list(
+                         itertools.combinations(
+                             [0, 1, 2, 4, 8, 16, 52, 10], 2))
+                         )
+def test_validate_wild_two_way_combos(combo):
+
+    deck = Deck(
+        name="decky",
+        number_of_decimals=0,
+        issue_mode=combo[0] + combo[1],
+        network="tppc",
+        production=True,
+        version=1,
+        )
+
+    issues = few_random_cards(deck, 5, 'issue')
+    other = few_random_cards(deck, 15, 'transfer')
+
+    assert isinstance(validate_card_issue_modes(
+                      deck.issue_mode, issues + other), list)
+
+
+@pytest.mark.parametrize("combo", list(
+                         itertools.combinations(
+                             [0, 1, 2, 4, 8, 16, 52, 10], 3))
+                         )
+def test_validate_wild_three_way_combos(combo):
+
+    deck = Deck(
+        name="decky",
+        number_of_decimals=0,
+        issue_mode=combo[0] + combo[1] + combo[2],
+        network="tppc",
+        production=True,
+        version=1,
+        )
+
+    issues = few_random_cards(deck, 5, 'issue')
+    other = few_random_cards(deck, 15, 'transfer')
+
+    assert isinstance(validate_card_issue_modes(
+                      deck.issue_mode, issues + other), list)
