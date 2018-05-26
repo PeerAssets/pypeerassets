@@ -200,13 +200,15 @@ def get_card_transfers(provider: Provider, deck: Deck) -> Generator:
                 yield result
 
 
-def find_all_valid_cards(provider: Provider, deck: Deck) -> list:
+def find_all_valid_cards(provider: Provider, deck: Deck) -> Generator:
     '''find all the valid cards on this deck,
        filtering out cards which don't play nice with deck issue mode'''
 
     unfiltered = get_card_transfers(provider, deck)
 
-    return validate_card_issue_modes(deck.issue_mode, list(unfiltered))
+    for batch in validate_card_issue_modes(deck.issue_mode, list(unfiltered)):
+        for card in batch:
+            yield card
 
 
 def card_transfer(provider: Provider, card: CardTransfer, inputs: list,
