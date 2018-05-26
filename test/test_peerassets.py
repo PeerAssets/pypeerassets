@@ -27,16 +27,28 @@ def test_find_deck(prov):
 
 
 @pytest.mark.parametrize("prov", [pa.Explorer, pa.Cryptoid])
-def test_find_cards(prov):
+def test_get_cards(prov):
 
     provider = prov(network="tppc")
 
     deck = pa.find_deck(provider, 'b6a95f94fef093ee9009b04a09ecb9cb5cba20ab6f13fe0926aeb27b8671df43', 1)
 
-    cards = pa.find_card_transfers(provider, deck)
+    cards = pa.get_card_transfers(provider, deck)
 
     assert cards
     assert isinstance(next(cards)[0], pa.CardTransfer)
+
+
+def test_find_all_valid_cards():
+
+    provider = pa.Explorer(network="tppc")
+
+    deck = pa.find_deck(provider, 'b6a95f94fef093ee9009b04a09ecb9cb5cba20ab6f13fe0926aeb27b8671df43', 1)
+
+    cards = pa.find_all_valid_cards(provider, deck)
+
+    assert cards
+    assert isinstance(cards[0][0], pa.CardTransfer)
 
 
 def test_deck_spawn():
