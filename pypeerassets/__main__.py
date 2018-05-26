@@ -141,10 +141,8 @@ def deck_transfer(provider: Provider, deck: Deck,
     raise NotImplementedError
 
 
-def find_card_transfers(provider: Provider, deck: Deck) -> Generator:
-    '''find all <deck> card transfers'''
-
-    card_transfers = []
+def get_card_transfers(provider: Provider, deck: Deck) -> Generator:
+    '''get all <deck> card transfers, if cards match the protocol'''
 
     if isinstance(provider, RpcNode):
         batch_data = [('getrawtransaction', [i["txid"], 1] ) for i in provider.listtransactions(deck.id)]
@@ -200,6 +198,15 @@ def find_card_transfers(provider: Provider, deck: Deck) -> Generator:
         for result in th.map(card_parser, ((provider, deck, i) for i in card_transfers)):
             if result:
                 yield result
+
+
+def find_all_valid_cards(provider: Provider, deck: Deck) -> list:
+    '''find all the valid cards on this deck,
+       filtering out cards which don't play nice with deck issue mode'''
+
+    unfiltered = get_card_transfers(provider, deck)
+
+    return validate_card_issue_modes(deck.issue_mode, list(unfiltered))
 
 
 def card_transfer(provider: Provider, card: CardTransfer, inputs: list,
