@@ -164,7 +164,6 @@ def find_card_transfers(provider: Provider, deck: Deck) -> Generator:
         provider = args[0]
         deck = args[1]
         raw_tx = args[2]
-        cards = []
 
         try:
             validate_card_transfer_p2th(deck, raw_tx)  # validate P2TH first
@@ -186,7 +185,8 @@ def find_card_transfers(provider: Provider, deck: Deck) -> Generator:
                 tx_confirmations = 0
 
             cards = postprocess_card(card_metainfo, raw_tx, sender,
-                                     vouts, blockseq, blocknum, tx_confirmations, deck)
+                                     vouts, blockseq, blocknum,
+                                     tx_confirmations, deck)
             cards = [CardTransfer(**card) for card in cards]
 
         except (InvalidCardTransferP2TH, CardVersionMismatch,
