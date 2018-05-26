@@ -314,6 +314,28 @@ def test_validate_6combo_card_issue_mode():
                deck.issue_mode, issues + other)) == 3
 
 
+def test_validate_28combo_card_issue_mode():
+    '''combo MULTI [4], MONO [8] and UNFLUSHABLE [10]'''
+
+    mode = IssueMode.MULTI.value | IssueMode.MONO.value | IssueMode.UNFLUSHABLE.value  # 28
+
+    deck = Deck(
+        name="decky",
+        number_of_decimals=0,
+        issue_mode=mode,
+        network="tppc",
+        production=True,
+        version=1,
+        )
+
+    issues = few_random_cards(deck, 10, 'issue', 1)
+    bad_issues = few_random_cards(deck, 2, 'issue')
+    other = few_random_cards(deck, 2, 'transfer', 1)
+
+    assert len(validate_card_issue_modes(
+               deck.issue_mode, issues + bad_issues + other)) == 10
+
+
 @pytest.mark.parametrize("combo", list(
                          itertools.combinations(
                              [0, 1, 2, 4, 8, 16, 52, 10], 2))
