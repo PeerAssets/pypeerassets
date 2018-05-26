@@ -1,6 +1,6 @@
 '''parse cards according to deck issue mode'''
 
-from .pautils import exponent_to_amount
+from pypeerassets.pautils import exponent_to_amount
 
 
 def none_parser(cards):
@@ -21,9 +21,16 @@ def custom_parser(cards, parser=None):
 
 
 def once_parser(cards):
-    '''parser for ONCE [2] issue mode'''
+    '''
+    parser for ONCE [2] issue mode
+    Only one issuance transaction from asset owner allowed.
+    '''
 
-    return [next(i for i in cards if i.type == "CardIssue")]
+    first_issue = next(i for i in cards if i.type == "CardIssue")  # find first CardIssue
+
+    filtered = [i for i in cards if i.type == "CardIssue" if i != first_issue]  #  drop all other CardIssues
+
+    return [i for i in cards if i not in filtered]
 
 
 def multi_parser(cards):
