@@ -254,3 +254,21 @@ def test_validate_subscription_card_issue_mode():
     other = few_random_cards(deck, 9, 'transfer', 1)
 
     assert len(validate_card_issue_modes(deck.issue_mode, issues + other)) == 10
+
+
+def test_validate_3combo_card_issue_mode():
+    '''combo ONCE [2] and CUSTOM [1]'''
+
+    deck = Deck(
+        name="decky",
+        number_of_decimals=0,
+        issue_mode=3,
+        network="tppc",
+        production=True,
+        version=1,
+        )
+
+    issues = few_random_cards(deck, 8, 'issue')
+    other = few_random_cards(deck, 20, 'transfer')
+
+    assert len(validate_card_issue_modes(deck.issue_mode, issues + other)) == 21
