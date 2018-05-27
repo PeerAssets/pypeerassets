@@ -186,7 +186,6 @@ class CardTransfer:
             self.number_of_decimals = number_of_decimals
 
         self.receiver = receiver
-        assert len(self.receiver) < 20, {"error": "Too many receivers."}
         self.amount = amount
 
         if blockhash:
