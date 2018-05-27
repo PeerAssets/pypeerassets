@@ -2,7 +2,7 @@
 '''miscellaneous utilities.'''
 
 import binascii
-from .provider import *
+from .provider import RpcNode, Explorer, Cryptoid, Mintr
 from .exceptions import P2THImportFailed
 from .exceptions import (InvalidDeckSpawn, InvalidDeckMetainfo,
                          InvalidDeckIssueMode, InvalidDeckVersion)
@@ -62,7 +62,7 @@ def find_deck_spawns(provider, prod=True):
         else:
             raise NotImplementedError
 
-    if isinstance(provider, Cryptoid):
+    if isinstance(provider, Cryptoid) or isinstance(provider, Explorer):
 
         if prod:
             decks = (i for i in provider.listtransactions(pa_params.P2TH_addr))
