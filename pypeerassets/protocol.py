@@ -290,7 +290,7 @@ class DeckState:
     def _process(self, card: CardTransfer, ctype: str) -> bool:
 
         sender = card["sender"]
-        receivers = card["receiver"][0]
+        receiver = card["receiver"][0]
         amount = card["amount"][0]
 
         if 'CardIssue' not in ctype:
@@ -300,14 +300,14 @@ class DeckState:
                 self.balances[sender] -= amount
 
                 if 'CardBurn' not in ctype:
-                    self._append_balance(amount, receivers)
+                    self._append_balance(amount, receiver)
 
                 return True
 
             return False
 
         if 'CardIssue' in ctype:
-            self._append_balance(amount, receivers)
+            self._append_balance(amount, receiver)
             return True
 
         return False
