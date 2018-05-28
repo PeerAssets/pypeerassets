@@ -276,8 +276,9 @@ def validate_card_issue_modes(issue_mode: int, cards: list) -> list:
 
 class DeckState:
 
-    def __init__(self, cards: list):
-        self.sort_cards(cards)
+    def __init__(self, cards: list) -> None:
+
+        self._sort_cards(cards)
         self.total = 0
         self.burned = 0
         self.balances = {}
@@ -288,7 +289,7 @@ class DeckState:
         self.calc_state()
         self.checksum = not bool(self.total - sum(self.balances.values()))
 
-    def process(self, card, ctype):
+    def _process(self, card: CardTransfer, ctype: str) -> bool:
 
         sender = card["sender"]
         receivers = card["receiver"]
@@ -301,19 +302,20 @@ class DeckState:
                 self.balances[sender] -= amount
 
                 if 'CardBurn' not in ctype:
-                    self.to_receivers(card, receivers)
+                    self._to_receivers(card, receivers)
 
                 return True
 
             return False
 
         if 'CardIssue' in ctype:
-            self.to_receivers(card, receivers)
+            self._to_receivers(card, receivers)
             return True
 
         return False
 
-    def to_receivers(self, card, receivers):
+    def _to_receivers(self, card, receivers) -> None:
+
         for i, receiver in enumerate(receivers):
             amount = card["amount"][i]
             try:
@@ -321,29 +323,31 @@ class DeckState:
             except KeyError:
                 self.balances[receiver] = amount
 
-    def sort_cards(self, cards):
+    def _sort_cards(self, cards: list) -> None:
+        '''sort cards by blocknum and blockseq'''
 
         self.cards = sorted([card.__dict__ for card in cards],
                             key=itemgetter('blocknum', 'blockseq'))
 
-    def calc_state(self):
+    def calc_state(self) -> None:
 
         for card in self.cards:
 
             cid = card["txid"] + str(card["cardseq"])
             ctype = card["type"]
             amount = sum(card["amount"])
+
             if ctype == 'CardIssue' and cid not in self.processed_issues:
-                validate = self.process(card, ctype)
-                self.total += amount * validate # This will set amount to 0 if validate is False
+                validate = self._process(card, ctype)
+                self.total += amount * validate  # This will set amount to 0 if validate is False
                 self.processed_issues[cid] = card["timestamp"]
 
             if ctype == 'CardTransfer' and cid not in self.processed_transfers:
-                self.process(card, ctype)
+                self._process(card, ctype)
                 self.processed_transfers[cid] = card["timestamp"]
 
             if ctype == 'CardBurn' and cid not in self.processed_burns:
-                validate = self.process(card, ctype)
+                validate = self._process(card, ctype)
 
                 self.total -= amount * validate
                 self.burned += amount * validate
