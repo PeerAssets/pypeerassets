@@ -323,13 +323,14 @@ class DeckState:
         '''sort cards by blocknum and blockseq'''
 
         self.cards = sorted([card.__dict__ for card in cards],
-                            key=itemgetter('blocknum', 'blockseq'))
+                            key=itemgetter('blocknum', 'blockseq', 'cardseq'))
 
     def calc_state(self) -> None:
 
         for card in self._sort_cards:
 
-            cid = card["txid"] + str(card["cardseq"])  # txid + cardseq, as unique ID
+            # txid + blockseq + cardseq, as unique ID
+            cid = card["txid"] + + str(card["blockseq"]) + str(card["cardseq"])
             ctype = card["type"]
             amount = card["amount"][0]
 
