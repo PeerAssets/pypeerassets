@@ -337,15 +337,15 @@ class DeckState:
             if ctype == 'CardIssue' and cid not in self.processed_issues:
                 validate = self._process(card, ctype)
                 self.total += amount * validate  # This will set amount to 0 if validate is False
-                self.processed_issues[cid] = card["timestamp"]
+                self.processed_issues[cid] = cid
 
             if ctype == 'CardTransfer' and cid not in self.processed_transfers:
                 self._process(card, ctype)
-                self.processed_transfers[cid] = card["timestamp"]
+                self.processed_transfers[cid] = cid
 
             if ctype == 'CardBurn' and cid not in self.processed_burns:
                 validate = self._process(card, ctype)
 
                 self.total -= amount * validate
                 self.burned += amount * validate
-                self.processed_burns[cid] = card["timestamp"]
+                self.processed_burns[cid] = cid
