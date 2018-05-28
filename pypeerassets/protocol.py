@@ -6,7 +6,7 @@ from .kutil import Kutil
 from .paproto_pb2 import DeckSpawn as deckspawnproto
 from .paproto_pb2 import CardTransfer as cardtransferproto
 from .pautils import amount_to_exponent, issue_mode_to_enum
-from .exceptions import InvalidDeckIssueModeCombo, RecieverAmountMismatch
+from .exceptions import RecieverAmountMismatch
 from operator import itemgetter
 from .card_parsers import *
 from enum import Enum
