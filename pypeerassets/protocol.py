@@ -1,7 +1,6 @@
 """all things PeerAssets protocol."""
 
 import warnings
-from binascii import unhexlify
 from .kutil import Kutil
 from .paproto_pb2 import DeckSpawn as deckspawnproto
 from .paproto_pb2 import CardTransfer as cardtransferproto
@@ -95,7 +94,7 @@ class Deck:
         '''P2TH privkey in WIF format'''
 
         return Kutil(network=self.network,
-                     privkey=unhexlify(self.id)).wif
+                     privkey=bytearray.fromhex(self.id)).wif
 
     @property
     def metainfo_to_protobuf(self) -> bytes:
