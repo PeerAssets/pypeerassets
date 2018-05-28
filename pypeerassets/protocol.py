@@ -277,6 +277,7 @@ class DeckState:
 
     def __init__(self, cards: Generator) -> None:
 
+        self.cards = cards
         self.total = 0
         self.burned = 0
         self.balances = {}
@@ -322,12 +323,12 @@ class DeckState:
     def _sort_cards(self, cards: list) -> None:
         '''sort cards by blocknum and blockseq'''
 
-        self.cards = sorted([card.__dict__ for card in cards],
+        return sorted([card.__dict__ for card in cards],
                             key=itemgetter('blocknum', 'blockseq', 'cardseq'))
 
     def calc_state(self) -> None:
 
-        for card in self._sort_cards:
+        for card in self._sort_cards(self.cards):
 
             # txid + blockseq + cardseq, as unique ID
             cid = card["txid"] + str(card["blockseq"]) + str(card["cardseq"])
