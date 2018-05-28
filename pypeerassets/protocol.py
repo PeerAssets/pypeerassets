@@ -169,7 +169,8 @@ class CardTransfer:
         * timestamp - unix timestamp of the block where it was first included
         * tx_confirmations - number of confirmations of the transaction
         * asset_specific_data - extra metadata
-        * number_of_decimals - number of decimals for amount, inherited from Deck object'''
+        * number_of_decimals - number of decimals for amount, inherited from Deck object
+        : type: card type [CardIssue, CardTransfer, CardBurn]'''
 
         if not len(amount) == len(receiver):
             raise RecieverAmountMismatch({"error": "carn mmount must match card receiver."})
@@ -202,6 +203,9 @@ class CardTransfer:
             self.timestamp = 0
             self.cardseq = 0
             self.confirms = 0
+
+        if type:
+            self.type = type
 
         if self.sender == deck.issuer:
             self.type = "CardIssue"
