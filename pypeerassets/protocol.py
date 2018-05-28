@@ -150,7 +150,8 @@ class CardTransfer:
                  sender: str=None, asset_specific_data: bytes=None,
                  number_of_decimals: int=None, blockseq: int=None,
                  cardseq: int=None, blocknum: int=None,
-                 timestamp: int=None, tx_confirmations: int=None) -> None:
+                 timestamp: int=None, tx_confirmations: int=None,
+                 type: str=None) -> None:
 
         '''CardTransfer object, used when parsing card_transfers from the blockchain
         or when sending out new card_transfer.
