@@ -9,7 +9,7 @@ from .exceptions import RecieverAmountMismatch
 from operator import itemgetter
 from .card_parsers import *
 from enum import Enum
-from typing import List
+from typing import List, Generator
 
 
 class IssueMode(Enum):
@@ -275,9 +275,8 @@ def validate_card_issue_modes(issue_mode: int, cards: list) -> list:
 
 class DeckState:
 
-    def __init__(self, cards: list) -> None:
+    def __init__(self, cards: Generator) -> None:
 
-        self._sort_cards(cards)
         self.total = 0
         self.burned = 0
         self.balances = {}
@@ -291,8 +290,8 @@ class DeckState:
     def _process(self, card: CardTransfer, ctype: str) -> bool:
 
         sender = card["sender"]
-        receivers = card["receiver"]
-        amount = sum(card["amount"])
+        receivers = card["receiver"][0]
+        amount = card["amount"][0]
 
         if 'CardIssue' not in ctype:
             balance_check = sender in self.balances and self.balances[sender] >= amount
@@ -301,22 +300,20 @@ class DeckState:
                 self.balances[sender] -= amount
 
                 if 'CardBurn' not in ctype:
-                    self._to_receivers(card, receivers)
+                    self._append_balance(amount, receivers)
 
                 return True
 
             return False
 
         if 'CardIssue' in ctype:
-            self._to_receivers(card, receivers)
+            self._append_balance(amount, receivers)
             return True
 
         return False
 
-    def _to_receivers(self, card, receivers) -> None:
+    def _append_balance(self, amount, receiver) -> None:
 
-        for i, receiver in enumerate(receivers):
-            amount = card["amount"][i]
             try:
                 self.balances[receiver] += amount
             except KeyError:
@@ -330,11 +327,11 @@ class DeckState:
 
     def calc_state(self) -> None:
 
-        for card in self.cards:
+        for card in self._sort_cards:
 
-            cid = card["txid"] + str(card["cardseq"])
+            cid = card["txid"] + str(card["cardseq"])  # txid + cardseq, as unique ID
             ctype = card["type"]
-            amount = sum(card["amount"])
+            amount = card["amount"][0]
 
             if ctype == 'CardIssue' and cid not in self.processed_issues:
                 validate = self._process(card, ctype)
