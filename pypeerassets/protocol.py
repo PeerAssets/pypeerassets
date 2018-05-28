@@ -330,7 +330,7 @@ class DeckState:
         for card in self._sort_cards:
 
             # txid + blockseq + cardseq, as unique ID
-            cid = card["txid"] + + str(card["blockseq"]) + str(card["cardseq"])
+            cid = card["txid"] + str(card["blockseq"]) + str(card["cardseq"])
             ctype = card["type"]
             amount = card["amount"][0]
 
