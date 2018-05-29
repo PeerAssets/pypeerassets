@@ -58,7 +58,7 @@ def test_cryptoid_listunspent():
 def test_cryptoid_getrawtransaction():
 
     assert isinstance(Cryptoid(network="ppc").getrawtransaction(
-                      '34d19bf5a5c757d5bcbf83a91ad9bc04365c58a035a6bf728bce8013ad04c173'), dict)
+                      '34d19bf5a5c757d5bcbf83a91ad9bc04365c58a035a6bf728bce8013ad04c173', 1), dict)
 
 
 def test_cryptoid_listtransactions():
