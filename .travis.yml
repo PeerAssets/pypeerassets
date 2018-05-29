@@ -9,4 +9,4 @@ install:
 # command to run tests
 script:
   - pytest
-
+  - mypy --ignore-missing-imports --disallow-untyped-defs pypeerassets

@@ -18,7 +18,7 @@ except:
 class RpcNode(Client, Provider):
     '''JSON-RPC connection to local Peercoin node'''
 
-    def select_inputs(self, total_amount, address=None):
+    def select_inputs(self, address: str, amount: int) -> dict:
         '''finds apropriate utxo's to include in rawtx, while being careful
         to never spend old transactions with a lot of coin age.
         Argument is intiger, returns list of apropriate UTXO's'''
@@ -38,14 +38,16 @@ class RpcNode(Client, Provider):
                          )
 
                 utxo_sum += Decimal(tx["amount"])
-                if utxo_sum >= total_amount:
+                if utxo_sum >= amount:
                     return {'utxos': utxos, 'total': utxo_sum}
 
-        if utxo_sum < total_amount:
+        if utxo_sum < amount:
             raise InsufficientFunds("Insufficient funds.")
 
+        raise Exception("undefined behavior :.(")
+
     @property
-    def is_testnet(self):
+    def is_testnet(self) -> bool:
         '''check if node is configured to use testnet or mainnet'''
 
         if self.getinfo()["testnet"] is True:
@@ -54,7 +56,7 @@ class RpcNode(Client, Provider):
             return False
 
     @property
-    def network(self):
+    def network(self) -> str:
         '''return which network is the node operating on.'''
 
         if self.is_testnet:
@@ -62,13 +64,16 @@ class RpcNode(Client, Provider):
         else:
             return "ppc"
 
-    def listunspent(self, minconf=1, maxconf=999999, address=None):
+    def listunspent(
+        self,
+        address: str="",
+        minconf: int=1,
+        maxconf: int=999999,
+    ) -> list:
         '''list UTXOs
         modified version to allow filtering by address.
         '''
         if address:
-            address = [address]
-            return self.req("listunspent", [minconf, maxconf, address] )
-        else:
-            return self.req("listunspent", [minconf, maxconf])
+            return self.req("listunspent", [minconf, maxconf, [address]])
 
+        return self.req("listunspent", [minconf, maxconf])
