@@ -8,7 +8,7 @@ from pypeerassets.exceptions import RecieverAmountMismatch
 from operator import itemgetter
 from pypeerassets.card_parsers import *
 from enum import Enum
-from typing import List, Generator, cast
+from typing import List, Optional, Generator, cast
 
 
 class IssueMode(Enum):
