@@ -146,7 +146,6 @@ def deck_transfer(provider: Provider, deck: Deck,
 def get_card_transfers(provider: Provider, deck: Deck) -> Generator:
     '''get all <deck> card transfers, if cards match the protocol'''
 
-    card_transfers = cast(Iterable, [])
     if isinstance(provider, RpcNode):
         if deck.id is None:
             raise Exception("deck.id required to listtransactions")
