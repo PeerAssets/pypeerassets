@@ -404,7 +404,7 @@ def test_deck_state():
     deck = Deck(
         name="my_test_deck",
         number_of_decimals=0,
-        issue_mode=12,  # MULTI | MONO
+        issue_mode=4,  # MULTI
         network="tppc",
         production=True,
         version=1,
