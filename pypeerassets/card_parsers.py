@@ -1,8 +1,8 @@
 '''parse cards according to deck issue mode'''
 
 from typing import Callable, Optional
+from pypeerassets.pautils import exponent_to_amount, amount_to_exponent
 
-from pypeerassets.pautils import exponent_to_amount
 
 def none_parser(cards: list) -> Optional[list]:
     '''
@@ -49,8 +49,16 @@ def mono_parser(cards: list) -> Optional[list]:
     MONO = 0x08; // All card transaction amounts are equal to 1
     '''
 
-    return [i for i in cards if
-            exponent_to_amount(i.amount[0], i.number_of_decimals) == 1]
+    processed_cards = []
+    decimals = cards[0].number_of_decimals
+
+    for c in cards:
+        c.amount = amount_to_exponent(
+                     exponent_to_amount(c.amount[0], decimals),
+                     decimals)
+        processed_cards.append(c)
+
+    return processed_cards
 
 
 def unflushable_parser(cards: list) -> Optional[list]:
