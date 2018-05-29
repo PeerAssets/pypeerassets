@@ -422,11 +422,11 @@ def test_deck_state():
                                 amount=[a],
                                 sender=deck.issuer,
                                 blockseq=0,
-                                txid='fe8f88c2a3a700a664f9547cb9c48466f900553d0a6bdb504ad52340ef00c9a0'
+                                blocknum=1,
+                                blockhash='d9ec32b461d80b6a549a09f5ddd550f6e2fa9021f8efe4fd7413be6c471c0b56',
+                                txid='fe8f88c2a3a700a664f9547cb9c48466f900553d0a6bdb504ad52340ef00c9a0',
+                                cardseq=amounts.index(a)
                                 ) for r, a in zip(receiver_roster, amounts)]
-
-    for c in card_issues:
-        c.__setattr__('cardseq', card_issues.index(c))
 
     transfers = []  # list of card transfers
 
@@ -435,7 +435,10 @@ def test_deck_state():
                                   sender=receiver_roster[0],
                                   receiver=[receiver_roster[2]],
                                   amount=[amounts[0]],
+                                  blockhash='c5a03576178843eb5a1f1e6b878678f2c7d47b6f561fe06059e0518645b8e50e',
+                                  blocknum=2,
                                   blockseq=1,
+                                  cardseq=0,
                                   txid='08c886a43ce9f95a5673bc95374259b0f9eca9de1e5fb9bb7aa7826834820133',
                                   type='CardTransfer'
                                   ))
@@ -446,6 +449,9 @@ def test_deck_state():
                                   receiver=[deck.issuer],  # burn
                                   amount=[amounts[1]],
                                   blockseq=1,
+                                  blockhash='d6cecad875b05e9b34cb05680de0bee4f5d69ba83df23a6b6a14d1090dc992e3',
+                                  cardseq=0,
+                                  blocknum=3,
                                   txid='b27161ba476d29c2255d097aaa4e236752b9891a46d1fdb88f5225ee677b976e',
                                   type='CardBurn'
                                   ))
@@ -456,31 +462,47 @@ def test_deck_state():
                                   receiver=[receiver_roster[0]],
                                   amount=[10],
                                   blockseq=1,
+                                  blocknum=5,
+                                  blockhash='d638dc2d60623d16cb6b39fc165a6e7514a28c426b02db32058b87fada1cabdb',
+                                  cardseq=0,
                                   txid='ebe36158ca3f364910f8a1c0f9b1b2696bed4522f84551bdb42ffd57360ce232',
                                   type='CardTransfer'
                                   ))
 
-    t = CardTransfer(deck=deck,
-                     sender=receiver_roster[2],
-                     receiver=[receiver_roster[3]],
-                     amount=[20],
-                     blockseq=1,
-                     txid='ebe36158ca3f364910f8a1c0f9b1b2696bed4522f84551bdb42ffd57360ce232',
-                     type='CardTransfer'
-                     )
+    transfers.append(CardTransfer(deck=deck,
+                                  sender=receiver_roster[2],
+                                  receiver=[receiver_roster[3]],
+                                  amount=[20],
+                                  blockseq=1,
+                                  blocknum=5,
+                                  blockhash='d638dc2d60623d16cb6b39fc165a6e7514a28c426b02db32058b87fada1cabdb',
+                                  txid='ebe36158ca3f364910f8a1c0f9b1b2696bed4522f84551bdb42ffd57360ce232',
+                                  type='CardTransfer',
+                                  cardseq=1
+                                  ))
 
-    t.__setattr__('cardseq', 1)  # set cardseq
-    transfers.append(t)
+    # fourth member of the roster is sending 10 of it's cards to second member
+    transfers.append(CardTransfer(deck=deck,
+                                  sender=receiver_roster[3],
+                                  receiver=[receiver_roster[1]],
+                                  amount=[10],
+                                  blockseq=1,
+                                  blocknum=200,
+                                  blockhash='2896066f76f0c0f609ee0e92d195d0eb48891b91f90fa4c9a51381e9f9510b7a',
+                                  txid='764afbfe6b3cecd3be8161fef363a08b8b14e7c631b4b7fbbc8edbc1475ab0fe',
+                                  type='CardTransfer',
+                                  cardseq=0
+                                  ))
 
     state = DeckState(card_issues + transfers)
 
-    assert len(state.cards) == 8
+    assert len(state.cards) == 9
     assert len(list(state.processed_burns)) == 1
     assert len(list(state.processed_issues)) == 4
-    assert len(list(state.processed_transfers)) == 3
+    assert len(list(state.processed_transfers)) == 4
     assert state.checksum
 
     assert state.balances[receiver_roster[0]] == 10
-    # second one does not have a balance as those were burned
+    assert state.balances[receiver_roster[1]] == 10
     assert state.balances[receiver_roster[2]] == 10
-    assert state.balances[receiver_roster[3]] == 60
+    assert state.balances[receiver_roster[3]] == 50
