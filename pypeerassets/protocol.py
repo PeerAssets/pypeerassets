@@ -325,7 +325,7 @@ class DeckState:
             except KeyError:
                 self.balances[receiver] = amount
 
-    def _sort_cards(self, cards: list) -> None:
+    def _sort_cards(self, cards: list) -> Generator:
         '''sort cards by blocknum and blockseq'''
 
         return sorted([card.__dict__ for card in cards],
