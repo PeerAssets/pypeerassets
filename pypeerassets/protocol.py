@@ -295,9 +295,9 @@ class DeckState:
         self.total = 0
         self.burned = 0
         self.balances = cast(dict, {})
-        self.processed_issues = cast(dict, {})
-        self.processed_transfers = cast(dict, {})
-        self.processed_burns = cast(dict, {})
+        self.processed_issues = set()
+        self.processed_transfers = set()
+        self.processed_burns = set()
 
         self.calc_state()
         self.checksum = not bool(self.total - sum(self.balances.values()))
@@ -345,22 +345,22 @@ class DeckState:
         for card in self._sort_cards(self.cards):
 
             # txid + blockseq + cardseq, as unique ID
-            cid = card["txid"] + str(card["blockseq"]) + str(card["cardseq"])
+            cid = str(card["txid"] + str(card["blockseq"]) + str(card["cardseq"]))
             ctype = card["type"]
             amount = card["amount"][0]
 
             if ctype == 'CardIssue' and cid not in self.processed_issues:
                 validate = self._process(card, ctype)
                 self.total += amount * validate  # This will set amount to 0 if validate is False
-                self.processed_issues[cid] = cid
+                self.processed_issues |= {cid}
 
             if ctype == 'CardTransfer' and cid not in self.processed_transfers:
                 self._process(card, ctype)
-                self.processed_transfers[cid] = cid
+                self.processed_transfers |= {cid}
 
             if ctype == 'CardBurn' and cid not in self.processed_burns:
                 validate = self._process(card, ctype)
 
                 self.total -= amount * validate
                 self.burned += amount * validate
-                self.processed_burns[cid] = cid
+                self.processed_burns |= {cid}
