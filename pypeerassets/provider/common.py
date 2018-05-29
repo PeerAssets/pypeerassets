@@ -1,11 +1,14 @@
 '''Common provider class with basic features.'''
 
 from abc import ABC, abstractmethod
+from decimal import Decimal
+import urllib.request
+
+from btcpy.structs.address import Address
+
 from pypeerassets.exceptions import UnsupportedNetwork
 from pypeerassets.pa_constants import PAParams, param_query
 from pypeerassets.networks import NetworkParams, net_query
-from decimal import Decimal
-import urllib.request
 
 
 class Provider(ABC):
@@ -107,3 +110,16 @@ class Provider(ABC):
     @abstractmethod
     def listtransactions(self, address: str) -> list:
         raise NotImplementedError
+
+    def validateaddress(self, address: str) -> bool:
+        """Returns True if the passed address is valid, False otherwise. Note
+        the limitation that we don't check the address against the underlying
+        network (i.e. strict=False). When btcpy can support multiple networks at
+        runtime we can be more precise (i.e. strict=True) ;)
+        """
+        try:
+            Address.from_string(address, strict=False)
+        except ValueError:
+            return False
+
+        return True
