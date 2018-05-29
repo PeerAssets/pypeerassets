@@ -214,11 +214,10 @@ def test_validate_mono_card_issue_mode():
         version=1,
         )
 
-    issues = few_random_cards(deck, 10, 'issue', 1)
-    other = few_random_cards(deck, 9, 'transfer', 1)
-    invalid = few_random_cards(deck, 9, 'transfer', 2)
+    issues = few_random_cards(deck, 10, 'issue')
+    other = few_random_cards(deck, 9, 'transfer')
 
-    assert len(validate_card_issue_modes(deck.issue_mode, issues + other + invalid)) == 19
+    assert len(validate_card_issue_modes(deck.issue_mode, issues + other)) == 19
 
 
 def test_validate_singlet_card_issue_mode():
@@ -287,12 +286,11 @@ def test_validate_10combo_card_issue_mode():
         version=1,
         )
 
-    issues = few_random_cards(deck, 3, 'issue', 1)
-    mono_transfers = few_random_cards(deck, 2, 'transfer', 1)
+    issues = few_random_cards(deck, 3, 'issue')
     other = few_random_cards(deck, 20, 'transfer')
 
     assert len(validate_card_issue_modes(
-               deck.issue_mode, issues + other + mono_transfers)) == 3
+               deck.issue_mode, issues + other)) == 21
 
 
 def test_validate_6combo_card_issue_mode():
@@ -328,12 +326,11 @@ def test_validate_28combo_card_issue_mode():
         version=1,
         )
 
-    issues = few_random_cards(deck, 10, 'issue', 1)
-    bad_issues = few_random_cards(deck, 2, 'issue')
+    issues = few_random_cards(deck, 10, 'issue')
     other = few_random_cards(deck, 2, 'transfer', 1)
 
     assert len(validate_card_issue_modes(
-               deck.issue_mode, issues + bad_issues + other)) == 10
+               deck.issue_mode, issues + other)) == 10
 
 
 def test_validate_13combo_card_issue_mode():
@@ -350,12 +347,11 @@ def test_validate_13combo_card_issue_mode():
         version=1,
         )
 
-    issues = few_random_cards(deck, 10, 'issue', 1)
-    bad_issues = few_random_cards(deck, 2, 'issue')
+    issues = few_random_cards(deck, 10, 'issue')
     other = few_random_cards(deck, 2, 'transfer', 1)
 
     assert len(validate_card_issue_modes(
-               deck.issue_mode, issues + bad_issues + other)) == 12
+               deck.issue_mode, issues + other)) == 12
 
 
 @pytest.mark.parametrize("combo", list(
