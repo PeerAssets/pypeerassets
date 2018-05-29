@@ -412,7 +412,7 @@ def test_deck_state():
         )
 
     receiver_roster = ['mzsMJgqVABFhrEGrqKH7qURhmxESx4K8Ti',
-                       'mmsiUudS9W5xLoWeA44JmKa28cioFg7Yzx'
+                       'mmsiUudS9W5xLoWeA44JmKa28cioFg7Yzx',
                        'muMpqVjUDq5voY9WnxvFb9sFvZm8wwKihu',
                        'mxrr8ALSs9fmHEszs5y1w5tRsDv9r7M2bK']
     amounts = [10, 20, 30, 40]
@@ -422,9 +422,11 @@ def test_deck_state():
                                 amount=[a],
                                 sender=deck.issuer,
                                 blockseq=0,
-                                txid='fe8f88c2a3a700a664f9547cb9c48466f900553d0a6bdb504ad52340ef00c9a0',
-                                cardseq=amounts.index(a)
+                                txid='fe8f88c2a3a700a664f9547cb9c48466f900553d0a6bdb504ad52340ef00c9a0'
                                 ) for r, a in zip(receiver_roster, amounts)]
+
+    for c in card_issues:
+        c.__setattr__('cardseq', card_issues.index(c))
 
     transfers = []  # list of card transfers
 
@@ -434,47 +436,51 @@ def test_deck_state():
                                   receiver=[receiver_roster[2]],
                                   amount=[amounts[0]],
                                   blockseq=1,
-                                  cardseq=0,
                                   txid='08c886a43ce9f95a5673bc95374259b0f9eca9de1e5fb9bb7aa7826834820133',
                                   type='CardTransfer'
                                   ))
 
-
     # second member of the roster burns it's 20 cards, he calls it a scam too
     transfers.append(CardTransfer(deck=deck,
                                   sender=receiver_roster[1],
-                                  receiver=[deck.issuer],
+                                  receiver=[deck.issuer],  # burn
                                   amount=[amounts[1]],
                                   blockseq=1,
-                                  cardseq=0,
                                   txid='b27161ba476d29c2255d097aaa4e236752b9891a46d1fdb88f5225ee677b976e',
                                   type='CardBurn'
                                   ))
 
-    # third member of the roster sends out it's cards to r[0] and r[4]
+    # third member of the roster sends out it's cards to r[0] and r[3]
     transfers.append(CardTransfer(deck=deck,
                                   sender=receiver_roster[2],
-                                  receiver=[deck.issuer],
+                                  receiver=[receiver_roster[0]],
                                   amount=[10],
                                   blockseq=1,
-                                  cardseq=0,
                                   txid='ebe36158ca3f364910f8a1c0f9b1b2696bed4522f84551bdb42ffd57360ce232',
                                   type='CardTransfer'
                                   ))
 
-    transfers.append(CardTransfer(deck=deck,
-                                  sender=receiver_roster[2],
-                                  receiver=[deck.issuer],
-                                  amount=[20],
-                                  blockseq=1,
-                                  cardseq=1,
-                                  txid='ebe36158ca3f364910f8a1c0f9b1b2696bed4522f84551bdb42ffd57360ce232',
-                                  type='CardTransfer'
-                                  ))
+    t = CardTransfer(deck=deck,
+                     sender=receiver_roster[2],
+                     receiver=[receiver_roster[3]],
+                     amount=[20],
+                     blockseq=1,
+                     txid='ebe36158ca3f364910f8a1c0f9b1b2696bed4522f84551bdb42ffd57360ce232',
+                     type='CardTransfer'
+                     )
+
+    t.__setattr__('cardseq', 1)  # set cardseq
+    transfers.append(t)
 
     state = DeckState(card_issues + transfers)
 
-    assert state.balances['mzsMJgqVABFhrEGrqKH7qURhmxESx4K8Ti'] == 10
-    assert state.balances['mt6U36PBurMsgjNVkPefYoku7uypLMRrbx'] == 0
-    assert state.balances['mmsiUudS9W5xLoWeA44JmKa28cioFg7Yzx'] == 10
-    assert state.balances['muobvRLAAMgEWBDNGLz1bGJ1Kj4yZUqCGj'] == 60
+    assert len(state.cards) == 8
+    assert len(list(state.processed_burns)) == 1
+    assert len(list(state.processed_issues)) == 4
+    assert len(list(state.processed_transfers)) == 3
+    assert state.checksum
+
+    assert state.balances[receiver_roster[0]] == 10
+    # second one does not have a balance as those were burned
+    assert state.balances[receiver_roster[2]] == 10
+    assert state.balances[receiver_roster[3]] == 60
