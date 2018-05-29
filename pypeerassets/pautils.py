@@ -10,8 +10,10 @@ from .exceptions import (InvalidCardTransferP2TH, CardVersionMismatch,
                          CardNumberOfDecimalsMismatch, InvalidNulldataOutput,
                          DeckP2THImportError, InvalidVoutOrder)
 from .pa_constants import param_query
-from typing import Iterator
+from typing import Iterable
 from .paproto_pb2 import DeckSpawn, CardTransfer
+
+from pypeerassets.provider import Provider
 
 
 def load_p2th_privkey_into_local_node(provider: RpcNode, prod: bool=True) -> None:
@@ -32,7 +34,7 @@ def load_p2th_privkey_into_local_node(provider: RpcNode, prod: bool=True) -> Non
             raise P2THImportFailed(error)
 
 
-def find_tx_sender(provider, raw_tx: dict) -> str:
+def find_tx_sender(provider: Provider, raw_tx: dict) -> str:
     '''find transaction sender, vin[0] is used in this case.'''
 
     vin = raw_tx["vin"][0]
@@ -41,8 +43,8 @@ def find_tx_sender(provider, raw_tx: dict) -> str:
     return provider.getrawtransaction(txid, 1)["vout"][index]["scriptPubKey"]["addresses"][0]
 
 
-def find_deck_spawns(provider, prod=True):
-    '''find deck spawn transactions via provider,
+def find_deck_spawns(provider: Provider, prod: bool=True) -> Iterable[str]:
+    '''find deck spawn transactions via Provider,
     it requires that Deck spawn P2TH were imported in local node or
     that remote API knows about P2TH address.'''
 
@@ -72,7 +74,7 @@ def find_deck_spawns(provider, prod=True):
     return decks
 
 
-def tx_serialization_order(provider, blockhash: str, txid: str) -> int:
+def tx_serialization_order(provider: Provider, blockhash: str, txid: str) -> int:
     '''find index of this tx in the blockid'''
 
     return provider.getblock(blockhash)["tx"].index(txid)
@@ -103,7 +105,7 @@ def read_tx_opreturn(raw_tx: dict) -> bytes:
             return binascii.unhexlify(data[:n])
 
 
-def deck_issue_mode(proto: DeckSpawn) -> Iterator[str]:
+def deck_issue_mode(proto: DeckSpawn) -> Iterable[str]:
     '''interpret issue mode bitfeg'''
 
     for mode in proto.MODE.keys():
@@ -152,8 +154,10 @@ def parse_deckspawn_metainfo(protobuf: bytes, version: int) -> dict:
         }
 
 
-def validate_deckspawn_p2th(provider, rawtx, p2th):
-    '''validate if deck spawn pays to p2th in vout[0] and if the P2TH address is correct'''
+def validate_deckspawn_p2th(provider: Provider, rawtx: dict, p2th: str) -> bool:
+    '''Return True if deck spawn pays to p2th in vout[0] and if the P2TH address
+    is correct. Otherwise raises InvalidDeckSpawn.
+    '''
 
     error = {"Error": "This deck ({deck}) is not properly tagged.".format(deck=rawtx['txid'])}
 
@@ -169,7 +173,7 @@ def validate_deckspawn_p2th(provider, rawtx, p2th):
     return True
 
 
-def load_deck_p2th_into_local_node(provider, deck) -> None:
+def load_deck_p2th_into_local_node(provider: RpcNode, deck: "Deck") -> None:
     '''
     load deck p2th into local node,
     this allows building of proof-of-timeline for this deck
@@ -178,14 +182,14 @@ def load_deck_p2th_into_local_node(provider, deck) -> None:
     assert isinstance(provider, RpcNode), {"error": "You can load privkeys only into local node."}
     error = {"error": "Deck P2TH import went wrong."}
 
-    provider.importprivkey(deck.p2th_wif, deck.asset_id)
+    provider.importprivkey(deck.p2th_wif, deck.id)
     check_addr = provider.validateaddress(deck.p2th_address)
 
     if not check_addr["isvalid"] and not check_addr["ismine"]:
         raise DeckP2THImportError(error)
 
 
-def validate_card_transfer_p2th(deck, raw_tx: dict) -> None:
+def validate_card_transfer_p2th(deck: "Deck", raw_tx: dict) -> None:
     '''validate if card_transfer transaction pays to deck p2th in vout[0]'''
 
     error = {"error": "Card transfer is not properly tagged."}
@@ -216,7 +220,7 @@ def parse_card_transfer_metainfo(protobuf: bytes, deck_version: int) -> dict:
 
 def postprocess_card(card_metainfo: CardTransfer, raw_tx: dict, sender: str,
                      vout: list, blockseq: int, blocknum: int, 
-                     tx_confirmations: int, deck) -> list:
+                     tx_confirmations: int, deck: "Deck") -> list:
     '''Postprocessing of all the relevant card transfer information and
     the creation of CardTransfer object.
 
@@ -269,7 +273,7 @@ def postprocess_card(card_metainfo: CardTransfer, raw_tx: dict, sender: str,
         _card["amount"] = card_metainfo["amount"]
         _card["cardseq"] = 0
 
-    return (_card, )
+    return [_card,]
 
 
 def amount_to_exponent(amount: float, number_of_decimals: int) -> int:

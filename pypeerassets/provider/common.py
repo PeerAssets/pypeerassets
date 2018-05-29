@@ -10,6 +10,8 @@ import urllib.request
 
 class Provider(ABC):
 
+    net = ""
+
     @staticmethod
     def _netname(name: str) -> dict:
         '''resolute network name,
@@ -52,9 +54,8 @@ class Provider(ABC):
             return False
 
     @classmethod
-    def sendrawtransaction(cls, rawtxn: str) -> dict:
-        '''sendrawtransaction remote API
-        :rawtxn - must be submitted as string'''
+    def sendrawtransaction(cls, rawtxn: str) -> str:
+        '''sendrawtransaction remote API'''
 
         if cls.is_testnet:
             url = 'https://testnet-explorer.peercoin.net/api/sendrawtransaction?hex={0}'.format(rawtxn)
@@ -75,7 +76,7 @@ class Provider(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def getblock(self, hash) -> dict:
+    def getblock(self, hash: str) -> dict:
         '''query block using <blockhash> as key.'''
         raise NotImplementedError
 
@@ -100,7 +101,7 @@ class Provider(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def getrawtransaction(self, txid: str, decrypt=1) -> dict:
+    def getrawtransaction(self, txid: str, decrypt: int=1) -> dict:
         raise NotImplementedError
 
     @abstractmethod

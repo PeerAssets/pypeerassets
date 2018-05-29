@@ -3,6 +3,8 @@
 from collections import namedtuple
 from decimal import Decimal
 
+from pypeerassets.exceptions import UnsupportedNetwork
+
 
 PAParams = namedtuple('PAParams', [
     'network_name',
@@ -28,10 +30,13 @@ params = (
 )
 
 
-def param_query(query):
-    '''find matching parameter among the networks'''
+def param_query(name: str) -> PAParams:
+    '''Find the PAParams for a network by its long or short name. Raises
+    UnsupportedNetwork if no PAParams is found.
+    '''
 
-    for network in params:
-        for field in network:
-            if field == query:
-                return network
+    for pa_params in params:
+        if name in (pa_params.network_name, pa_params.network_shortname,):
+            return pa_params
+
+    raise UnsupportedNetwork

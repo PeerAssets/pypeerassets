@@ -1,18 +1,27 @@
-
 '''transaction assembly/dissasembly'''
 
-from pypeerassets.provider import Provider
-from pypeerassets.kutil import Kutil
+from decimal import Decimal, getcontext
+from math import ceil
+from time import time
 
 from btcpy.structs.address import Address
-from btcpy.structs.transaction import TxOut, TxIn, Sequence, Locktime, Transaction
-from btcpy.structs.script import StackData, ScriptSig, NulldataScript, ScriptSig, ScriptPubKey
-from btcpy.structs.script import P2pkhScript, MultisigScript, P2shScript
-from .networks import net_query
+from btcpy.structs.script import (
+    NulldataScript,
+    P2pkhScript,
+    ScriptSig,
+    StackData,
+)
+from btcpy.structs.transaction import (
+    Locktime,
+    Transaction,
+    TxIn,
+    TxOut,
+)
 
-from time import time
-from math import ceil
-from decimal import Decimal, getcontext
+from pypeerassets.kutil import Kutil
+from pypeerassets.provider import Provider
+
+
 getcontext().prec = 6
 
 
@@ -24,14 +33,14 @@ def calculate_tx_fee(tx_size: int) -> Decimal:
     return Decimal(ceil(tx_size / 1000) * min_fee)
 
 
-def nulldata_script(data: bytes):
+def nulldata_script(data: bytes) -> NulldataScript:
     '''create nulldata (OP_return) script'''
 
     stack = StackData.from_bytes(data)
     return NulldataScript(stack)
 
 
-def p2pkh_script(address: str):
+def p2pkh_script(address: str) -> P2pkhScript:
     '''create pay-to-key-hash (P2PKH) script'''
 
     addr = Address.from_string(address)
@@ -45,8 +54,13 @@ def tx_output(value: Decimal, n: int, script: ScriptSig) -> TxOut:
     return TxOut(value=int(value * 1000000), n=n, script_pubkey=script)
 
 
-def make_raw_transaction(inputs: list, outputs: list, locktime=Locktime(0),
-                         timestamp: int=int(time()), version=1):
+def make_raw_transaction(
+    inputs: list,
+    outputs: list,
+    locktime: Locktime=Locktime(0),
+    timestamp: int=int(time()),
+    version: int=1,
+) -> Transaction:
     '''create raw transaction'''
 
     return Transaction(version=version, timestamp=timestamp,
@@ -54,7 +68,7 @@ def make_raw_transaction(inputs: list, outputs: list, locktime=Locktime(0),
                        locktime=locktime)
 
 
-def find_parent_outputs(provider, utxo: TxIn):
+def find_parent_outputs(provider: Provider, utxo: TxIn) -> TxOut:
     '''due to design of the btcpy library, TxIn object must be converted to TxOut object before signing'''
 
     index = utxo.txout  # utxo index
@@ -70,7 +84,7 @@ def sign_transaction(provider: Provider, unsigned_tx: Transaction,
 
 
 def _increase_fee_and_sign(provider: Provider, key: Kutil, change_sum: Decimal,
-                           inputs: dict, txouts: list):
+                           inputs: dict, txouts: list) -> Transaction:
     '''when minimal fee wont cut it'''
 
     # change output is last of transaction outputs

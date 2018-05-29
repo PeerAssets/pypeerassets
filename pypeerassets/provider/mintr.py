@@ -1,4 +1,7 @@
+from decimal import Decimal
+from http.client import HTTPResponse
 import json
+from typing import Union, cast
 from urllib.request import Request, urlopen
 
 from pypeerassets.exceptions import UnsupportedNetwork
@@ -12,30 +15,30 @@ class Mintr(Provider):
     output to match original RPC response.
     '''
 
-    def __init__(self, network="peercoin"):
+    def __init__(self, network: str="peercoin") -> None:
 
         self.net = self._netname(network)['long']
         if self.net != "peercoin":
             raise UnsupportedNetwork("Mintr only supports the peercoin mainnet.")
 
-    def get(self, query):
+    def get(self, query: str) -> Union[dict, int, float, str]:
 
         url = "https://mintr.peercoinexplorer.net/api/" + query
         request = Request(url, headers={"User-Agent": "pypeerassets"})
-        response = urlopen(request)
-        if response.getcode() != 200:
+        response = cast(HTTPResponse, urlopen(request))
+        if response.status != 200:
             raise Exception(response.reason)
         return json.loads(response.read().decode())
 
-    def getinfo(self):
+    def getinfo(self) -> dict:
         '''mock response, to allow compatibility with local rpc node'''
 
         return {"testnet": False}
 
-    def getrawtransaction(self, txid, decrypt=0):
-        '''this mimics the behaviour of local node `getrawtransaction`'''
+    def getrawtransaction(self, txid: str, decrypt: int=0) -> dict:
+        '''this mimics the behaviour of local node `getrawtransaction` query with argument 1'''
 
-        def wrapper(raw):
+        def wrapper(raw: dict) -> dict:
             '''make Mintr API response just like RPC response'''
 
             raw["blocktime"] = raw["time"]
@@ -59,16 +62,18 @@ class Mintr(Provider):
             return raw
 
         if decrypt == 0:
-            return self.get("tx/hash/" + txid)
+            return cast(dict, self.get("tx/hash/" + txid))
         else:
-            resp = self.get("tx/hash/" + txid + "/full")
+            resp = cast(dict, self.get("tx/hash/" + txid + "/full"))
             if not resp == {'error': 'Unknown API call'}:
                 return wrapper(resp)
 
-    def listtransactions(self, addr):
+        raise Exception("undefined behavior :.(")
+
+    def listtransactions(self, addr: str) -> list:
         '''get information about <address>'''
 
-        response = self.get("address/balance/" + addr + "/full")
+        response = cast(dict, self.get("address/balance/" + addr + "/full"))
         assert response != {'error': 'Could not decode hash'}, {"error": "Can not find the address."}
 
         txid = []
@@ -92,7 +97,7 @@ class Mintr(Provider):
     def getblock(self, blockhash: str) -> dict:
         '''get full block data, query by <blockhash>'''
 
-        def _wrapper(raw):
+        def _wrapper(raw: dict) -> dict:
 
             raw["tx"] = []
 
@@ -104,30 +109,30 @@ class Mintr(Provider):
 
             return raw
 
-        resp = self.get("block/height/" + blockhash + "/full")
+        resp = cast(dict, self.get("block/height/" + blockhash + "/full"))
 
         if resp != {'error': 'Could not decode hash'}:
             return _wrapper(resp)
         else:
             return resp
 
-    def getbalance(self):
+    def getbalance(self, address: str) -> Decimal:
         raise NotImplementedError
 
-    def getblockcount(self):
+    def getblockcount(self) -> int:
         raise NotImplementedError
 
-    def getblockhash(self):
+    def getblockhash(self, blocknum: int) -> str:
         raise NotImplementedError
 
-    def getdifficulty(self):
+    def getdifficulty(self) -> dict:
         raise NotImplementedError
 
-    def getreceivedbyaddress(self):
+    def getreceivedbyaddress(self, address: str) -> Decimal:
         raise NotImplementedError
 
-    def listunspent(self):
+    def listunspent(self, address: str) -> list:
         raise NotImplementedError
 
-    def select_inputs(self):
+    def select_inputs(self, address: str, amount: int) -> dict:
         raise NotImplementedError

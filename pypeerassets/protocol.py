@@ -9,7 +9,7 @@ from .exceptions import RecieverAmountMismatch
 from operator import itemgetter
 from .card_parsers import *
 from enum import Enum
-from typing import List, Generator
+from typing import List, Generator, cast
 
 
 class IssueMode(Enum):
@@ -55,8 +55,8 @@ class Deck:
 
     def __init__(self, name: str, number_of_decimals: int, issue_mode: int,
                  network: str, production: bool, version: int,
-                 asset_specific_data: bytes=None, issuer="", time=None,
-                 id=None, tx_confirmations: int=None) -> None:
+                 asset_specific_data: bytes=None, issuer: str="", time: int=None,
+                 id: str=None, tx_confirmations: int=None) -> None:
         '''
         Initialize deck object, load from dictionary Deck(**dict) or initilize
         with kwargs Deck("deck", 3, "ONCE")
@@ -65,7 +65,6 @@ class Deck:
         self.version = version  # protocol version
         self.name = name  # deck name
         self.issue_mode = issue_mode  # deck issue mode
-        assert isinstance(number_of_decimals, int), {"error": "number_of_decimals must be an integer"}
         self.number_of_decimals = number_of_decimals
         self.asset_specific_data = asset_specific_data  # optional metadata for the deck
         self.id = id
@@ -80,21 +79,24 @@ class Deck:
             self.testnet = False
 
     @property
-    def p2th_address(self) -> str:
+    def p2th_address(self) -> Optional[str]:
         '''P2TH address of this deck'''
 
         if self.id:
             return Kutil(network=self.network,
-                         privkey=bytes.fromhex(self.id)).address
+                         privkey=bytearray.fromhex(self.id)).address
         else:
             return None
 
     @property
-    def p2th_wif(self) -> str:
+    def p2th_wif(self) -> Optional[str]:
         '''P2TH privkey in WIF format'''
 
-        return Kutil(network=self.network,
-                     privkey=bytearray.fromhex(self.id)).wif
+        if self.id:
+            return Kutil(network=self.network,
+                         privkey=bytearray.fromhex(self.id)).wif
+        else:
+            return None
 
     @property
     def metainfo_to_protobuf(self) -> bytes:
@@ -134,7 +136,7 @@ class Deck:
 
         return r
 
-    def __str__(self):
+    def __str__(self) -> str:
 
         r = []
         for key in self.__dict__:
@@ -197,7 +199,7 @@ class CardTransfer:
             self.cardseq = cardseq
             self.confirms = tx_confirmations
         else:
-            self.blockhash = 0
+            self.blockhash = ""
             self.blockseq = 0
             self.blocknum = 0
             self.timestamp = 0
@@ -215,7 +217,7 @@ class CardTransfer:
             self.type = "CardTransfer"
 
     @property
-    def metainfo_to_protobuf(self):
+    def metainfo_to_protobuf(self) -> str:
         '''encode card_transfer info to protobuf'''
 
         card = cardtransferproto()
@@ -250,7 +252,7 @@ class CardTransfer:
 
         return r
 
-    def __str__(self):
+    def __str__(self) -> str:
 
         r = []
         for key in self.__dict__:
@@ -269,11 +271,19 @@ def validate_card_issue_modes(issue_mode: int, cards: list) -> list:
 
     for i in [1 << x for x in range(len(IssueMode))]:
         if bool(i & issue_mode):
+
             try:
-                # print('Applying {0} parser [{1}].'.format(IssueMode(i).name, IssueMode(i).value))
-                cards = parsers[IssueMode(i).name](cards)
+                parser_fn = cast(
+                    Callable[[list], Optional[list]],
+                    parsers[IssueMode(i).name]
+                )
             except ValueError:
-                pass
+                continue
+
+            parsed_cards = parser_fn(cards)
+            if not parsed_cards:
+                return []
+            cards = parsed_cards
 
     return cards
 
@@ -285,21 +295,21 @@ class DeckState:
         self.cards = cards
         self.total = 0
         self.burned = 0
-        self.balances = {}
-        self.processed_issues = {}
-        self.processed_transfers = {}
-        self.processed_burns = {}
+        self.balances = cast(dict, {})
+        self.processed_issues = cast(dict, {})
+        self.processed_transfers = cast(dict, {})
+        self.processed_burns = cast(dict, {})
 
         self.calc_state()
         self.checksum = not bool(self.total - sum(self.balances.values()))
 
-    def _process(self, card: CardTransfer, ctype: str) -> bool:
+    def _process(self, card: dict, ctype: str) -> bool:
 
         sender = card["sender"]
         receiver = card["receiver"][0]
         amount = card["amount"][0]
 
-        if 'CardIssue' not in ctype:
+        if ctype != 'CardIssue':
             balance_check = sender in self.balances and self.balances[sender] >= amount
 
             if balance_check:
@@ -318,14 +328,14 @@ class DeckState:
 
         return False
 
-    def _append_balance(self, amount, receiver) -> None:
+    def _append_balance(self, amount: int, receiver: str) -> None:
 
             try:
                 self.balances[receiver] += amount
             except KeyError:
                 self.balances[receiver] = amount
 
-    def _sort_cards(self, cards: list) -> Generator:
+    def _sort_cards(self, cards: Generator) -> list:
         '''sort cards by blocknum and blockseq'''
 
         return sorted([card.__dict__ for card in cards],

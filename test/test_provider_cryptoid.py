@@ -34,7 +34,8 @@ def test_cryptoid_get_block_hash():
 
 def test_cryptoid_getdifficulty():
 
-    assert isinstance(Cryptoid(network="ppc").getdifficulty(), float)
+    difficulty = Cryptoid(network="ppc").getdifficulty()
+    assert isinstance(difficulty["proof-of-stake"], float)
 
 
 def test_cryptoid_getbalance():

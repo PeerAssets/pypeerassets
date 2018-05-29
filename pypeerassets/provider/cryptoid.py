@@ -1,6 +1,8 @@
 from decimal import Decimal, getcontext
+from http.client import HTTPResponse
 import json
 from operator import itemgetter
+from typing import Union, cast
 from urllib.request import Request, urlopen
 
 from btcpy.structs.transaction import TxIn, Sequence, ScriptSig
@@ -27,7 +29,6 @@ class Cryptoid(Provider):
         if 'ppc' in self.net:
             getcontext().prec = 6  # set to six decimals if it's Peercoin
 
-
     @staticmethod
     def format_name(net: str) -> str:
         '''take care of specifics of cryptoid naming system'''
@@ -40,52 +41,59 @@ class Cryptoid(Provider):
         return net
 
     @staticmethod
-    def get_url(url: str) -> dict:
+    def get_url(url: str) -> Union[dict, int, float, str]:
         '''Perform a GET request for the url and return a dictionary parsed from
         the JSON response.'''
 
         request = Request(url, headers={"User-Agent": "pypeerassets"})
-        response = urlopen(request)
-        if response.getcode() != 200:
+        response = cast(HTTPResponse, urlopen(request))
+        if response.status != 200:
             raise Exception(response.reason)
         return json.loads(response.read().decode())
 
     def api_req(self, query: str) -> dict:
 
-        url = self.api_url + "?q=" + query + "&key=" + self.api_key
-        return self.get_url(url)
+        query = "?q=" + query + "&key=" + self.api_key
+        return cast(dict, self.get_url(self.api_url + query))
 
     def getblockcount(self) -> int:
 
-        return self.api_req('getblockcount')
+        return cast(int, self.api_req('getblockcount'))
 
     def getblock(self, blockhash: str) -> dict:
         '''query block using <blockhash> as key.'''
 
-        query = self.explorer_url + 'block.raw.dws?coin={net}&hash={blockhash}'.format(net=self.format_name(self.net),
-                                                                                       blockhash=blockhash)
-        return self.get_url(query)
+        query = 'block.raw.dws?coin={net}&hash={blockhash}'.format(
+            net=self.format_name(self.net),
+            blockhash=blockhash,
+        )
+        return cast(dict, self.get_url(self.explorer_url + query))
 
     def getblockhash(self, blocknum: int) -> str:
         '''get blockhash'''
 
-        return self.api_req('getblockhash' + '&height=' + str(blocknum))
+        query = 'getblockhash' + '&height=' + str(blocknum)
+        return cast(str, self.api_req(query))
 
-    def getdifficulty(self) -> float:
+    def getdifficulty(self) -> dict:
 
-        return self.api_req('getdifficulty')
+        pos_difficulty = cast(float, self.api_req('getdifficulty'))
+        return {"proof-of-stake": pos_difficulty}
 
     def getbalance(self, address: str) -> Decimal:
 
-        return Decimal(self.api_req('getbalance' + "&a=" + address))
+        query = 'getbalance' + '&a=' + address
+        return Decimal(cast(float, self.api_req(query)))
 
     def getreceivedbyaddress(self, address: str) -> Decimal:
 
-        return Decimal(self.api_req('getreceivedbyaddress' + "&a=" + address))
+        query = 'getreceivedbyaddress' + "&a=" + address
+        return Decimal(cast(float, self.api_req(query)))
 
     def listunspent(self, address: str) -> list:
 
-        return self.api_req('unspent' + "&active=" + address)['unspent_outputs']
+        query = 'unspent' + "&active=" + address
+        return cast(dict, self.api_req(query))['unspent_outputs']
 
     def select_inputs(self, address: str, amount: int) -> dict:
         '''select UTXOs'''
@@ -108,22 +116,25 @@ class Cryptoid(Provider):
         if utxo_sum < amount:
             raise InsufficientFunds('Insufficient funds.')
 
-    def getrawtransaction(self, txid: str, decrypt=0) -> dict:
+        raise Exception("undefined behavior :.(")
 
-        query = self.explorer_url + 'tx.raw.dws?coin={net}&id={txid}'.format(net=self.format_name(self.net),
-                                                                             txid=txid)
+    def getrawtransaction(self, txid: str, decrypt: int=0) -> dict:
+
+        query = 'tx.raw.dws?coin={net}&id={txid}'.format(
+            net=self.format_name(self.net),
+            txid=txid,
+        )
         if not decrypt:
             query += '&hex'
-            return self.get_url(query)['hex']
+            return cast(dict, self.get_url(self.explorer_url + query))['hex']
 
-        return self.get_url(query)
+        return cast(dict, self.get_url(self.explorer_url + query))
 
     def listtransactions(self, address: str) -> list:
 
-        query = self.explorer_url + 'address.summary.dws?coin={net}&id={addr}'.format(net=self.format_name(self.net),
-                                                                                      addr=address)
-        resp = self.get_url(query)
-        if resp:
-            return [i[1].lower() for i in resp['tx']]
-        else:
-            return None
+        query = 'address.summary.dws?coin={net}&id={addr}'.format(
+            net=self.format_name(self.net),
+            addr=address,
+        )
+        response = cast(dict, self.get_url(self.explorer_url + query))
+        return [tx[1].lower() for tx in response["tx"]]
