@@ -6,7 +6,7 @@ from pypeerassets.paproto_pb2 import DeckSpawn as deckspawnproto
 from pypeerassets.paproto_pb2 import CardTransfer as cardtransferproto
 from pypeerassets.exceptions import RecieverAmountMismatch
 from operator import itemgetter
-from pypeerassets.card_parsers import *
+from pypeerassets.card_parsers import parsers
 from enum import Enum
 from typing import List, Optional, Generator, cast
 
