@@ -14,6 +14,7 @@ from pypeerassets.exceptions import *
 from pypeerassets.paproto_pb2 import DeckSpawn
 from pypeerassets.pautils import *
 from pypeerassets.protocol import IssueMode
+from pypeerassets.pa_constants import param_query
 
 
 @pytest.mark.xfail
@@ -186,9 +187,10 @@ def test_validate_deckspawn_p2th():
     '''test deckspawn p2th validation'''
 
     provider = Explorer(network="peercoin-testnet")
-    raw_tx = provider.getrawtransaction('643dccd585211766fc03f71e92fbf299cfc2bdbf3f2cae0ad85adec3141069f3')
+    p2th = param_query('peercoin-testnet').P2TH_addr
+    raw_tx = provider.getrawtransaction('643dccd585211766fc03f71e92fbf299cfc2bdbf3f2cae0ad85adec3141069f3', 1,)
 
-    assert validate_deckspawn_p2th(provider, raw_tx, True)
+    assert validate_deckspawn_p2th(provider, raw_tx, p2th)
 
 
 @pytest.mark.xfail
