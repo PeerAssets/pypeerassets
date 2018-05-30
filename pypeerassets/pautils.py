@@ -2,7 +2,7 @@
 '''miscellaneous utilities.'''
 
 import binascii
-from .provider import RpcNode, Explorer, Cryptoid, Mintr
+from pypeerassets.provider import Provider, RpcNode, Explorer, Cryptoid, Mintr
 from .exceptions import P2THImportFailed
 from .exceptions import (InvalidDeckSpawn, InvalidDeckMetainfo,
                          InvalidDeckIssueMode, InvalidDeckVersion)
@@ -12,8 +12,6 @@ from .exceptions import (InvalidCardTransferP2TH, CardVersionMismatch,
 from .pa_constants import param_query
 from typing import Iterable
 from .paproto_pb2 import DeckSpawn, CardTransfer
-
-from pypeerassets.provider import Provider
 
 
 def load_p2th_privkey_into_local_node(provider: RpcNode, prod: bool=True) -> None:
