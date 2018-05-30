@@ -2,6 +2,7 @@
 
 [![PyPI](https://img.shields.io/pypi/l/pypeerassets.svg?style=flat-square)]()
 [![PyPI](https://img.shields.io/pypi/v/pypeerassets.svg?style=flat-square)](https://pypi.python.org/pypi/pypeerassets/)
+[![](https://img.shields.io/badge/python-3.5+-blue.svg)](https://www.python.org/download/releases/3.5.0/) 
 [![Build Status](https://travis-ci.org/PeerAssets/pypeerassets.svg?branch=master)](https://travis-ci.org/PeerAssets/pypeerassets)
 
 Official Python implementation of the [PeerAssets protocol](https://github.com/PeerAssets/WhitePaper).
