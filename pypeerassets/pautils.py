@@ -260,7 +260,7 @@ def postprocess_card(card_metainfo: CardTransfer, raw_tx: dict, sender: str,
     _card["timestamp"] = raw_tx["time"]
     _card["sender"] = sender
     try:
-    _card["asset_specific_data"] = card_metainfo["asset_specific_data"]
+        _card["asset_specific_data"] = card_metainfo["asset_specific_data"]
     except KeyError:
         _card["asset_specific_data"] = None
 

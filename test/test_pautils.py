@@ -13,7 +13,7 @@ from pypeerassets import (
 from pypeerassets.exceptions import *
 from pypeerassets.paproto_pb2 import DeckSpawn
 from pypeerassets.pautils import *
-from pypeerassets.protocol import IssueMode
+from pypeerassets.protocol import IssueMode, CardTransfer
 from pypeerassets.pa_constants import param_query
 
 
@@ -213,14 +213,27 @@ def test_postprocess_card():
 
     provider = Explorer(network="peercoin-testnet")
     deck = find_deck(provider, "643dccd585211766fc03f71e92fbf299cfc2bdbf3f2cae0ad85adec3141069f3", 1)
-    raw_tx = provider.getrawtransaction('809c506bc3add9e46a4d3a65348426688545213da5fb5b524acd380f2cdaf3cc')
+    raw_tx = provider.getrawtransaction('809c506bc3add9e46a4d3a65348426688545213da5fb5b524acd380f2cdaf3cc', 1)
     vout = raw_tx["vout"]
     blockseq = tx_serialization_order(provider, raw_tx["blockhash"], raw_tx["txid"])
     blocknum = provider.getblock(raw_tx["blockhash"])["height"]
     sender = 'moQzpzzcCYZMnAz224EY4att5A9psxN8X2'
-    card_metainfo = b'\x08\x01\x12\n\xd0\xd2=\x80\x89z\xee\x83\xb8\x01\x18\x05'
+    card_transfer = CardTransfer(
+                    deck=deck,
+                    receiver=["n4KuTR5CzyQTbrpwbAKEdTfJERKmtHWWgr"],
+                    amount=[1],
+                    version=1,
+                    )
 
-    card = postprocess_card(card_metainfo, raw_tx, sender, vout, blockseq, blocknum, deck)
+    card = postprocess_card(card_metainfo=card_transfer.metainfo_to_dict, 
+                            raw_tx=raw_tx,
+                            sender=sender, 
+                            vout=vout,
+                            blockseq=blockseq,
+                            blocknum=blocknum,
+                            tx_confirmations=raw_tx['confirmations'],
+                            deck=deck)
+
     assert isinstance(card, list)
 
 
