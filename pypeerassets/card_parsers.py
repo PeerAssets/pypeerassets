@@ -1,7 +1,6 @@
 '''parse cards according to deck issue mode'''
 
 from typing import Callable, Optional
-from pypeerassets.pautils import exponent_to_amount, amount_to_exponent
 
 
 def none_parser(cards: list) -> Optional[list]:
@@ -48,6 +47,7 @@ def mono_parser(cards: list) -> Optional[list]:
     parser for MONO [8] issue mode
     MONO = 0x08; // All card transaction amounts are equal to 1
     '''
+    from pypeerassets.pautils import exponent_to_amount, amount_to_exponent
 
     processed_cards = []
     decimals = cards[0].number_of_decimals
