@@ -203,11 +203,12 @@ def test_load_deck_p2th_into_local_node():
 
 def test_validate_card_transfer_p2th():
 
-    provider = Explorer(network="peercoin-testnet")
+    provider = Cryptoid(network="peercoin-testnet")
     deck = find_deck(provider, "643dccd585211766fc03f71e92fbf299cfc2bdbf3f2cae0ad85adec3141069f3", 1)
     card = "809c506bc3add9e46a4d3a65348426688545213da5fb5b524acd380f2cdaf3cc"
+    raw_tx = provider.getrawtransaction("809c506bc3add9e46a4d3a65348426688545213da5fb5b524acd380f2cdaf3cc", 1)
 
-    validate_card_transfer_p2th(deck, provider.getrawtransaction("809c506bc3add9e46a4d3a65348426688545213da5fb5b524acd380f2cdaf3cc"))
+    validate_card_transfer_p2th(deck, raw_tx)
 
 
 def test_parse_card_transfer_metainfo():
