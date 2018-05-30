@@ -2,8 +2,8 @@
 '''contains main protocol logic like assembly of proof-of-timeline and parsing deck info'''
 
 import concurrent.futures
-from typing import Generator, Iterable, Tuple, Optional
-from pypeerassets.protocol import Deck, CardTransfer
+from typing import Generator, Tuple, Optional
+from pypeerassets.protocol import Deck, CardTransfer, validate_card_issue_modes
 from .provider import Provider, RpcNode
 from pypeerassets.pautils import (find_tx_sender,
                                   find_deck_spawns, tx_serialization_order,
