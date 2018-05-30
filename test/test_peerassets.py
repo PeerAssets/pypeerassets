@@ -1,5 +1,6 @@
 import pytest
 import pypeerassets as pa
+from pypeerassets.transactions import Transaction
 
 
 @pytest.mark.parametrize("prov", [pa.Explorer, pa.Cryptoid])
@@ -48,7 +49,7 @@ def test_find_all_valid_cards():
     cards = pa.find_all_valid_cards(provider, deck)
 
     assert cards
-    assert isinstance(cards[0][0], pa.CardTransfer)
+    assert isinstance(next(cards), pa.CardTransfer)
 
 
 def test_deck_spawn():
@@ -62,7 +63,7 @@ def test_deck_spawn():
 
     deck_spawn = pa.deck_spawn(provider, deck, inputs, change_address)
 
-    assert isinstance(deck_spawn, pa.Transaction)
+    assert isinstance(deck_spawn, Transaction)
 
 
 def test_card_transfer():
@@ -80,4 +81,4 @@ def test_card_transfer():
 
     card_transfer = pa.card_transfer(provider, card, inputs, change_address)
 
-    assert isinstance(card_transfer, pa.Transaction)
+    assert isinstance(card_transfer, Transaction)
