@@ -20,6 +20,7 @@ def test_validateaddress_peercoin(provider_cls):
     # Peercoin Testnet P2PKH address (these _should_ be False, but btcpy cannot
     # support it at the moment).
     assert provider.validateaddress("mj46gUeZgeD9ufU7Fvz2dWqaX6Nswtbpba") is True
+    assert provider.validateaddress("n12h8P5LrVXozfhEQEqg8SFUmVKtphBetj") is True
 
     # Very much not Peercoin addresses.
     assert provider.validateaddress("1BFQfjM29kubskmaAsPjPCfHYphYvKA7Pj") is False
@@ -34,6 +35,7 @@ def test_validateaddress_peercoin_testnet(provider_cls):
 
     # Peercoin Testnet P2PKH address.
     assert provider.validateaddress("mj46gUeZgeD9ufU7Fvz2dWqaX6Nswtbpba") is True
+    assert provider.validateaddress("n12h8P5LrVXozfhEQEqg8SFUmVKtphBetj") is True
 
     # Peercoin P2PKH, P2SH addresses (these _should_ be False, but btcpy cannot
     # support it at the moment).
