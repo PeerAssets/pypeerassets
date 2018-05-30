@@ -8,3 +8,4 @@ from pypeerassets.__main__ import (deck_parser,
                                    deck_transfer,
                                    get_card_transfers,
                                    card_transfer)
+from pypeerassets.protocol import Deck, CardTransfer, DeckState
