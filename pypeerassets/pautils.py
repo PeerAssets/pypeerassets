@@ -6,7 +6,7 @@ from pypeerassets.provider import Provider, RpcNode, Explorer, Cryptoid, Mintr
 from pypeerassets.exceptions import (InvalidDeckSpawn, InvalidDeckMetainfo,
                                      InvalidDeckIssueMode, InvalidDeckVersion,
                                      InvalidCardTransferP2TH, CardVersionMismatch,
-                         CardNumberOfDecimalsMismatch, InvalidNulldataOutput,
+                                     CardNumberOfDecimalsMismatch, InvalidNulldataOutput,
                                      DeckP2THImportError, InvalidVoutOrder, P2THImportFailed)
 from pypeerassets.pa_constants import param_query
 from typing import Iterable
