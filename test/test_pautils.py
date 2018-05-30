@@ -24,32 +24,23 @@ def test_load_p2th_privkeys_into_local_node():
     load_p2th_privkeys_into_local_node(provider=provider)
 
 
-@pytest.mark.parametrize("prov", ["rpc", "explorer", "mintr", 'cryptoid'])
+@pytest.mark.parametrize("prov", ["explorer", "mintr", 'cryptoid'])
 def test_find_tx_sender(prov):
 
     if prov == "explorer":
         provider = Explorer(network="peercoin")
-        rawtx = provider.getrawtransaction("397bda2f5e6608c872a663b2e5482d95db8ecfad00757823f0f12caa45a213a6")
+        rawtx = provider.getrawtransaction("397bda2f5e6608c872a663b2e5482d95db8ecfad00757823f0f12caa45a213a6", 1)
         assert find_tx_sender(provider, rawtx) == 'PNHGzKupyvo2YZVb1CTdRxtCGBB5ykgiug'
 
     if prov == "mintr":
         provider = Mintr()
-        rawtx = provider.getrawtransaction("397bda2f5e6608c872a663b2e5482d95db8ecfad00757823f0f12caa45a213a6")
+        rawtx = provider.getrawtransaction("397bda2f5e6608c872a663b2e5482d95db8ecfad00757823f0f12caa45a213a6", 1)
         assert find_tx_sender(provider, rawtx) == 'PNHGzKupyvo2YZVb1CTdRxtCGBB5ykgiug'
 
     if prov == "cryptoid":
         provider = Cryptoid(network="peercoin")
-        rawtx = provider.getrawtransaction("397bda2f5e6608c872a663b2e5482d95db8ecfad00757823f0f12caa45a213a6")
+        rawtx = provider.getrawtransaction("397bda2f5e6608c872a663b2e5482d95db8ecfad00757823f0f12caa45a213a6", 1)
         assert find_tx_sender(provider, rawtx) == 'PNHGzKupyvo2YZVb1CTdRxtCGBB5ykgiug'
-
-    try:
-        if prov == "rpc":
-            provider = RpcNode(testnet=False)
-            rawtx = provider.getrawtransaction("397bda2f5e6608c872a663b2e5482d95db8ecfad00757823f0f12caa45a213a6")
-            assert find_tx_sender(provider, rawtx) == 'PNHGzKupyvo2YZVb1CTdRxtCGBB5ykgiug'
-    except:
-        print("No RpcNode avaliable.")
-
 
 @pytest.mark.parametrize("prov", ["explorer", "mintr", "cryptoid"])
 def test_find_deck_spawns(prov):
