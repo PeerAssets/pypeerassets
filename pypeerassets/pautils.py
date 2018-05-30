@@ -11,7 +11,9 @@ from .exceptions import (InvalidCardTransferP2TH, CardVersionMismatch,
                          DeckP2THImportError, InvalidVoutOrder)
 from .pa_constants import param_query
 from typing import Iterable
-from .paproto_pb2 import DeckSpawn, CardTransfer
+from pypeerassets.paproto_pb2 import DeckSpawn as DeckSpawnProto
+from pypeerassets.paproto_pb2 import CardTransfer as CardTransferProto
+from pypeerassets.protocol import Deck, CardTransfer
 
 
 def load_p2th_privkey_into_local_node(provider: RpcNode, prod: bool=True) -> None:
@@ -103,7 +105,7 @@ def read_tx_opreturn(raw_tx: dict) -> bytes:
             return binascii.unhexlify(data[:n])
 
 
-def deck_issue_mode(proto: DeckSpawn) -> Iterable[str]:
+def deck_issue_mode(proto: DeckSpawnProto) -> Iterable[str]:
     '''interpret issue mode bitfeg'''
 
     if proto.issue_mode == 0:
@@ -117,7 +119,7 @@ def deck_issue_mode(proto: DeckSpawn) -> Iterable[str]:
             yield mode
 
 
-def issue_mode_to_enum(deck: DeckSpawn, issue_mode: list) -> int:
+def issue_mode_to_enum(deck: DeckSpawnProto, issue_mode: list) -> int:
     '''encode issue mode(s) as bitfeg'''
 
     # case where there are multiple issue modes specified
@@ -138,7 +140,7 @@ def parse_deckspawn_metainfo(protobuf: bytes, version: int) -> dict:
     '''Decode deck_spawn tx op_return protobuf message and validate it,
        Raise error if deck_spawn metainfo incomplete or version mistmatch.'''
 
-    deck = DeckSpawn()
+    deck = DeckSpawnProto()
     deck.ParseFromString(protobuf)
 
     error = {"error": "Deck ({deck}) metainfo incomplete, deck must have a name.".format(deck=deck.name)}
@@ -175,9 +177,9 @@ def validate_deckspawn_p2th(provider: Provider, rawtx: dict, p2th: str) -> bool:
     return True
 
 
-def load_deck_p2th_into_local_node(provider: RpcNode, deck: "Deck") -> None:
+def load_deck_p2th_into_local_node(provider: RpcNode, deck: Deck) -> None:
     '''
-    load deck p2th into local node,
+    load deck p2th into local node via "importprivke",
     this allows building of proof-of-timeline for this deck
     '''
 
@@ -191,7 +193,7 @@ def load_deck_p2th_into_local_node(provider: RpcNode, deck: "Deck") -> None:
         raise DeckP2THImportError(error)
 
 
-def validate_card_transfer_p2th(deck: "Deck", raw_tx: dict) -> None:
+def validate_card_transfer_p2th(deck: Deck, raw_tx: dict) -> None:
     '''validate if card_transfer transaction pays to deck p2th in vout[0]'''
 
     error = {"error": "Card transfer is not properly tagged."}
@@ -206,7 +208,7 @@ def parse_card_transfer_metainfo(protobuf: bytes, deck_version: int) -> dict:
     :deck_version - integer
     '''
 
-    card = CardTransfer()
+    card = CardTransferProto()
     card.ParseFromString(protobuf)
 
     if not card.version == deck_version:
