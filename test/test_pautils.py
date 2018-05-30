@@ -157,6 +157,10 @@ def test_deck_issue_mode():
     assert isinstance(deck_issue_mode(deck_meta), Generator)
     assert list(deck_issue_mode(deck_meta)) == ['CUSTOM', 'ONCE']
 
+    # Check that we handle NONE mode correctly.
+    deck_meta.issue_mode = 0
+    assert list(deck_issue_mode(deck_meta)) == ['NONE']
+
 
 def test_issue_mode_to_enum():
     '''test issue mode to enum conversion'''

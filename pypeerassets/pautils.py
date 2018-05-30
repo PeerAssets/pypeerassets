@@ -108,8 +108,14 @@ def read_tx_opreturn(raw_tx: dict) -> bytes:
 def deck_issue_mode(proto: DeckSpawn) -> Iterable[str]:
     '''interpret issue mode bitfeg'''
 
-    for mode in proto.MODE.keys():
-        if proto.issue_mode & proto.MODE.Value(mode):
+    if proto.issue_mode == 0:
+        yield "NONE"
+        return
+
+    for mode, value in proto.MODE.items():
+        if value > proto.issue_mode:
+            continue
+        if value & proto.issue_mode:
             yield mode
 
 
