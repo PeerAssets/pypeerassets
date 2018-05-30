@@ -205,7 +205,6 @@ def test_validate_card_transfer_p2th():
 
     provider = Cryptoid(network="peercoin-testnet")
     deck = find_deck(provider, "643dccd585211766fc03f71e92fbf299cfc2bdbf3f2cae0ad85adec3141069f3", 1)
-    card = "809c506bc3add9e46a4d3a65348426688545213da5fb5b524acd380f2cdaf3cc"
     raw_tx = provider.getrawtransaction("809c506bc3add9e46a4d3a65348426688545213da5fb5b524acd380f2cdaf3cc", 1)
 
     validate_card_transfer_p2th(deck, raw_tx)
