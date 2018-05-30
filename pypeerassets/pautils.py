@@ -165,16 +165,14 @@ def validate_deckspawn_p2th(provider: Provider, rawtx: dict, p2th: str) -> bool:
     is correct. Otherwise raises InvalidDeckSpawn.
     '''
 
-    error = {"Error": "This deck ({deck}) is not properly tagged.".format(deck=rawtx['txid'])}
-
     try:
         vout = rawtx["vout"][0]["scriptPubKey"].get("addresses")[0]
     except TypeError:
         '''TypeError: 'NoneType' object is not subscriptable error on some of the deck spawns.'''
-        raise InvalidDeckSpawn(error)
+        raise InvalidDeckSpawn("Invalid Deck P2TH.")
 
     if not vout == p2th:
-        raise InvalidDeckSpawn(error)
+        raise InvalidDeckSpawn("InvalidDeck P2TH.")
 
     return True
 
