@@ -233,7 +233,7 @@ def card_transfer(provider: Provider, card: CardTransfer, inputs: dict,
 
     outs = [
         tx_output(value=pa_params.P2TH_fee, n=0, script=p2pkh_script(card.deck_p2th)),  # deck p2th
-        tx_output(value=Decimal(0), n=1, script=nulldata_script(str.encode(card.metainfo_to_protobuf)))  # op_return
+        tx_output(value=Decimal(0), n=1, script=nulldata_script(card.metainfo_to_protobuf))  # op_return
     ]
 
     for addr, index in zip(card.receiver, range(len(card.receiver))):

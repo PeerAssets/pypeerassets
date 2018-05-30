@@ -216,7 +216,7 @@ class CardTransfer:
             self.type = "CardTransfer"
 
     @property
-    def metainfo_to_protobuf(self) -> str:
+    def metainfo_to_protobuf(self) -> bytes:
         '''encode card_transfer info to protobuf'''
 
         card = cardtransferproto()
