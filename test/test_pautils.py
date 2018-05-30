@@ -50,24 +50,17 @@ def test_find_tx_sender(prov):
         print("No RpcNode avaliable.")
 
 
-@pytest.mark.xfail
-@pytest.mark.parametrize("prov", ["rpc", "explorer", "mintr", "cryptoid"])
+@pytest.mark.parametrize("prov", ["explorer", "mintr", "cryptoid"])
 def test_find_deck_spawns(prov):
 
     if prov == "explorer":
-        provider = Explorer(network="peercoin-testnet")
+        provider = Explorer(network="peercoin")
 
     if prov == "mintr":
         provider = Mintr()
 
     if prov == "cryptoid":
         provider = Cryptoid(network="peercoin")
-
-    try:
-        if prov == "rpc":
-            provider = RpcNode(testnet=True)
-    except:
-        print("No RpcNode avaliable.")
 
     assert isinstance(find_deck_spawns(provider), Generator)
 
