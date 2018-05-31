@@ -53,9 +53,9 @@ def mono_parser(cards: list) -> Optional[list]:
     decimals = cards[0].number_of_decimals
 
     for c in cards:
-        c.amount = amount_to_exponent(
+        c.amount = [amount_to_exponent(
                      exponent_to_amount(c.amount[0], decimals),
-                     decimals)
+                     decimals)]
         processed_cards.append(c)
 
     return processed_cards
