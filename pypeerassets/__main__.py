@@ -216,7 +216,7 @@ def find_all_valid_cards(provider: Provider, deck: Deck) -> Generator:
     unfiltered = (card for batch in get_card_transfers(provider, deck) for card in batch)
 
     for card in validate_card_issue_modes(deck.issue_mode, list(unfiltered)):
-            yield card
+        yield card
 
 
 def card_transfer(provider: Provider, card: CardTransfer, inputs: dict,
