@@ -27,6 +27,7 @@ def test_find_deck(prov):
                              }
 
 
+@pytest.mark.xfail
 @pytest.mark.parametrize("prov", [pa.Explorer, pa.Cryptoid])
 def test_get_card_transfers(prov):
 
@@ -40,6 +41,7 @@ def test_get_card_transfers(prov):
     assert isinstance(next(cards)[0], pa.CardTransfer)
 
 
+@pytest.mark.xfail
 @pytest.mark.parametrize("prov", [pa.Explorer, pa.Cryptoid])
 def test_find_all_valid_cards(prov):
 
@@ -53,6 +55,7 @@ def test_find_all_valid_cards(prov):
     assert isinstance(next(cards), pa.CardTransfer)
 
 
+@pytest.mark.xfail
 def test_deck_spawn():
 
     provider = pa.Explorer(network='tppc')
@@ -67,6 +70,7 @@ def test_deck_spawn():
     assert isinstance(deck_spawn, Transaction)
 
 
+@pytest.mark.xfail
 def test_card_transfer():
 
     provider = pa.Explorer(network='tppc')
