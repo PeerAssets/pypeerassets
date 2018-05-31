@@ -264,7 +264,8 @@ def postprocess_card(card_metainfo: CardTransfer, raw_tx: dict, sender: str,
     except KeyError:
         _card["asset_specific_data"] = None
 
-    if len(card_metainfo["amount"]) > 1:  # if card states multiple outputs:
+    # if card states multiple outputs, interpert it as a batch
+    if len(card_metainfo["amount"]) > 1:
         cards = []
         for am, v in zip(card_metainfo["amount"], vout[2:]):
             c = _card.copy()
