@@ -1,3 +1,2 @@
 peerassets-btcpy
-protobuf==3.3.0
-peercoin_rpc>=0.56
+protobuf>=3.3.0
