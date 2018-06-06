@@ -16,6 +16,7 @@ from pypeerassets.pautils import (find_tx_sender,
                                   )
 #from .voting import *
 from .exceptions import *
+from google.protobuf.message import DecodeError
 from .transactions import (nulldata_script, tx_output, p2pkh_script,
                            find_parent_outputs,
                            make_raw_transaction,
@@ -197,7 +198,7 @@ def get_card_transfers(provider: Provider, deck: Deck) -> Generator:
 
         except (InvalidCardTransferP2TH, CardVersionMismatch,
                 CardNumberOfDecimalsMismatch, InvalidVoutOrder,
-                RecieverAmountMismatch) as e:
+                RecieverAmountMismatch, DecodeError) as e:
             return []
 
         return cards
