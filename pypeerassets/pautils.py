@@ -196,8 +196,13 @@ def validate_card_transfer_p2th(deck: Deck, raw_tx: dict) -> None:
     '''validate if card_transfer transaction pays to deck p2th in vout[0]'''
 
     error = {"error": "Card transfer is not properly tagged."}
+    
+    try:
+        address = raw_tx["vout"][0]["scriptPubKey"].get("addresses")[0]
+    except TypeError as e:
+        raise e(error)
 
-    if not raw_tx["vout"][0]["scriptPubKey"].get("addresses")[0] == deck.p2th_address:
+    if not address == deck.p2th_address:
         raise InvalidCardTransferP2TH(error)
 
 
