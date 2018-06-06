@@ -202,7 +202,7 @@ def validate_card_transfer_p2th(deck: Deck, raw_tx: dict) -> None:
         if not address == deck.p2th_address:
             raise InvalidCardTransferP2TH(error)
     except TypeError as e:
-        raise Exception(error) from e
+        raise e
 
 
 def parse_card_transfer_metainfo(protobuf: bytes, deck_version: int) -> dict:
