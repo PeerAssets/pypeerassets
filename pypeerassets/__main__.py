@@ -196,9 +196,10 @@ def get_card_transfers(provider: Provider, deck: Deck) -> Generator:
                                      tx_confirmations, deck)
             cards = [CardTransfer(**card) for card in cards]
 
-        except (InvalidCardTransferP2TH, CardVersionMismatch,
+        except (InvalidCardTransferP2TH,  CardVersionMismatch,
                 CardNumberOfDecimalsMismatch, InvalidVoutOrder,
-                RecieverAmountMismatch, DecodeError, TypeError) as e:
+                RecieverAmountMismatch, DecodeError, TypeError,
+                InvalidNulldataOutput) as e:
             return []
 
         return cards
