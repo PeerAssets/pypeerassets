@@ -200,7 +200,7 @@ def validate_card_transfer_p2th(deck: Deck, raw_tx: dict) -> None:
     try:
         address = raw_tx["vout"][0]["scriptPubKey"].get("addresses")[0]
     except TypeError as e:
-        raise e(error)
+        raise Exception(error) from e
 
     if not address == deck.p2th_address:
         raise InvalidCardTransferP2TH(error)
