@@ -203,7 +203,7 @@ def validate_card_transfer_p2th(deck: Deck, raw_tx: dict) -> None:
             raise InvalidCardTransferP2TH(error)
     except TypeError as e:
         raise Exception(error) from e
-f
+
 
 def parse_card_transfer_metainfo(protobuf: bytes, deck_version: int) -> dict:
     '''decode card_spawn protobuf message and validate it against deck.version
