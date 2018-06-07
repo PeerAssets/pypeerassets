@@ -6,7 +6,6 @@ from pypeerassets.protocol import Deck
 from pypeerassets.provider import Provider
 from pypeerassets import pavoteproto_pb2 as pavoteproto
 from hashlib import sha256
-from binascii import unhexlify
 from pypeerassets import transactions
 from pypeerassets.pautils import read_tx_opreturn, find_tx_sender
 from pypeerassets.networks import net_query
