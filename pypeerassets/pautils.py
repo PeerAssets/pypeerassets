@@ -1,7 +1,6 @@
 
 '''miscellaneous utilities.'''
 
-import binascii
 from pypeerassets.provider import Provider, RpcNode, Explorer, Cryptoid, Mintr
 from pypeerassets.exceptions import (InvalidDeckSpawn, InvalidDeckMetainfo,
                                      InvalidDeckIssueMode, InvalidDeckVersion,
@@ -97,11 +96,11 @@ def read_tx_opreturn(raw_tx: dict) -> bytes:
         n += 10
         data = asm[n:]
         n = data.find(' ')
-        #make sure that we don't include trailing opcodes
+        # make sure that we don't include trailing opcodes
         if n == -1:
-            return binascii.unhexlify(data)
+            return bytes.fromhex(data)
         else:
-            return binascii.unhexlify(data[:n])
+            return bytes.fromhex(data[:n])
 
 
 def deck_issue_mode(proto: DeckSpawnProto) -> Iterable[str]:
