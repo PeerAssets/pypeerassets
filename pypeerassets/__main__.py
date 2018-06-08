@@ -30,7 +30,8 @@ from decimal import Decimal, getcontext
 getcontext().prec = 6
 
 
-def find_all_valid_decks(provider: Provider, deck_version: int, prod: bool=True) -> Generator:
+def find_all_valid_decks(provider: Provider, deck_version: int,
+                         prod: bool=True) -> Generator:
     '''
     Scan the blockchain for PeerAssets decks, returns list of deck objects.
     : provider - provider instance
