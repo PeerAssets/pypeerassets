@@ -12,6 +12,7 @@ from typing import Iterable
 from pypeerassets.paproto_pb2 import DeckSpawn as DeckSpawnProto
 from pypeerassets.paproto_pb2 import CardTransfer as CardTransferProto
 from pypeerassets.protocol import Deck, CardTransfer
+from typing import Optional, Tuple
 
 
 def load_p2th_privkey_into_local_node(provider: RpcNode, prod: bool=True) -> None:
@@ -70,6 +71,40 @@ def find_deck_spawns(provider: Provider, prod: bool=True) -> Iterable[str]:
             decks = (i for i in provider.listtransactions(pa_params.test_P2TH_addr))
 
     return decks
+
+
+def deck_parser(args: Tuple[Provider, dict, int, str],
+                prod: bool=True) -> Optional[Deck]:
+    '''deck parser function'''
+
+    provider = args[0]
+    raw_tx = args[1]
+    deck_version = args[2]
+    p2th = args[3]
+
+    try:
+        validate_deckspawn_p2th(provider, raw_tx, p2th)
+
+        d = parse_deckspawn_metainfo(read_tx_opreturn(raw_tx), deck_version)
+
+        if d:
+
+            d["id"] = raw_tx["txid"]
+            try:
+                d["time"] = raw_tx["blocktime"]
+            except KeyError:
+                d["time"] = 0
+            d["issuer"] = find_tx_sender(provider, raw_tx)
+            d["network"] = provider.network
+            d["production"] = prod
+            d["tx_confirmations"] = raw_tx["confirmations"]
+            return Deck(**d)
+
+    except (InvalidDeckSpawn, InvalidDeckMetainfo, InvalidDeckVersion,
+            InvalidNulldataOutput) as err:
+        pass
+
+    return None
 
 
 def tx_serialization_order(provider: Provider, blockhash: str, txid: str) -> int:

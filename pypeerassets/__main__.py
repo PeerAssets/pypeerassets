@@ -27,38 +27,6 @@ from decimal import Decimal, getcontext
 getcontext().prec = 6
 
 
-def deck_parser(args: Tuple[Provider, dict, int, str], prod: bool=True) -> Optional[Deck]:
-    '''deck parser function'''
-
-    provider = args[0]
-    raw_tx = args[1]
-    deck_version = args[2]
-    p2th = args[3]
-
-    try:
-        validate_deckspawn_p2th(provider, raw_tx, p2th)
-
-        d = parse_deckspawn_metainfo(read_tx_opreturn(raw_tx), deck_version)
-
-        if d:
-
-            d["id"] = raw_tx["txid"]
-            try:
-                d["time"] = raw_tx["blocktime"]
-            except KeyError:
-                d["time"] = 0
-            d["issuer"] = find_tx_sender(provider, raw_tx)
-            d["network"] = provider.network
-            d["production"] = prod
-            d["tx_confirmations"] = raw_tx["confirmations"]
-            return Deck(**d)
-
-    except (InvalidDeckSpawn, InvalidDeckMetainfo, InvalidDeckVersion, InvalidNulldataOutput) as err:
-        pass
-
-    return None
-
-
 def find_all_valid_decks(provider: Provider, deck_version: int, prod: bool=True) -> Generator:
     '''
     Scan the blockchain for PeerAssets decks, returns list of deck objects.
