@@ -1,7 +1,7 @@
 
 '''miscellaneous utilities.'''
 
-from pypeerassets.provider import Provider, RpcNode, Explorer, Cryptoid, Mintr
+from pypeerassets.provider import Provider, RpcNode, Explorer, Cryptoid
 from pypeerassets.exceptions import (InvalidDeckSpawn, InvalidDeckMetainfo,
                                      InvalidDeckIssueMode, InvalidDeckVersion,
                                      InvalidCardTransferP2TH, CardVersionMismatch,
@@ -55,13 +55,6 @@ def find_deck_spawns(provider: Provider, prod: bool=True) -> Iterable[str]:
             decks = (i["txid"] for i in provider.listtransactions("PAPROD"))
         else:
             decks = (i["txid"] for i in provider.listtransactions("PATEST"))
-
-    if isinstance(provider, Mintr):
-
-        if prod:
-            decks = (i["txid"] for i in provider.listtransactions(pa_params.P2TH_addr))
-        else:
-            raise NotImplementedError
 
     if isinstance(provider, Cryptoid) or isinstance(provider, Explorer):
 
