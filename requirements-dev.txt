@@ -1,3 +1,5 @@
+coveralls
 mypy
 peercoin_rpc>=0.56
 pytest
+pytest-cov
