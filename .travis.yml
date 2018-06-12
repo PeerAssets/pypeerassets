@@ -10,4 +10,4 @@ install:
 script:
   - pytest --cov=pypeerassets
 after_success:
-  - coveralls
+  - COVERALLS_PARALLEL=true coveralls
