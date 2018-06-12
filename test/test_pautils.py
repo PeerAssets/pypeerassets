@@ -6,7 +6,6 @@ from pypeerassets import (
     Cryptoid,
     Deck,
     Explorer,
-    Mintr,
     RpcNode,
     find_deck,
 )
@@ -24,7 +23,7 @@ def test_load_p2th_privkeys_into_local_node():
     load_p2th_privkeys_into_local_node(provider=provider)
 
 
-@pytest.mark.parametrize("prov", ["explorer", "mintr", 'cryptoid'])
+@pytest.mark.parametrize("prov", ["explorer", "cryptoid"])
 def test_find_tx_sender(prov):
 
     if prov == "explorer":
@@ -32,24 +31,16 @@ def test_find_tx_sender(prov):
         rawtx = provider.getrawtransaction("397bda2f5e6608c872a663b2e5482d95db8ecfad00757823f0f12caa45a213a6", 1)
         assert find_tx_sender(provider, rawtx) == 'PNHGzKupyvo2YZVb1CTdRxtCGBB5ykgiug'
 
-    if prov == "mintr":
-        provider = Mintr()
-        rawtx = provider.getrawtransaction("397bda2f5e6608c872a663b2e5482d95db8ecfad00757823f0f12caa45a213a6", 1)
-        assert find_tx_sender(provider, rawtx) == 'PNHGzKupyvo2YZVb1CTdRxtCGBB5ykgiug'
-
     if prov == "cryptoid":
         provider = Cryptoid(network="peercoin")
         rawtx = provider.getrawtransaction("397bda2f5e6608c872a663b2e5482d95db8ecfad00757823f0f12caa45a213a6", 1)
         assert find_tx_sender(provider, rawtx) == 'PNHGzKupyvo2YZVb1CTdRxtCGBB5ykgiug'
 
-@pytest.mark.parametrize("prov", ["explorer", "mintr", "cryptoid"])
+@pytest.mark.parametrize("prov", ["explorer", "cryptoid"])
 def test_find_deck_spawns(prov):
 
     if prov == "explorer":
         provider = Explorer(network="peercoin")
-
-    if prov == "mintr":
-        provider = Mintr()
 
     if prov == "cryptoid":
         provider = Cryptoid(network="peercoin")
@@ -57,19 +48,13 @@ def test_find_deck_spawns(prov):
     assert isinstance(find_deck_spawns(provider), Generator)
 
 
-@pytest.mark.parametrize("prov", ["rpc", "explorer", "mintr"])
+@pytest.mark.parametrize("prov", ["rpc", "explorer"])
 def test_tx_serialization_order(prov):
 
     if prov == "explorer":
         provider = Explorer(network="peercoin-testnet")
         assert tx_serialization_order(provider,
                                       txid="f968702bcedc107959aae2c2b1a1becdccbfe7e5a32b460b2c13c1adaa33d541", blockhash="e234d2ef69f7cd1e7ee489546b39314cc838763b4e32438106cba657d9749f2f") == 1
-
-    if prov == "mintr":
-        provider = Mintr()
-        assert tx_serialization_order(provider,
-                                      txid="6f9c76f5e2d188c8d4e8411a89dd152ca94e6b1756aec6c4d12fcbf0450970f7", blockhash="13ea431cb818628d762f224fb3fa957ecdbab661d190d28aedef8449e007f207") == 0
-
 
     try:
         if prov == "rpc":

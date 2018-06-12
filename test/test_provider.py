@@ -1,13 +1,9 @@
 import pytest
 
-from pypeerassets.provider import (
-    Cryptoid,
-    Explorer,
-    Mintr,
-)
+from pypeerassets.provider import Cryptoid, Explorer
 
 
-@pytest.mark.parametrize("provider_cls", [Cryptoid, Explorer, Mintr,])
+@pytest.mark.parametrize("provider_cls", [Cryptoid, Explorer])
 def test_validateaddress_peercoin(provider_cls):
     "Check Providers that can validate Peercoin addresses."
 
