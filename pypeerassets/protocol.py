@@ -1,14 +1,15 @@
 """all things PeerAssets protocol."""
 
-import warnings
+from enum import Enum
+from operator import itemgetter
+from typing import List, Optional, Generator, cast, Callable
+
 from pypeerassets.kutil import Kutil
 from pypeerassets.paproto_pb2 import DeckSpawn as deckspawnproto
 from pypeerassets.paproto_pb2 import CardTransfer as cardtransferproto
-from pypeerassets.exceptions import RecieverAmountMismatch
-from operator import itemgetter
+from pypeerassets.exceptions import RecieverAmountMismatch, OverSizeOPReturn
 from pypeerassets.card_parsers import parsers
-from enum import Enum
-from typing import List, Optional, Generator, cast, Callable
+from pypeerassets.networks import net_query
 
 
 class IssueMode(Enum):
@@ -112,12 +113,13 @@ class Deck:
             else:
                 deck.asset_specific_data = self.asset_specific_data
 
-        proto = deck.SerializeToString()
+        if deck.ByteSize() > net_query(self.network).op_return_max_bytes:
+            raise OverSizeOPReturn('''
+                        Metainfo size exceeds maximum of {max} bytes supported by this network.'''
+                                   .format(max=net_query(self.network)
+                                           .op_return_max_bytes))
 
-        if len(proto) > 80:
-            warnings.warn('\nMetainfo size exceeds maximum of 80bytes that fit into OP_RETURN.')
-
-        return proto
+        return deck.SerializeToString()
 
     @property
     def metainfo_to_dict(self) -> dict:
@@ -177,6 +179,7 @@ class CardTransfer:
             raise RecieverAmountMismatch({"error": "carn mmount must match card receiver."})
 
         self.version = version
+        self.network = deck.network
         self.deck_id = deck.id
         self.deck_p2th = deck.p2th_address
         self.txid = txid
@@ -229,12 +232,13 @@ class CardTransfer:
             else:
                 card.asset_specific_data = self.asset_specific_data
 
-        proto = card.SerializeToString()
+        if card.ByteSize() > net_query(self.network).op_return_max_bytes:
+            raise OverSizeOPReturn('''
+                        Metainfo size exceeds maximum of {max} bytes supported by this network.'''
+                                   .format(max=net_query(self.network)
+                                           .op_return_max_bytes))
 
-        if len(proto) > 80:
-            warnings.warn('\nMetainfo size exceeds maximum of 80bytes that fit into OP_RETURN.')
-
-        return proto
+        return card.SerializeToString()
 
     @property
     def metainfo_to_dict(self) -> dict:

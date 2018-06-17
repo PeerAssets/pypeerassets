@@ -63,3 +63,7 @@ class InvalidNulldataOutput(Exception):
 
 class InvalidVoutOrder(Exception):
     '''mallformed vout sequence'''
+
+
+class OverSizeOPReturn(Exception):
+    '''op_return size is exceeding the maximum size allowed by this network.'''

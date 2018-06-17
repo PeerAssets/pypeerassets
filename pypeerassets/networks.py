@@ -16,6 +16,7 @@ NetworkParams = namedtuple('NetworkParams', [
     'min_vout_value',
     'tx_timestamp',
     'denomination',
+    'op_return_max_bytes'
 ])
 
 
@@ -28,17 +29,19 @@ networks = (
     # Peercoin mainnet
     NetworkParams("peercoin", "ppc", b'37', b'b7', b'75', b'e6e8e9e5',
                   b'\x17PPCoin Signed Message:\n', Decimal(0.01),
-                  0, True, Decimal('1e6')),
+                  0, True, Decimal('1e6'), 80),
     # Peercoin testnet
     NetworkParams("peercoin-testnet", "tppc", b'6f', b'ef', b'c4', b'cbf2c0ef',
                   b'\x17PPCoin Signed Message:\n', Decimal(0.01),
-                  0, True, Decimal('1e6')),
+                  0, True, Decimal('1e6'), 80),
     # Bitcoin mainnet
     NetworkParams("bitcoin", "btc", b'00', b'80', b'05', b'd9b4bef9',
-                  b'\x18Bitcoin Signed Message:\n', 0, 0, False, Decimal('1e8')),
+                  b'\x18Bitcoin Signed Message:\n', 0, 0, False,
+                  Decimal('1e8'), 80),
     # Bitcoin testnet
     NetworkParams("bitcoin-testnet", "tbtc", b'6f', b'ef', b'c4', b'dab5bffa',
-                  b'\x18Bitcoin Signed Message:\n', 0, 0, False, Decimal('1e8'))
+                  b'\x18Bitcoin Signed Message:\n', 0, 0, False,
+                  Decimal('1e8'), 80)
 )
 
 

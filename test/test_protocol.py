@@ -4,6 +4,7 @@ import itertools
 from pypeerassets import Kutil
 from pypeerassets.protocol import (CardTransfer, Deck, IssueMode,
                                    validate_card_issue_modes, DeckState)
+from pypeerassets.exceptions import OverSizeOPReturn
 
 
 def test_deck_object():
@@ -41,6 +42,38 @@ def test_deck_object():
                                      'version': 1,
                                      'asset_specific_data': 'Just testing.',
                                     }
+
+
+def test_oversize_deck_object():
+    '''test reaction to oversize deck object'''
+
+    with pytest.raises(OverSizeOPReturn):
+
+        deck = Deck(
+            name="oversize_super_mega_deck_1119",
+            number_of_decimals=18,
+            issue_mode=IssueMode.SUBSCRIPTION.value,
+            network="btc",
+            production=True,
+            version=1,
+            asset_specific_data="""
+                                Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                                Phasellus tempor augue at tincidunt convallis.
+                                Duis laoreet ultrices augue a elementum.
+                                Mauris vel dolor at mi interdum pellentesque non eget justo.
+                                Maecenas tortor turpis, sodales hendrerit purus nec,
+                                mattis molestie libero. Aliquam sagittis ac urna vel ultricies.
+                                Fusce dictum facilisis arcu, nec ullamcorper turpis suscipit eu.
+                                Etiam ac leo et turpis bibendum pharetra non consectetur quam.
+                                Nullam eleifend ligula in mollis auctor.
+                                Vestibulum aliquam, nulla vitae venenatis vehicula, quam nibh cursus velit,
+                                vel sodales dolor magna rhoncus ipsum.
+                                Nulla ante nisl, condimentum ut metus et,
+                                egestas mattis velit. In lorem erat, mattis sed ex nec,
+                                tincidunt dictum purus. Duis nec ligula eros.""",
+        )
+
+        assert deck.metainfo_to_protobuf
 
 
 def test_card_transfer_object():
@@ -81,6 +114,30 @@ def test_card_transfer_object():
                                       'version': 1,
                                       'deck_p2th': None
                                       }
+
+
+def test_oversize_card_object():
+
+    deck = Deck(
+        name="decky",
+        number_of_decimals=12,
+        issue_mode=IssueMode.MULTI.value,
+        network="ppc",
+        production=True,
+        version=1,
+        asset_specific_data="Just testing.",
+    )
+
+    with pytest.raises(OverSizeOPReturn):
+
+        card_transfer = CardTransfer(
+            deck=deck,
+            receiver=[Kutil(network='ppc').address for i in range(80)],
+            amount=[random.randint(20, 12000) for i in range(80)],
+            version=1,
+        )
+
+        assert card_transfer.metainfo_to_protobuf
 
 
 @pytest.mark.parametrize("combo", [IssueMode.ONCE, IssueMode.MULTI, IssueMode.MONO])
