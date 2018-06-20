@@ -57,7 +57,7 @@ def tx_output(value: Decimal, n: int, script: ScriptSig) -> TxOut:
 def make_raw_transaction(
     inputs: list,
     outputs: list,
-    locktime: Locktime=Locktime(0),
+    locktime: Locktime,
     timestamp: int=int(time()),
     version: int=1,
 ) -> Transaction:

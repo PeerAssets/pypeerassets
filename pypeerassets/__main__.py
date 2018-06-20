@@ -21,9 +21,11 @@ from .exceptions import (EmptyP2THDirectory,
                          RecieverAmountMismatch,
                          InvalidNulldataOutput)
 from google.protobuf.message import DecodeError
-from pypeerassets.transactions import (nulldata_script, tx_output, p2pkh_script,
+from pypeerassets.transactions import (nulldata_script, tx_output,
+                                       p2pkh_script,
                                        make_raw_transaction,
-                                       Transaction)
+                                       Transaction,
+                                       Locktime)
 from pypeerassets.pa_constants import param_query
 from pypeerassets.networks import net_query
 from decimal import Decimal, getcontext
@@ -78,13 +80,16 @@ def find_deck(provider: Provider, key: str, version: int, prod: bool=True) -> Op
 
 
 def deck_spawn(provider: Provider, deck: Deck, inputs: dict,
-               change_address: str) -> Transaction:
+               change_address: str, locktime: int=0) -> Transaction:
+
     '''Creates Deck spawn raw transaction.
+
        : key - Kutil object which we'll use to sign the tx
        : deck - Deck object
        : card - CardTransfer object
        : inputs - utxos (has to be owned by deck issuer)
        : change_address - address to send the change to
+       : locktime - tx locked until block n=int
     '''
 
     network_params = net_query(deck.network)
@@ -104,7 +109,8 @@ def deck_spawn(provider: Provider, deck: Deck, inputs: dict,
         tx_output(value=change_sum, n=2, script=p2pkh_script(change_address))  # change
               ]
 
-    unsigned_tx = make_raw_transaction(inputs['utxos'], txouts)
+    unsigned_tx = make_raw_transaction(inputs['utxos'], txouts,
+                                       locktime=Locktime(locktime))
     return unsigned_tx
 
 
@@ -194,11 +200,14 @@ def find_all_valid_cards(provider: Provider, deck: Deck) -> Generator:
 
 
 def card_transfer(provider: Provider, card: CardTransfer, inputs: dict,
-                  change_address: str) -> Transaction:
+                  change_address: str, locktime: int=0) -> Transaction:
+
     '''Prepare the CardTransfer Transaction object
+
        : card - CardTransfer object
        : inputs - utxos (has to be owned by deck issuer)
        : change_address - address to send the change to
+       : locktime - tx locked until block n=int
        '''
 
     network_params = net_query(provider.network)
@@ -224,5 +233,6 @@ def card_transfer(provider: Provider, card: CardTransfer, inputs: dict,
         tx_output(value=change_sum, n=len(outs)+1, script=p2pkh_script(change_address))
         )
 
-    unsigned_tx = make_raw_transaction(inputs['utxos'], outs)
+    unsigned_tx = make_raw_transaction(inputs['utxos'], outs,
+                                       locktime=Locktime(locktime))
     return unsigned_tx
