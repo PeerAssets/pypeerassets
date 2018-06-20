@@ -1,6 +1,6 @@
 import pytest
 import pypeerassets as pa
-from pypeerassets.transactions import Transaction
+from pypeerassets.transactions import Transaction, Locktime
 
 
 @pytest.mark.parametrize("prov", [pa.Explorer, pa.Cryptoid])
@@ -65,7 +65,8 @@ def test_deck_spawn():
                    network='tppc', production=True, version=1,
                    asset_specific_data='https://talk.peercoin.net/')
 
-    deck_spawn = pa.deck_spawn(provider, deck, inputs, change_address)
+    deck_spawn = pa.deck_spawn(provider, deck, inputs, change_address,
+                               Locktime(333333))
 
     assert isinstance(deck_spawn, Transaction)
 
@@ -84,6 +85,7 @@ def test_card_transfer():
                            amount=[1, 2]
                            )
 
-    card_transfer = pa.card_transfer(provider, card, inputs, change_address)
+    card_transfer = pa.card_transfer(provider, card, inputs, change_address,
+                                     Locktime(0))
 
     assert isinstance(card_transfer, Transaction)
