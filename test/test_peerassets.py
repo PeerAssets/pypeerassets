@@ -27,7 +27,6 @@ def test_find_deck(prov):
                              }
 
 
-@pytest.mark.xfail
 @pytest.mark.parametrize("prov", [pa.Explorer, pa.Cryptoid])
 def test_get_card_transfers(prov):
 
@@ -41,7 +40,6 @@ def test_get_card_transfers(prov):
     assert isinstance(next(cards)[0], pa.CardTransfer)
 
 
-@pytest.mark.xfail
 @pytest.mark.parametrize("prov", [pa.Explorer, pa.Cryptoid])
 def test_find_all_valid_cards(prov):
 

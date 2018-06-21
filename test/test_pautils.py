@@ -177,7 +177,6 @@ def test_load_deck_p2th_into_local_node():
     load_deck_p2th_into_local_node(provider, deck)
 
 
-@pytest.mark.xfail
 def test_validate_card_transfer_p2th():
 
     provider = Cryptoid(network="peercoin-testnet")

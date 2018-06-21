@@ -112,13 +112,10 @@ class Provider(ABC):
         raise NotImplementedError
 
     def validateaddress(self, address: str) -> bool:
-        """Returns True if the passed address is valid, False otherwise. Note
-        the limitation that we don't check the address against the underlying
-        network (i.e. strict=False). When btcpy can support multiple networks at
-        runtime we can be more precise (i.e. strict=True) ;)
-        """
+        "Returns True if the passed address is valid, False otherwise."
+        btcpy_constants = self.network_properties.btcpy_constants
         try:
-            Address.from_string(address, strict=False)
+            Address.from_string(btcpy_constants, address)
         except ValueError:
             return False
 
