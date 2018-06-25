@@ -13,12 +13,14 @@ from btcpy.structs.script import (
 )
 from btcpy.structs.transaction import (
     Locktime,
+    PeercoinTx,
     Transaction,
     TxIn,
     TxOut,
 )
 
 from pypeerassets.kutil import Kutil
+from pypeerassets.networks import net_query
 from pypeerassets.provider import Provider
 
 
@@ -55,6 +57,7 @@ def tx_output(value: Decimal, n: int, script: ScriptSig) -> TxOut:
 
 
 def make_raw_transaction(
+    network: str,
     inputs: list,
     outputs: list,
     locktime: Locktime,
@@ -63,9 +66,25 @@ def make_raw_transaction(
 ) -> Transaction:
     '''create raw transaction'''
 
-    return Transaction(version=version, timestamp=timestamp,
-                       ins=inputs, outs=outputs,
-                       locktime=locktime)
+    network_params = net_query(network)
+
+    if network_params.network_name.startswith("peercoin"):
+        return PeercoinTx(
+            version=version,
+            timestamp=timestamp,
+            ins=inputs,
+            outs=outputs,
+            locktime=locktime,
+            network=network_params.btcpy_constants,
+        )
+
+    return Transaction(
+        version=version,
+        ins=inputs,
+        outs=outputs,
+        locktime=locktime,
+        network=network_params.btcpy_constants,
+    )
 
 
 def find_parent_outputs(provider: Provider, utxo: TxIn) -> TxOut:
