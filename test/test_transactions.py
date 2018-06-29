@@ -34,7 +34,7 @@ def test_tx_output(network):
 
     script = p2pkh_script(network, addr)
 
-    txout = tx_output(network=network, value=Decimal(0),
+    txout = tx_output(network=network, value=Decimal(1.35),
                       n=1, script=script
                       )
 
