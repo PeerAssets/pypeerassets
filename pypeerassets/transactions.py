@@ -1,6 +1,6 @@
 '''transaction assembly/dissasembly'''
 
-from decimal import Decimal, getcontext
+from decimal import Decimal
 from math import ceil
 from time import time
 
@@ -24,9 +24,6 @@ from pypeerassets.networks import net_query
 from pypeerassets.provider import Provider
 
 
-getcontext().prec = 6
-
-
 def calculate_tx_fee(tx_size: int) -> Decimal:
     '''return tx fee from tx size in bytes'''
 
@@ -42,18 +39,26 @@ def nulldata_script(data: bytes) -> NulldataScript:
     return NulldataScript(stack)
 
 
-def p2pkh_script(address: str) -> P2pkhScript:
+def p2pkh_script(network: str, address: str) -> P2pkhScript:
     '''create pay-to-key-hash (P2PKH) script'''
 
-    addr = Address.from_string(address)
+    network_params = net_query(network)
+
+    addr = Address.from_string(network=network_params.btcpy_constants,
+                               string=address)
 
     return P2pkhScript(addr)
 
 
-def tx_output(value: Decimal, n: int, script: ScriptSig) -> TxOut:
+def tx_output(network: str, value: Decimal, n: int,
+              script: ScriptSig) -> TxOut:
     '''create TxOut object'''
 
-    return TxOut(value=int(value * 1000000), n=n, script_pubkey=script)
+    network_params = net_query(network)
+
+    return TxOut(network=network_params.btcpy_constants,
+                 value=int(value * network_params.denomination),
+                 n=n, script_pubkey=script)
 
 
 def make_raw_transaction(
