@@ -28,8 +28,7 @@ from pypeerassets.transactions import (nulldata_script, tx_output,
                                        Locktime)
 from pypeerassets.pa_constants import param_query
 from pypeerassets.networks import net_query
-from decimal import Decimal, getcontext
-getcontext().prec = 6
+from decimal import Decimal
 
 
 def find_all_valid_decks(provider: Provider, deck_version: int,
@@ -104,13 +103,19 @@ def deck_spawn(provider: Provider, deck: Deck, inputs: dict,
     change_sum = Decimal(inputs['total'] - network_params.min_tx_fee - pa_params.P2TH_fee)
 
     txouts = [
-        tx_output(value=pa_params.P2TH_fee, n=0, script=p2pkh_script(p2th_addr)),  # p2th
-        tx_output(value=Decimal(0), n=1, script=nulldata_script(deck.metainfo_to_protobuf)),  # op_return
-        tx_output(value=change_sum, n=2, script=p2pkh_script(change_address))  # change
+        tx_output(network=deck.network, value=pa_params.P2TH_fee,
+                  n=0, script=p2pkh_script(p2th_addr)),  # p2th
+        tx_output(network=deck.network, value=Decimal(0),
+                  n=1, script=nulldata_script(deck.metainfo_to_protobuf)),  # op_return
+        tx_output(network=deck.network, value=change_sum,
+                  n=2, script=p2pkh_script(change_address))  # change
               ]
 
-    unsigned_tx = make_raw_transaction(inputs['utxos'], txouts,
-                                       locktime=Locktime(locktime))
+    unsigned_tx = make_raw_transaction(network=deck.network,
+                                       inputs=inputs['utxos'],
+                                       outputs=txouts,
+                                       locktime=Locktime(locktime)
+                                       )
     return unsigned_tx
 
 
@@ -217,8 +222,12 @@ def card_transfer(provider: Provider, card: CardTransfer, inputs: dict,
         raise Exception("card.deck_p2th required for tx_output")
 
     outs = [
-        tx_output(value=pa_params.P2TH_fee, n=0, script=p2pkh_script(card.deck_p2th)),  # deck p2th
-        tx_output(value=Decimal(0), n=1, script=nulldata_script(card.metainfo_to_protobuf))  # op_return
+        tx_output(network=provider.network,
+                  value=pa_params.P2TH_fee,
+                  n=0, script=p2pkh_script(card.deck_p2th)),  # deck p2th
+        tx_output(network=provider.network,
+                  value=Decimal(0), n=1,
+                  script=nulldata_script(card.metainfo_to_protobuf))  # op_return
     ]
 
     for addr, index in zip(card.receiver, range(len(card.receiver))):
@@ -233,6 +242,9 @@ def card_transfer(provider: Provider, card: CardTransfer, inputs: dict,
         tx_output(value=change_sum, n=len(outs)+1, script=p2pkh_script(change_address))
         )
 
-    unsigned_tx = make_raw_transaction(inputs['utxos'], outs,
-                                       locktime=Locktime(locktime))
+    unsigned_tx = make_raw_transaction(network=deck.network,
+                                       inputs=inputs['utxos'],
+                                       outputs=txouts,
+                                       locktime=Locktime(locktime)
+                                       )
     return unsigned_tx
