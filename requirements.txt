@@ -1,2 +1,3 @@
-peerassets-btcpy
+#peerassets-btcpy
+git+https://github.com/PeerAssets/btcpy.git@master
 protobuf>=3.3.0
