@@ -10,6 +10,8 @@ from btcpy.structs.transaction import (
     Transaction
 )
 
+from btcpy.structs.script import P2pkhScript
+
 from pypeerassets.transactions import (
     calculate_tx_fee,
     make_raw_transaction,
@@ -51,7 +53,11 @@ def test_nulldata_script():
 
 
 def test_p2pkh_script():
-    pass
+
+    addr = '1FV9w4NvBnnNp4GMUNuqfzqGKvgBY5YTSB'
+    script = p2pkh_script('bitcoin', addr)
+
+    assert isinstance(script, P2pkhScript)
 
 
 def test_make_raw_transaction():
