@@ -42,7 +42,12 @@ def test_tx_output(network):
 
 
 def test_nulldata_script():
-    pass
+
+    null = tx_output(network='peercoin-testnet',
+                     value=Decimal(0), n=1,
+                     script='Oh Hello.'.encode('utf-8'))
+
+    assert isinstance(null, TxOut)
 
 
 def test_p2pkh_script():
