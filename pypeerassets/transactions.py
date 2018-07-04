@@ -13,7 +13,8 @@ from btcpy.structs.script import (
 )
 from btcpy.structs.transaction import (
     Locktime,
-    PeercoinTx,
+    PeercoinMutableTx,
+    MutableTransaction,
     Transaction,
     TxIn,
     TxOut,
@@ -68,13 +69,13 @@ def make_raw_transaction(
     locktime: Locktime,
     timestamp: int=int(time()),
     version: int=1,
-) -> Transaction:
+) -> MutableTransaction:
     '''create raw transaction'''
 
     network_params = net_query(network)
 
     if network_params.network_name.startswith("peercoin"):
-        return PeercoinTx(
+        return PeercoinMutableTx(
             version=version,
             timestamp=timestamp,
             ins=inputs,
@@ -83,7 +84,7 @@ def make_raw_transaction(
             network=network_params.btcpy_constants,
         )
 
-    return Transaction(
+    return MutableTransaction(
         version=version,
         ins=inputs,
         outs=outputs,
@@ -99,7 +100,7 @@ def find_parent_outputs(provider: Provider, utxo: TxIn) -> TxOut:
     return TxOut.from_json(provider.getrawtransaction(utxo.txid, 1)['vout'][index])
 
 
-def sign_transaction(provider: Provider, unsigned_tx: Transaction,
+def sign_transaction(provider: Provider, unsigned_tx: MutableTransaction,
                      key: Kutil) -> Transaction:
     '''sign transaction with Kutil'''
 
