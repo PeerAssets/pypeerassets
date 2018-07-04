@@ -104,11 +104,15 @@ def deck_spawn(provider: Provider, deck: Deck, inputs: dict,
 
     txouts = [
         tx_output(network=deck.network, value=pa_params.P2TH_fee,
-                  n=0, script=p2pkh_script(p2th_addr)),  # p2th
+                  n=0, script=p2pkh_script(address=p2th_addr,
+                                           network=deck.network)),  # p2th
+
         tx_output(network=deck.network, value=Decimal(0),
                   n=1, script=nulldata_script(deck.metainfo_to_protobuf)),  # op_return
+
         tx_output(network=deck.network, value=change_sum,
-                  n=2, script=p2pkh_script(change_address))  # change
+                  n=2, script=p2pkh_script(address=change_address,
+                                           network=deck.network))  # change
               ]
 
     unsigned_tx = make_raw_transaction(network=deck.network,
@@ -224,7 +228,8 @@ def card_transfer(provider: Provider, card: CardTransfer, inputs: dict,
     outs = [
         tx_output(network=provider.network,
                   value=pa_params.P2TH_fee,
-                  n=0, script=p2pkh_script(card.deck_p2th)),  # deck p2th
+                  n=0, script=p2pkh_script(address=card.deck_p2th,
+                                           network=provider.network)),  # deck p2th
         tx_output(network=provider.network,
                   value=Decimal(0), n=1,
                   script=nulldata_script(card.metainfo_to_protobuf))  # op_return
@@ -232,19 +237,24 @@ def card_transfer(provider: Provider, card: CardTransfer, inputs: dict,
 
     for addr, index in zip(card.receiver, range(len(card.receiver))):
         outs.append(   # TxOut for each receiver, index + 2 because we have two outs already
-            tx_output(value=Decimal(0), n=index+2, script=p2pkh_script(addr))
+            tx_output(network=provider.network, value=Decimal(0), n=index+2,
+                      script=p2pkh_script(address=addr,
+                                          network=provider.network))
         )
 
     #  first round of txn making is done by presuming minimal fee
     change_sum = Decimal(inputs['total'] - network_params.min_tx_fee - pa_params.P2TH_fee)
 
     outs.append(
-        tx_output(value=change_sum, n=len(outs)+1, script=p2pkh_script(change_address))
+        tx_output(network=provider.network,
+                  value=change_sum, n=len(outs)+1,
+                  script=p2pkh_script(address=change_address,
+                                      network=provider.network))
         )
 
-    unsigned_tx = make_raw_transaction(network=deck.network,
+    unsigned_tx = make_raw_transaction(network=provider.network,
                                        inputs=inputs['utxos'],
-                                       outputs=txouts,
+                                       outputs=outs,
                                        locktime=Locktime(locktime)
                                        )
     return unsigned_tx
