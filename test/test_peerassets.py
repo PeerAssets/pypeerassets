@@ -1,6 +1,7 @@
 import pytest
 import pypeerassets as pa
-from pypeerassets.transactions import Transaction, Locktime
+from btcpy.structs.transaction import MutableTransaction
+from pypeerassets.transactions import Transaction
 
 
 @pytest.mark.parametrize("prov", [pa.Explorer, pa.Cryptoid])
@@ -53,7 +54,6 @@ def test_find_all_valid_cards(prov):
     assert isinstance(next(cards), pa.CardTransfer)
 
 
-@pytest.mark.xfail
 def test_deck_spawn():
 
     provider = pa.Explorer(network='tppc')
@@ -63,20 +63,20 @@ def test_deck_spawn():
                    network='tppc', production=True, version=1,
                    asset_specific_data='https://talk.peercoin.net/')
 
-    deck_spawn = pa.deck_spawn(provider, deck, inputs, change_address,
-                               Locktime(333333))
+    deck_spawn = pa.deck_spawn(provider, deck, inputs, change_address)
 
-    assert isinstance(deck_spawn, Transaction)
+    assert isinstance(deck_spawn, MutableTransaction)
 
 
-@pytest.mark.xfail
 def test_card_transfer():
 
     provider = pa.Explorer(network='tppc')
     address = "mthKQHpr7zUbMvLcj8GHs33mVcf91DtN6L"
     inputs = provider.select_inputs(address, 0.02)
     change_address = address
-    deck = pa.find_deck(provider, '078f41c257642a89ade91e52fd484c141b11eda068435c0e34569a5dfcce7915', 1, True)
+    deck = pa.find_deck(provider,
+                        '078f41c257642a89ade91e52fd484c141b11eda068435c0e34569a5dfcce7915',
+                        1, True)
     card = pa.CardTransfer(deck=deck,
                            receiver=['n12h8P5LrVXozfhEQEqg8SFUmVKtphBetj',
                                      'n422r6tcJ5eofjsmRvF6TcBMigmGbY5P7E'],
@@ -84,6 +84,6 @@ def test_card_transfer():
                            )
 
     card_transfer = pa.card_transfer(provider, card, inputs, change_address,
-                                     Locktime(0))
+                                     locktime=300000)
 
     assert isinstance(card_transfer, Transaction)
