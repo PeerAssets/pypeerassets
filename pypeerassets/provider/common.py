@@ -15,6 +15,8 @@ class Provider(ABC):
 
     net = ""
 
+    headers = {"User-Agent": "pypeerassets"}
+
     @staticmethod
     def _netname(name: str) -> dict:
         '''resolute network name,
