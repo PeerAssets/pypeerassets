@@ -106,16 +106,3 @@ def sign_transaction(provider: Provider, unsigned_tx: MutableTransaction,
 
     parent_output = find_parent_outputs(provider, unsigned_tx.ins[0])
     return key.sign_transaction(parent_output, unsigned_tx)
-
-
-def _increase_fee_and_sign(provider: Provider, key: Kutil, change_sum: Decimal,
-                           inputs: dict, txouts: list) -> Transaction:
-    '''when minimal fee wont cut it'''
-
-    # change output is last of transaction outputs
-    txouts[-1] = tx_output(value=change_sum, n=txouts[-1].n, script=txouts[-1].script_pubkey)
-
-    unsigned_tx = make_raw_transaction(inputs['utxos'], txouts)
-    signed = sign_transaction(provider, unsigned_tx, key)
-
-    return signed
