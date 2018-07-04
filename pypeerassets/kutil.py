@@ -24,16 +24,19 @@ class Kutil:
            '''
 
         self.network = network
+        self.btcpy_constants = net_query(self.network).btcpy_constants
 
         if privkey is not None:
             self._private_key = PrivateKey(privkey)
 
         if from_string is not None:
-            self._private_key = PrivateKey(sha256(from_string.encode()).digest())
+            self._private_key = PrivateKey(sha256(
+                                           from_string.encode()).digest())
 
         if from_wif is not None:
-            btcpy_constants = net_query(self.network).btcpy_constants
-            self._private_key = PrivateKey.from_wif(btcpy_constants, from_wif)
+            self._private_key = PrivateKey.from_wif(wif=from_wif,
+                                                    network=self.btcpy_constants,
+                                                    )
 
         if not privkey:
             if from_string == from_wif is None:  # generate a new privkey
@@ -53,7 +56,7 @@ class Kutil:
     def wif(self) -> str:
         '''convert raw private key to WIF'''
 
-        return self._private_key.to_wif()
+        return self._private_key.to_wif(network=self.btcpy_constants)
 
     def sign_transaction(self, txin: TxOut,
                          tx: MutableTransaction) -> MutableTransaction:
