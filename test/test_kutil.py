@@ -41,3 +41,14 @@ def test_mainnet_wif_import():
     assert mykey.address == 'PAprodbYvZqf4vjhef49aThB9rSZRxXsM6'
     assert mykey.pubkey == '023aaca6c4f022543f4a2920f66544a6ce89746f7fce4da35d63b5886fdac06634'
     assert mykey.privkey == '1b19749afd007bf6db0029e0273a46409bc160b9349031752bbc3cd913bbbdd3'
+
+
+def test_wif_export():
+    '''test Kutil WIF export'''
+
+    mykey = Kutil(network='ppc',
+                  privkey=bytearray.fromhex('1b19749afd007bf6db0029e0273a46409bc160b9349031752bbc3cd913bbbdd3')
+                 )
+
+    assert isinstance(mykey.wif, str)
+    assert mykey.wif == 'U624wXL6iT7XZ9qeHsrtPGEiU78V1YxDfwq75Mymd61Ch56w47KE'
