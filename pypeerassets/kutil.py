@@ -1,5 +1,6 @@
 
 from hashlib import sha256
+from typing import Union
 from os import urandom
 
 from btcpy.structs.crypto import PublicKey, PrivateKey
@@ -58,9 +59,9 @@ class Kutil:
 
         return self._private_key.to_wif(network=self.btcpy_constants)
 
-    def sign_transaction(self, txin: TxOut,
+    def sign_transaction(self, txins: Union[TxOut],
                          tx: MutableTransaction) -> MutableTransaction:
         '''sign the parent txn outputs P2PKH'''
 
         solver = P2pkhSolver(self._private_key)
-        return tx.spend([txin], [solver])
+        return tx.spend(txins, [solver for i in txins])
