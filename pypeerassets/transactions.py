@@ -96,8 +96,11 @@ def make_raw_transaction(
 def find_parent_outputs(provider: Provider, utxo: TxIn) -> TxOut:
     '''due to design of the btcpy library, TxIn object must be converted to TxOut object before signing'''
 
+    network_params = net_query(provider.network)
     index = utxo.txout  # utxo index
-    return TxOut.from_json(provider.getrawtransaction(utxo.txid, 1)['vout'][index])
+    return TxOut.from_json(provider.getrawtransaction(utxo.txid,
+                           1)['vout'][index],
+                           network=network_params.btcpy_constants)
 
 
 def sign_transaction(provider: Provider, unsigned_tx: MutableTransaction,
