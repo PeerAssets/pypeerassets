@@ -103,9 +103,9 @@ def find_parent_outputs(provider: Provider, utxo: TxIn) -> TxOut:
                            network=network_params.btcpy_constants)
 
 
-def sign_transaction(provider: Provider, unsigned_tx: MutableTransaction,
+def sign_transaction(provider: Provider, unsigned: MutableTransaction,
                      key: Kutil) -> Transaction:
     '''sign transaction with Kutil'''
 
-    parent_output = find_parent_outputs(provider, unsigned_tx.ins[0])
-    return key.sign_transaction(parent_output, unsigned_tx)
+    parent_outputs = [find_parent_outputs(provider, i) for i in unsigned.ins]
+    return key.sign_transaction(parent_outputs, unsigned)
