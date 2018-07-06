@@ -92,4 +92,3 @@ def test_sign_transaction():
                             [solver for i in parent_outputs])
 
     assert isinstance(signed, PeercoinTx)
-    assert signed.hash() == '2f5b3217823371e01fd4adc81f984b78f23481a8297a32d49f78946546dcecf0'
