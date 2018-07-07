@@ -1,4 +1,4 @@
-from decimal import Decimal, getcontext
+from decimal import Decimal
 from http.client import HTTPResponse
 import json
 from typing import Union, cast
@@ -22,7 +22,6 @@ class Explorer(Provider):
         self.net = self._netname(network)['short']
         if 'ppc' not in self.net:
             raise UnsupportedNetwork('This API only supports Peercoin.')
-            getcontext().prec = 6  # set to six decimals if it's Peercoin
 
     def api_fetch(self, command: str) -> Union[dict, int, float, str]:
 
