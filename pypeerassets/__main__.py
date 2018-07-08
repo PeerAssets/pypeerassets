@@ -48,7 +48,8 @@ def find_all_valid_decks(provider: Provider, deck_version: int,
         p2th = pa_params.test_P2TH_addr
 
     if isinstance(provider, RpcNode):
-        deck_spawns = (provider.getrawtransaction(i, 1) for i in find_deck_spawns(provider))
+        deck_spawns = (provider.getrawtransaction(i, 1)
+                       for i in find_deck_spawns(provider))
 
     else:
         try:
