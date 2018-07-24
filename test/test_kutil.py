@@ -2,12 +2,15 @@ import pytest
 from os import urandom
 from decimal import Decimal
 import time
+
+from btcpy.structs.transaction import Locktime
+from btcpy.structs.sig import P2pkhSolver
+
+from pypeerassets.btcpy_peercoin import PeercoinMutableTx, PeercoinTx
 from pypeerassets.kutil import Kutil
 from pypeerassets.provider import Explorer
 from pypeerassets.networks import net_query
 from pypeerassets.transactions import tx_output, find_parent_outputs, p2pkh_script
-from btcpy.structs.transaction import PeercoinMutableTx, PeercoinTx, Locktime
-from btcpy.structs.sig import P2pkhSolver
 
 
 def test_key_generation():

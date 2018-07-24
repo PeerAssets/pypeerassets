@@ -13,13 +13,13 @@ from btcpy.structs.script import (
 )
 from btcpy.structs.transaction import (
     Locktime,
-    PeercoinMutableTx,
     MutableTransaction,
     Transaction,
     TxIn,
     TxOut,
 )
 
+from pypeerassets.btcpy_peercoin import PeercoinMutableTx
 from pypeerassets.kutil import Kutil
 from pypeerassets.networks import net_query
 from pypeerassets.provider import Provider

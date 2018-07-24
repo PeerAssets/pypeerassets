@@ -1,5 +1,3 @@
-
-
 import pytest
 import time
 from decimal import Decimal
@@ -8,12 +6,13 @@ from btcpy.structs.transaction import (
     Locktime,
     TxOut,
     MutableTransaction,
-    PeercoinMutableTx,
     Transaction
 )
 
 from btcpy.structs.script import P2pkhScript
 
+from pypeerassets.btcpy_peercoin import PeercoinMutableTx
+from pypeerassets.networks import net_query
 from pypeerassets.transactions import (
     calculate_tx_fee,
     make_raw_transaction,
@@ -22,7 +21,6 @@ from pypeerassets.transactions import (
     sign_transaction
 )
 
-from pypeerassets.networks import net_query
 import pypeerassets as pa
 
 
