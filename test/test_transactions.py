@@ -32,13 +32,11 @@ def test_calculate_transaction_fee(tx_size):
     assert round(calculate_tx_fee(tx_size), 2) == round(Decimal(0.01), 2)
 
 
-@pytest.mark.parametrize("network", ['bitcoin', 'peercoin'])
+@pytest.mark.parametrize("network", ['peercoin'])
 def test_tx_output(network):
 
     if network == 'peercoin':
         addr = 'PAdonateFczhZuKLkKHozrcyMJW7Y6TKvw'
-    if network == 'bitcoin':
-        addr = '1FV9w4NvBnnNp4GMUNuqfzqGKvgBY5YTSB'
 
     script = p2pkh_script(network, addr)
 
@@ -60,16 +58,13 @@ def test_nulldata_script():
 
 def test_p2pkh_script():
 
-    addr = '1FV9w4NvBnnNp4GMUNuqfzqGKvgBY5YTSB'
-    script = p2pkh_script('bitcoin', addr)
+    addr = 'mvWDumZZZVD2nEC7hmsX8dMSHoGHAq5b6d'
+    script = p2pkh_script('tppc', addr)
 
     assert isinstance(script, P2pkhScript)
 
 
 def test_make_raw_transaction():
-
-    tx = make_raw_transaction("bitcoin", [], [], Locktime(0))
-    assert isinstance(tx, MutableTransaction)
 
     tx = make_raw_transaction("peercoin", [], [], Locktime(300000))
     assert isinstance(tx, MutableTransaction)
@@ -97,7 +92,7 @@ def test_sign_transaction():
                                  ins=unspent['utxos'],
                                  outs=[output],
                                  locktime=Locktime(0),
-                                 network=network_params.btcpy_constants
+                                 network=network_params
                                  )
 
     assert isinstance(sign_transaction(provider, unsigned, key), Transaction)

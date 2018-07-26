@@ -45,7 +45,7 @@ def p2pkh_script(network: str, address: str) -> P2pkhScript:
 
     network_params = net_query(network)
 
-    addr = Address.from_string(network=network_params.btcpy_constants,
+    addr = Address.from_string(network=network_params,
                                string=address)
 
     return P2pkhScript(addr)
@@ -57,8 +57,8 @@ def tx_output(network: str, value: Decimal, n: int,
 
     network_params = net_query(network)
 
-    return TxOut(network=network_params.btcpy_constants,
-                 value=int(value * network_params.denomination),
+    return TxOut(network=network_params,
+                 value=int(value * network_params.to_unit),
                  n=n, script_pubkey=script)
 
 
@@ -74,14 +74,14 @@ def make_raw_transaction(
 
     network_params = net_query(network)
 
-    if network_params.network_name.startswith("peercoin"):
+    if network_params.name.startswith("peercoin"):
         return PeercoinMutableTx(
             version=version,
             timestamp=timestamp,
             ins=inputs,
             outs=outputs,
             locktime=locktime,
-            network=network_params.btcpy_constants,
+            network=network_params,
         )
 
     return MutableTransaction(
@@ -89,7 +89,7 @@ def make_raw_transaction(
         ins=inputs,
         outs=outputs,
         locktime=locktime,
-        network=network_params.btcpy_constants,
+        network=network_params,
     )
 
 
@@ -100,7 +100,7 @@ def find_parent_outputs(provider: Provider, utxo: TxIn) -> TxOut:
     index = utxo.txout  # utxo index
     return TxOut.from_json(provider.getrawtransaction(utxo.txid,
                            1)['vout'][index],
-                           network=network_params.btcpy_constants)
+                           network=network_params)
 
 
 def sign_transaction(provider: Provider, unsigned: MutableTransaction,

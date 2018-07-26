@@ -8,7 +8,7 @@ from btcpy.structs.address import Address
 
 from pypeerassets.exceptions import UnsupportedNetwork
 from pypeerassets.pa_constants import PAParams, param_query
-from pypeerassets.networks import NetworkParams, net_query
+from pypeerassets.networks import Constants, net_query
 
 
 class Provider(ABC):
@@ -23,8 +23,8 @@ class Provider(ABC):
         required because some providers use shortnames and other use longnames.'''
 
         try:
-            long = net_query(name).network_name
-            short = net_query(name).network_shortname
+            long = net_query(name).name
+            short = net_query(name).shortname
         except AttributeError:
             raise UnsupportedNetwork('''This blockchain network is not supported by the pypeerassets, check networks.py for list of supported networks.''')
 
@@ -44,7 +44,7 @@ class Provider(ABC):
         return param_query(self.network)
 
     @property
-    def network_properties(self) -> NetworkParams:
+    def network_properties(self) -> Constants:
         '''network parameters [min_fee, denomination, ...]'''
 
         return net_query(self.network)
@@ -115,9 +115,9 @@ class Provider(ABC):
 
     def validateaddress(self, address: str) -> bool:
         "Returns True if the passed address is valid, False otherwise."
-        btcpy_constants = self.network_properties.btcpy_constants
+
         try:
-            Address.from_string(btcpy_constants, address)
+            Address.from_string(self.network_properties, address)
         except ValueError:
             return False
 

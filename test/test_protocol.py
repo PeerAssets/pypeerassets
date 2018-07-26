@@ -53,7 +53,7 @@ def test_oversize_deck_object():
             name="oversize_super_mega_deck_1119",
             number_of_decimals=18,
             issue_mode=IssueMode.SUBSCRIPTION.value,
-            network="btc",
+            network="ppc",
             production=True,
             version=1,
             asset_specific_data="""

@@ -25,7 +25,7 @@ class Kutil:
            '''
 
         self.network = network
-        self.btcpy_constants = net_query(self.network).btcpy_constants
+        self.constants = net_query(self.network)
 
         if privkey is not None:
             self._private_key = PrivateKey(privkey)
@@ -36,7 +36,7 @@ class Kutil:
 
         if from_wif is not None:
             self._private_key = PrivateKey.from_wif(wif=from_wif,
-                                                    network=self.btcpy_constants,
+                                                    network=self.constants,
                                                     )
 
         if not privkey:
@@ -50,14 +50,16 @@ class Kutil:
     @property
     def address(self) -> str:
         '''generate an address from pubkey'''
-        btcpy_constants = net_query(self.network).btcpy_constants
-        return str(self._public_key.to_address(btcpy_constants))
+
+        return str(self._public_key.to_address(
+                   net_query(self.network))
+                   )
 
     @property
     def wif(self) -> str:
         '''convert raw private key to WIF'''
 
-        return self._private_key.to_wif(network=self.btcpy_constants)
+        return self._private_key.to_wif(network=self.constants)
 
     def sign_transaction(self, txins: Union[TxOut],
                          tx: MutableTransaction) -> MutableTransaction:

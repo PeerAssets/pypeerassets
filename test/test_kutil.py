@@ -81,7 +81,7 @@ def test_sign_transaction():
                                  timestamp=int(time.time()),
                                  ins=unspent['utxos'],
                                  outs=[output],
-                                 network=network_params.btcpy_constants,
+                                 network=network_params,
                                  locktime=Locktime(0)
                                  )
 
