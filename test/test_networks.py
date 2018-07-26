@@ -9,12 +9,12 @@ def test_net_query():
 
     # Use a network's long name
     net_params = net_query("peercoin")
-    assert net_params.network_shortname == "ppc"
+    assert net_params.shortname == "ppc"
 
     # Use a network's short name
-    net_params = net_query("tbtc")
-    assert net_params.network_name == "bitcoin-testnet"
+    net_params = net_query("tppc")
+    assert net_params.name == "peercoin-testnet"
 
     # Try to find a network we don't know about.
     with pytest.raises(UnsupportedNetwork):
-        net_query("not a network name we know")
+        net_query("not a network name we know of.")
