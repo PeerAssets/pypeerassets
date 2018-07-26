@@ -1,30 +1,24 @@
 from collections import namedtuple
 from decimal import Decimal
-
-from btcpy.constants import (
-  BitcoinMainnet,
-  BitcoinTestnet,
-  PeercoinMainnet,
-  PeercoinTestnet,
-)
-
 from pypeerassets.exceptions import UnsupportedNetwork
 
-
-NetworkParams = namedtuple('NetworkParams', [
-    'network_name',
-    'network_shortname',
-    'pubkeyhash',
+# constants to be consumed by the backend
+Constants = namedtuple('Constants', [
+    'name',
+    'shortname',
+    'base58_prefixes',
+    'base58_raw_prefixes',
+    'bech32_hrp',
+    'bech32_net',
+    'xkeys_prefix',
+    'xpub_version',
+    'xprv_version',
     'wif_prefix',
-    'scripthash',
-    'magicbytes',
-    'msgPrefix',
+    'from_unit',
+    'to_unit',
     'min_tx_fee',
-    'min_vout_value',
     'tx_timestamp',
-    'denomination',
-    'op_return_max_bytes',
-    'btcpy_constants',
+    'op_return_max_bytes'
 ])
 
 
@@ -34,36 +28,66 @@ For abbreviation prefix testnet of the network with "t".
 '''
 
 networks = (
+
     # Peercoin mainnet
-    NetworkParams("peercoin", "ppc", b'37', b'b7', b'75', b'e6e8e9e5',
-                  b'\x17PPCoin Signed Message:\n', Decimal(0.01),
-                  0, True, Decimal('1e6'), 80,
-                  PeercoinMainnet),
+    Constants(
+        name='peercoin',
+        shortname='ppc',
+        base58_prefixes={
+            'P': 'p2pkh',
+            'p': 'p2sh',
+        },
+        base58_raw_prefixes={
+            'p2pkh': bytearray(b'\x37'),
+            'p2sh': bytearray(b'\x75'),
+        },
+        bech32_hrp='bc',
+        bech32_net='mainnet',
+        xkeys_prefix='x',
+        xpub_version=b'\x04\x88\xb2\x1e',
+        xprv_version=b'\x04\x88\xad\xe4',
+        wif_prefix=0xb7,
+        from_unit=Decimal('1e-6'),
+        to_unit=Decimal('1e6'),
+        min_tx_fee=Decimal(0.01),
+        tx_timestamp=True,
+        op_return_max_bytes=80
+    ),
+
     # Peercoin testnet
-    NetworkParams("peercoin-testnet", "tppc", b'6f', b'ef', b'c4', b'cbf2c0ef',
-                  b'\x17PPCoin Signed Message:\n', Decimal(0.01),
-                  0, True, Decimal('1e6'), 80,
-                  PeercoinTestnet),
-    # Bitcoin mainnet
-    NetworkParams("bitcoin", "btc", b'00', b'80', b'05', b'd9b4bef9',
-                  b'\x18Bitcoin Signed Message:\n', 0, 0, False,
-                  Decimal('1e8'), 80,
-                  BitcoinMainnet),
-    # Bitcoin testnet
-    NetworkParams("bitcoin-testnet", "tbtc", b'6f', b'ef', b'c4', b'dab5bffa',
-                  b'\x18Bitcoin Signed Message:\n', 0, 0, False,
-                  Decimal('1e8'), 80,
-                  BitcoinTestnet)
+    Constants(
+        name='peercoin-testnet',
+        shortname='tppc',
+        base58_prefixes={
+            'm': 'p2pkh',
+            'n': 'p2pkh',
+        },
+        base58_raw_prefixes={
+            'p2pkh': bytearray(b'\x6f'),
+            'p2sh': bytearray(b'\xc4'),
+        },
+        bech32_hrp='tb',
+        bech32_net='testnet',
+        xkeys_prefix='t',
+        xpub_version=b'\x04\x35\x87\xcf',
+        xprv_version=b'\x04\x35\x83\x94',
+        wif_prefix=0xef,
+        from_unit=Decimal('1e-6'),
+        to_unit=Decimal('1e6'),
+        min_tx_fee=Decimal(0.01),
+        tx_timestamp=True,
+        op_return_max_bytes=80
+    )
 )
 
 
-def net_query(name: str) -> NetworkParams:
+def net_query(name: str) -> Constants:
     '''Find the NetworkParams for a network by its long or short name. Raises
     UnsupportedNetwork if no NetworkParams is found.
     '''
 
     for net_params in networks:
-        if name in (net_params.network_name, net_params.network_shortname,):
+        if name in (net_params.name, net_params.shortname,):
             return net_params
 
     raise UnsupportedNetwork
