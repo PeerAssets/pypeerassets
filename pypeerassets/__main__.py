@@ -3,11 +3,20 @@
 
 import concurrent.futures
 from typing import Iterator, Generator, Optional
-from pypeerassets.protocol import Deck, CardTransfer, validate_card_issue_modes
+
+from pypeerassets.protocol import (Deck,
+                                   CardBundle,
+                                   CardTransfer,
+                                   validate_card_issue_modes
+                                   )
+
 from pypeerassets.provider import Provider, RpcNode
+
 from pypeerassets.pautils import (deck_parser,
                                   find_deck_spawns,
-                                  card_parser
+                                  card_parser,
+                                  tx_serialization_order,
+                                  find_tx_sender
                                   )
 
 from pypeerassets.exceptions import EmptyP2THDirectory
@@ -126,7 +135,7 @@ def deck_transfer(provider: Provider, deck: Deck,
     raise NotImplementedError
 
 
-def find_card_bundles(provider: Provider, deck: Deck) -> Iterator:
+def find_card_bundles(provider: Provider, deck: Deck) -> Optional[Iterator]:
     '''each blockchain transaction can contain multiple cards,
        wrapped in bundles. This method finds and returns those bundles.'''
 
@@ -139,7 +148,7 @@ def find_card_bundles(provider: Provider, deck: Deck) -> Iterator:
         result = provider.batch(batch_data)
 
         if result is not None:
-            card_bundles = [i['result'] for i in result if result]
+            raw_txns = [i['result'] for i in result if result]
 
         else:
             raise EmptyP2THDirectory({'error': 'No cards found on this deck.'})
@@ -148,14 +157,21 @@ def find_card_bundles(provider: Provider, deck: Deck) -> Iterator:
         if deck.p2th_address is None:
             raise Exception("deck.p2th_address required to listtransactions")
 
-        if provider.listtransactions(deck.p2th_address):
-            card_bundles = (provider.getrawtransaction(i, 1) for i in
+        try:
+            raw_txns = (provider.getrawtransaction(i, 1) for i in
                             provider.listtransactions(deck.p2th_address))
-
-        else:
+        except TypeError:
             raise EmptyP2THDirectory({'error': 'No cards found on this deck.'})
 
-    return card_bundles
+    return (CardBundle(deck=deck,
+                       blockhash=i['blockhash'],
+                       txid=i['txid'],
+                       timestamp=i['time'],
+                       blockseq=tx_serialization_order(provider, i["blockhash"], i["txid"]),
+                       blocknum=provider.getblock(i["blockhash"])["height"],
+                       sender=find_tx_sender(provider, i),
+                       receiver=i['vout']
+                       ) for i in raw_txns)
 
 
 def get_card_transfers(provider: Provider, deck: Deck) -> Generator:
