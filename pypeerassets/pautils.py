@@ -2,16 +2,30 @@
 '''miscellaneous utilities.'''
 
 from pypeerassets.provider import Provider, RpcNode, Explorer, Cryptoid
-from pypeerassets.exceptions import (InvalidDeckSpawn, InvalidDeckMetainfo,
-                                     InvalidDeckIssueMode, InvalidDeckVersion,
-                                     InvalidCardTransferP2TH, CardVersionMismatch,
-                                     CardNumberOfDecimalsMismatch, InvalidNulldataOutput,
-                                     DeckP2THImportError, InvalidVoutOrder, P2THImportFailed)
+
+from pypeerassets.exceptions import (InvalidDeckSpawn,
+                                     InvalidDeckMetainfo,
+                                     InvalidDeckIssueMode,
+                                     InvalidDeckVersion,
+                                     InvalidNulldataOutput,
+                                     DeckP2THImportError,
+                                     P2THImportFailed)
+
+from pypeerassets.exceptions import (InvalidCardTransferP2TH,
+                                     CardVersionMismatch,
+                                     CardNumberOfDecimalsMismatch,
+                                     InvalidVoutOrder,
+                                     RecieverAmountMismatch
+                                     )
+
 from pypeerassets.pa_constants import param_query
 from typing import Iterable
+
 from pypeerassets.paproto_pb2 import DeckSpawn as DeckSpawnProto
 from pypeerassets.paproto_pb2 import CardTransfer as CardTransferProto
 from pypeerassets.protocol import Deck, CardTransfer
+from google.protobuf.message import DecodeError
+
 from typing import Optional, Tuple
 
 
@@ -223,7 +237,7 @@ def validate_card_transfer_p2th(deck: Deck, raw_tx: dict) -> None:
     '''validate if card_transfer transaction pays to deck p2th in vout[0]'''
 
     error = {"error": "Card transfer is not properly tagged."}
-    
+
     try:
         address = raw_tx["vout"][0]["scriptPubKey"].get("addresses")[0]
         if not address == deck.p2th_address:
@@ -250,6 +264,46 @@ def parse_card_transfer_metainfo(protobuf: bytes, deck_version: int) -> dict:
         "amount": list(card.amount),
         "asset_specific_data": card.asset_specific_data
     }
+
+
+def card_parser(args: Tuple[Provider, Deck, dict]) -> list:
+    '''this function wraps all the card transfer parsing'''
+
+    provider = args[0]
+    deck = args[1]
+    raw_tx = args[2]
+
+    try:
+        validate_card_transfer_p2th(deck, raw_tx)  # validate P2TH first
+        card_metainfo = parse_card_transfer_metainfo(read_tx_opreturn(raw_tx), deck.version)
+        vouts = raw_tx["vout"]
+        sender = find_tx_sender(provider, raw_tx)
+
+        try:  # try to get block seq number
+            blockseq = tx_serialization_order(provider, raw_tx["blockhash"], raw_tx["txid"])
+        except KeyError:
+            blockseq = 0
+        try:  # try to get block number of block when this tx was written
+            blocknum = provider.getblock(raw_tx["blockhash"])["height"]
+        except KeyError:
+            blocknum = 0
+        try:  # try to get tx confirmation count
+            tx_confirmations = raw_tx["confirmations"]
+        except KeyError:
+            tx_confirmations = 0
+
+        cards = postprocess_card(card_metainfo, raw_tx, sender,
+                                 vouts, blockseq, blocknum,
+                                 tx_confirmations, deck)
+        cards = [CardTransfer(**card) for card in cards]
+
+    except (InvalidCardTransferP2TH, CardVersionMismatch,
+            CardNumberOfDecimalsMismatch, InvalidVoutOrder,
+            RecieverAmountMismatch, DecodeError, TypeError,
+            InvalidNulldataOutput) as e:
+        return []
+
+    return cards
 
 
 def postprocess_card(card_metainfo: CardTransfer, raw_tx: dict, sender: str,

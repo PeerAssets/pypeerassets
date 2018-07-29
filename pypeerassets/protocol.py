@@ -175,9 +175,6 @@ class CardTransfer:
         * number_of_decimals - number of decimals for amount, inherited from Deck object
         : type: card type [CardIssue, CardTransfer, CardBurn]'''
 
-        if not len(amount) == len(receiver):
-            raise RecieverAmountMismatch({"error": "carn mmount must match card receiver."})
-
         self.version = version
         self.network = deck.network
         self.deck_id = deck.id

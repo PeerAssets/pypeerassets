@@ -2,30 +2,22 @@
 '''contains main protocol logic like assembly of proof-of-timeline and parsing deck info'''
 
 import concurrent.futures
-from typing import Generator, Tuple, Optional
+from typing import Iterator, Generator, Optional
 from pypeerassets.protocol import Deck, CardTransfer, validate_card_issue_modes
 from pypeerassets.provider import Provider, RpcNode
-from pypeerassets.pautils import (find_tx_sender,
-                                  deck_parser,
-                                  find_deck_spawns, tx_serialization_order,
-                                  read_tx_opreturn,
-                                  validate_card_transfer_p2th,
-                                  parse_card_transfer_metainfo,
-                                  postprocess_card
+from pypeerassets.pautils import (deck_parser,
+                                  find_deck_spawns,
+                                  card_parser
                                   )
-from .exceptions import (EmptyP2THDirectory,
-                         InvalidCardTransferP2TH,
-                         CardVersionMismatch,
-                         CardNumberOfDecimalsMismatch,
-                         InvalidVoutOrder,
-                         RecieverAmountMismatch,
-                         InvalidNulldataOutput)
-from google.protobuf.message import DecodeError
+
+from pypeerassets.exceptions import EmptyP2THDirectory
+
 from pypeerassets.transactions import (nulldata_script, tx_output,
                                        p2pkh_script,
                                        make_raw_transaction,
                                        Transaction,
                                        Locktime)
+
 from pypeerassets.pa_constants import param_query
 from pypeerassets.networks import net_query
 from decimal import Decimal
@@ -134,66 +126,45 @@ def deck_transfer(provider: Provider, deck: Deck,
     raise NotImplementedError
 
 
-def get_card_transfers(provider: Provider, deck: Deck) -> Generator:
-    '''get all <deck> card transfers, if cards match the protocol'''
+def find_card_bundles(provider: Provider, deck: Deck) -> Iterator:
+    '''each blockchain transaction can contain multiple cards,
+       wrapped in bundles. This method finds and returns those bundles.'''
 
     if isinstance(provider, RpcNode):
         if deck.id is None:
             raise Exception("deck.id required to listtransactions")
-        batch_data = [('getrawtransaction', [i["txid"], 1] ) for i in provider.listtransactions(deck.id)]
+
+        batch_data = [('getrawtransaction', [i["txid"], 1]) for
+                      i in provider.listtransactions(deck.id)]
         result = provider.batch(batch_data)
+
         if result is not None:
-            card_transfers = [i['result'] for i in result if result]
-    else:
-        if deck.p2th_address is None:
-            raise Exception("deck.p2th_address required to listtransactions")
-        if provider.listtransactions(deck.p2th_address):
-            card_transfers = (provider.getrawtransaction(i, 1) for i in
-                              provider.listtransactions(deck.p2th_address))
+            card_bundles = [i['result'] for i in result if result]
+
         else:
             raise EmptyP2THDirectory({'error': 'No cards found on this deck.'})
 
-    def card_parser(args: Tuple[Provider, Deck, dict]) -> list:
-        '''this function wraps all the card transfer parsing'''
+    else:
+        if deck.p2th_address is None:
+            raise Exception("deck.p2th_address required to listtransactions")
 
-        provider = args[0]
-        deck = args[1]
-        raw_tx = args[2]
+        if provider.listtransactions(deck.p2th_address):
+            card_bundles = (provider.getrawtransaction(i, 1) for i in
+                            provider.listtransactions(deck.p2th_address))
 
-        try:
-            validate_card_transfer_p2th(deck, raw_tx)  # validate P2TH first
-            card_metainfo = parse_card_transfer_metainfo(read_tx_opreturn(raw_tx), deck.version)
-            vouts = raw_tx["vout"]
-            sender = find_tx_sender(provider, raw_tx)
+        else:
+            raise EmptyP2THDirectory({'error': 'No cards found on this deck.'})
 
-            try:  # try to get block seq number
-                blockseq = tx_serialization_order(provider, raw_tx["blockhash"], raw_tx["txid"])
-            except KeyError:
-                blockseq = 0
-            try:  # try to get block number of block when this tx was written
-                blocknum = provider.getblock(raw_tx["blockhash"])["height"]
-            except KeyError:
-                blocknum = 0
-            try:  # try to get tx confirmation count
-                tx_confirmations = raw_tx["confirmations"]
-            except KeyError:
-                tx_confirmations = 0
+    return card_bundles
 
-            cards = postprocess_card(card_metainfo, raw_tx, sender,
-                                     vouts, blockseq, blocknum,
-                                     tx_confirmations, deck)
-            cards = [CardTransfer(**card) for card in cards]
 
-        except (InvalidCardTransferP2TH, CardVersionMismatch,
-                CardNumberOfDecimalsMismatch, InvalidVoutOrder,
-                RecieverAmountMismatch, DecodeError, TypeError,
-                InvalidNulldataOutput) as e:
-            return []
+def get_card_transfers(provider: Provider, deck: Deck) -> Generator:
+    '''get all <deck> card transfers, if cards match the protocol'''
 
-        return cards
+    bundles = find_card_bundles(provider, deck)
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as th:
-        for result in th.map(card_parser, ((provider, deck, i) for i in card_transfers)):
+        for result in th.map(card_parser, ((provider, deck, i) for i in bundles)):
             if result:
                 yield result
 
