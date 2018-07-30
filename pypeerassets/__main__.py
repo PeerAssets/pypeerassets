@@ -170,7 +170,7 @@ def find_card_bundles(provider: Provider, deck: Deck) -> Optional[Iterator]:
                        blockseq=tx_serialization_order(provider, i["blockhash"], i["txid"]),
                        blocknum=provider.getblock(i["blockhash"])["height"],
                        sender=find_tx_sender(provider, i),
-                       receiver=i['vout']
+                       vout=i['vout']
                        ) for i in raw_txns)
 
 
