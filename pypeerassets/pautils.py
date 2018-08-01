@@ -120,14 +120,8 @@ def tx_serialization_order(provider: Provider, blockhash: str, txid: str) -> int
     return provider.getblock(blockhash)["tx"].index(txid)
 
 
-def read_tx_opreturn(raw_tx: dict) -> bytes:
-    '''Decode OP_RETURN message from raw_tx'''
-
-    if not raw_tx['vout'][1]:
-        raise InvalidVoutOrder({'error':
-                                'PA protocol requires that OP_RETURN is vout[1]'})
-
-    vout = raw_tx['vout'][1]
+def read_tx_opreturn(vout: dict) -> bytes:
+    '''Decode OP_RETURN message from vout[1]'''
 
     asm = vout['scriptPubKey']['asm']
     n = asm.find('OP_RETURN')
