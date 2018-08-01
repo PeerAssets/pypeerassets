@@ -92,7 +92,8 @@ def deck_parser(args: Tuple[Provider, dict, int, str],
     try:
         validate_deckspawn_p2th(provider, raw_tx, p2th)
 
-        d = parse_deckspawn_metainfo(read_tx_opreturn(raw_tx), deck_version)
+        d = parse_deckspawn_metainfo(read_tx_opreturn(raw_tx['vout'][1]),
+                                     deck_version)
 
         if d:
 
