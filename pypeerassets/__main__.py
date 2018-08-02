@@ -14,7 +14,7 @@ from pypeerassets.provider import Provider, RpcNode
 
 from pypeerassets.pautils import (deck_parser,
                                   find_deck_spawns,
-                                  card_parser,
+                                  bundle_parser,
                                   tx_serialization_order,
                                   find_tx_sender
                                   )
@@ -159,7 +159,7 @@ def find_card_bundles(provider: Provider, deck: Deck) -> Optional[Iterator]:
 
         try:
             raw_txns = (provider.getrawtransaction(i, 1) for i in
-                            provider.listtransactions(deck.p2th_address))
+                        provider.listtransactions(deck.p2th_address))
         except TypeError:
             raise EmptyP2THDirectory({'error': 'No cards found on this deck.'})
 
@@ -176,15 +176,14 @@ def find_card_bundles(provider: Provider, deck: Deck) -> Optional[Iterator]:
                        ) for i in raw_txns)
 
 
-def get_card_transfers(provider: Provider, deck: Deck) -> Generator:
-    '''get all <deck> card transfers, if cards match the protocol'''
+def get_card_bundles(provider: Provider, deck: Deck) -> Generator:
+    '''get all <deck> card bundles, if they match the protocol'''
 
     bundles = find_card_bundles(provider, deck)
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as th:
-        for result in th.map(card_parser, bundles):
-            if result:
-                yield result
+        for result in th.map(bundle_parser, bundles):
+            yield result
 
 
 def find_all_valid_cards(provider: Provider, deck: Deck) -> Generator:
@@ -192,7 +191,7 @@ def find_all_valid_cards(provider: Provider, deck: Deck) -> Generator:
        filtering out cards which don't play nice with deck issue mode'''
 
     # validate_card_issue_modes must recieve a full list of cards, not batches
-    unfiltered = (card for batch in get_card_transfers(provider, deck) for card in batch)
+    unfiltered = (card for batch in get_card_bundles(provider, deck) for card in batch)
 
     for card in validate_card_issue_modes(deck.issue_mode, list(unfiltered)):
         yield card
