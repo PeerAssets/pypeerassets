@@ -42,16 +42,16 @@ def test_find_card_bundles():
 
 
 @pytest.mark.parametrize("prov", [pa.Explorer, pa.Cryptoid])
-def test_get_card_transfers(prov):
+def test_get_card_bundles(prov):
 
     provider = prov(network="tppc")
 
     deck = pa.find_deck(provider, 'b6a95f94fef093ee9009b04a09ecb9cb5cba20ab6f13fe0926aeb27b8671df43', 1)
 
-    cards = pa.get_card_transfers(provider, deck)
+    bundles = pa.get_card_bundles(provider, deck)
 
-    assert cards
-    assert isinstance(next(cards)[0], pa.CardTransfer)
+    assert bundles
+    assert isinstance(list(next(bundles))[0], pa.CardTransfer)
 
 
 @pytest.mark.parametrize("prov", [pa.Explorer, pa.Cryptoid])
