@@ -228,13 +228,13 @@ def load_deck_p2th_into_local_node(provider: RpcNode, deck: Deck) -> None:
         raise DeckP2THImportError(error)
 
 
-def validate_card_transfer_p2th(deck: Deck, raw_tx: dict) -> None:
+def validate_card_transfer_p2th(deck: Deck, vout: dict) -> None:
     '''validate if card_transfer transaction pays to deck p2th in vout[0]'''
 
     error = {"error": "Card transfer is not properly tagged."}
 
     try:
-        address = raw_tx["vout"][0]["scriptPubKey"].get("addresses")[0]
+        address = vout["scriptPubKey"].get("addresses")[0]
         if not address == deck.p2th_address:
             raise InvalidCardTransferP2TH(error)
     except TypeError as e:
