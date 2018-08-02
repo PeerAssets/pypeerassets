@@ -197,7 +197,6 @@ class CardTransfer:
         or when sending out new card_transfer.
         It can be initialized by passing the **kwargs and it will do the parsing,
         or it can be initialized with passed arguments.
-
         * deck - instance of Deck object
         * receiver - list of receivers
         * amount - list of amounts to be sent, must be integer
@@ -233,14 +232,14 @@ class CardTransfer:
             self.timestamp = timestamp
             self.blocknum = blocknum
             self.cardseq = cardseq
-            self.confirms = tx_confirmations
+            self.tx_confirmations = tx_confirmations
         else:
             self.blockhash = ""
             self.blockseq = 0
             self.blocknum = 0
             self.timestamp = 0
             self.cardseq = 0
-            self.confirms = 0
+            self.tx_confirmations = 0
 
         if type:
             self.type = type
