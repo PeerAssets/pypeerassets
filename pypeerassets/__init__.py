@@ -6,6 +6,6 @@ from pypeerassets.__main__ import (deck_parser,
                                    find_deck,
                                    deck_spawn,
                                    deck_transfer,
-                                   get_card_transfers,
+                                   get_card_bundles,
                                    card_transfer)
 from pypeerassets.protocol import Deck, CardTransfer, DeckState
