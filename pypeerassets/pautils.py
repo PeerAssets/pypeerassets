@@ -292,12 +292,15 @@ def bundle_parser(bundle: CardBundle) -> Iterator:
                             bundle.deck.version
                             )
 
+    # if any of this exceptions is raised, return None
     except (InvalidCardTransferP2TH, CardVersionMismatch,
             CardNumberOfDecimalsMismatch,
             RecieverAmountMismatch, DecodeError, TypeError,
             InvalidNulldataOutput) as e:
 
-        yield None
+        #print(e)  # re-do as logging later on
+        return
+        yield
 
     # check for decimals
     if not card_metainfo["number_of_decimals"] == bundle.deck.number_of_decimals:
