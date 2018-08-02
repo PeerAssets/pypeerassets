@@ -36,6 +36,7 @@ def test_find_tx_sender(prov):
         rawtx = provider.getrawtransaction("397bda2f5e6608c872a663b2e5482d95db8ecfad00757823f0f12caa45a213a6", 1)
         assert find_tx_sender(provider, rawtx) == 'PNHGzKupyvo2YZVb1CTdRxtCGBB5ykgiug'
 
+
 @pytest.mark.parametrize("prov", ["explorer", "cryptoid"])
 def test_find_deck_spawns(prov):
 
@@ -68,20 +69,7 @@ def test_tx_serialization_order(prov):
 
 def test_read_tx_opreturn():
 
-    rawtx = {'blockhash': 'aef46dc82bcc9b40ff0c05e2498c4f85db7e273fc6f7e656acbcd1c8e0c93356',
-             'blocktime': 1489426035,
-             'confirmations': 23696,
-             'hex': '010000004ad4c6580107c7390516448a1b03e7fc2c55e2e816aa0e0745e4e5089393ee1d0fbf0ad0fb020000006c49304602210099d36b8c36f29e2d7c423ebb68ef804744c3681e81ea2db7f02ea930c4aaa984022100f2d7e044e1b4034a5edb65f38fd4451ed11fe43a240eaacb58cb951de842bc190121029becbd50edbb8fee8fc1227112e6c8a6b6ead69c3660b560e5eab22c2fe8f976ffffffff0310270000000000001976a9141e667ee94ea8e62c63fe59a0269bb3c091c86ca388ac0000000000000000196a170801120f736978746f5f726f6472696775657a18052004601f0d00000000001976a91456a0a01afba6687e98e5e61b434d45a337f2cd2588ac00000000',
-             'locktime': 0,
-             'time': 1489425482,
-             'txid': '643dccd585211766fc03f71e92fbf299cfc2bdbf3f2cae0ad85adec3141069f3',
-             'version': 1,
-             'vin': [{'scriptSig': {'asm': '304602210099d36b8c36f29e2d7c423ebb68ef804744c3681e81ea2db7f02ea930c4aaa984022100f2d7e044e1b4034a5edb65f38fd4451ed11fe43a240eaacb58cb951de842bc1901 029becbd50edbb8fee8fc1227112e6c8a6b6ead69c3660b560e5eab22c2fe8f976',
-                      'hex': '49304602210099d36b8c36f29e2d7c423ebb68ef804744c3681e81ea2db7f02ea930c4aaa984022100f2d7e044e1b4034a5edb65f38fd4451ed11fe43a240eaacb58cb951de842bc190121029becbd50edbb8fee8fc1227112e6c8a6b6ead69c3660b560e5eab22c2fe8f976'},
-             'sequence': 4294967295,
-             'txid': 'fbd00abf0f1dee939308e5e445070eaa16e8e2552cfce7031b8a44160539c707',
-             'vout': 2}],
-             'vout': [{'n': 0,
+    vout = [{'n': 0,
              'scriptPubKey': {'addresses': ['miHhMLaMWubq4Wx6SdTEqZcUHEGp8RKMZt'],
                 'asm': 'OP_DUP OP_HASH160 1e667ee94ea8e62c63fe59a0269bb3c091c86ca3 OP_EQUALVERIFY OP_CHECKSIG',
                 'hex': '76a9141e667ee94ea8e62c63fe59a0269bb3c091c86ca388ac',
@@ -92,17 +80,11 @@ def test_read_tx_opreturn():
              'scriptPubKey': {'asm': 'OP_RETURN 0801120f736978746f5f726f6472696775657a18052004',
                 'hex': '6a170801120f736978746f5f726f6472696775657a18052004',
                 'type': 'nulldata'},
-             'value': 0},
-             {'n': 2,
-             'scriptPubKey': {'addresses': ['moQzpzzcCYZMnAz224EY4att5A9psxN8X2'],
-                'asm': 'OP_DUP OP_HASH160 56a0a01afba6687e98e5e61b434d45a337f2cd25 OP_EQUALVERIFY OP_CHECKSIG',
-                'hex': '76a91456a0a01afba6687e98e5e61b434d45a337f2cd2588ac',
-                'reqSigs': 1,
-                'type': 'pubkeyhash'},
-             'value': 0.86}]}
+              'value': 0}
+             ]
 
-    assert isinstance(read_tx_opreturn(rawtx), bytes)
-    assert read_tx_opreturn(rawtx) == b'\x08\x01\x12\x0fsixto_rodriguez\x18\x05 \x04'
+    assert isinstance(read_tx_opreturn(vout[1]), bytes)
+    assert read_tx_opreturn(vout[1]) == b'\x08\x01\x12\x0fsixto_rodriguez\x18\x05 \x04'
 
 
 def generate_dummy_deck():
