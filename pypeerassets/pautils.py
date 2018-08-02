@@ -23,7 +23,7 @@ from typing import Iterable, Iterator, Optional, Tuple
 
 from pypeerassets.paproto_pb2 import DeckSpawn as DeckSpawnProto
 from pypeerassets.paproto_pb2 import CardTransfer as CardTransferProto
-from pypeerassets.protocol import Deck, CardTransfer
+from pypeerassets.protocol import Deck, CardTransfer, CardBundle
 
 
 def load_p2th_privkey_into_local_node(provider: RpcNode, prod: bool=True) -> None:
@@ -279,7 +279,7 @@ def card_postprocess(card: dict, vout: list) -> list:
     return [card]
 
 
-def bundle_parser(bundle) -> Iterator:
+def bundle_parser(bundle: CardBundle) -> Iterator:
     '''this function wraps all the card transfer parsing'''
 
     try:
@@ -296,7 +296,8 @@ def bundle_parser(bundle) -> Iterator:
             CardNumberOfDecimalsMismatch,
             RecieverAmountMismatch, DecodeError, TypeError,
             InvalidNulldataOutput) as e:
-        pass
+
+        yield None
 
     # check for decimals
     if not card_metainfo["number_of_decimals"] == bundle.deck.number_of_decimals:
