@@ -19,7 +19,7 @@ from pypeerassets.exceptions import (InvalidCardTransferP2TH,
 
 from google.protobuf.message import DecodeError
 from pypeerassets.pa_constants import param_query
-from typing import Iterable, Iterator, Optional, Tuple
+from typing import Iterable, Iterator, Optional, Tuple, List
 
 from pypeerassets.paproto_pb2 import DeckSpawn as DeckSpawnProto
 from pypeerassets.paproto_pb2 import CardTransfer as CardTransferProto
@@ -258,7 +258,7 @@ def parse_card_transfer_metainfo(protobuf: bytes, deck_version: int) -> dict:
     }
 
 
-def card_postprocess(card: dict, vout: list) -> list:
+def card_postprocess(card: dict, vout: list) -> List[dict]:
 
     # if card states multiple outputs, interpert it as a batch
     if len(card["amount"]) > 1:
@@ -270,7 +270,7 @@ def card_postprocess(card: dict, vout: list) -> list:
             c["cardseq"] = vout[2:].index(v)
 
             cards.append(c)
-        return [cards]
+        return cards
 
     else:
         card["receiver"] = vout[2]["scriptPubKey"]["addresses"]
