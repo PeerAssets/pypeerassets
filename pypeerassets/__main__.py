@@ -183,6 +183,7 @@ def get_card_bundles(provider: Provider, deck: Deck) -> Generator:
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as th:
         for result in th.map(bundle_parser, bundles):
+            if result:
             yield result
 
 
