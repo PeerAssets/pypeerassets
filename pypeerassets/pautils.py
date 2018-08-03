@@ -96,7 +96,7 @@ def deck_parser(args: Tuple[Provider, dict, int, str],
 
             d["id"] = raw_tx["txid"]
             try:
-                d["time"] = raw_tx["blocktime"]
+                d["issue_time"] = raw_tx["blocktime"]
             except KeyError:
                 d["time"] = 0
             d["issuer"] = find_tx_sender(provider, raw_tx)
