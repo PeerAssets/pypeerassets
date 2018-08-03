@@ -312,6 +312,12 @@ class CardTransfer:
 
         return self.__dict__
 
+    @classmethod
+    def from_json(cls, json: dict):
+        '''load the Deck object from json'''
+
+        return cls(**json)
+
     def __str__(self) -> str:
 
         r = []
