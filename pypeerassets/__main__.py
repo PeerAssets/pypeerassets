@@ -3,11 +3,20 @@
 
 import concurrent.futures
 from typing import Iterator, Generator, Optional
-from pypeerassets.protocol import Deck, CardTransfer, validate_card_issue_modes
+
+from pypeerassets.protocol import (Deck,
+                                   CardBundle,
+                                   CardTransfer,
+                                   validate_card_issue_modes
+                                   )
+
 from pypeerassets.provider import Provider, RpcNode
+
 from pypeerassets.pautils import (deck_parser,
                                   find_deck_spawns,
-                                  card_parser
+                                  bundle_parser,
+                                  tx_serialization_order,
+                                  find_tx_sender
                                   )
 
 from pypeerassets.exceptions import EmptyP2THDirectory
@@ -126,7 +135,7 @@ def deck_transfer(provider: Provider, deck: Deck,
     raise NotImplementedError
 
 
-def find_card_bundles(provider: Provider, deck: Deck) -> Iterator:
+def find_card_bundles(provider: Provider, deck: Deck) -> Optional[Iterator]:
     '''each blockchain transaction can contain multiple cards,
        wrapped in bundles. This method finds and returns those bundles.'''
 
@@ -139,7 +148,7 @@ def find_card_bundles(provider: Provider, deck: Deck) -> Iterator:
         result = provider.batch(batch_data)
 
         if result is not None:
-            card_bundles = [i['result'] for i in result if result]
+            raw_txns = [i['result'] for i in result if result]
 
         else:
             raise EmptyP2THDirectory({'error': 'No cards found on this deck.'})
@@ -148,25 +157,34 @@ def find_card_bundles(provider: Provider, deck: Deck) -> Iterator:
         if deck.p2th_address is None:
             raise Exception("deck.p2th_address required to listtransactions")
 
-        if provider.listtransactions(deck.p2th_address):
-            card_bundles = (provider.getrawtransaction(i, 1) for i in
-                            provider.listtransactions(deck.p2th_address))
-
-        else:
+        try:
+            raw_txns = (provider.getrawtransaction(i, 1) for i in
+                        provider.listtransactions(deck.p2th_address))
+        except TypeError:
             raise EmptyP2THDirectory({'error': 'No cards found on this deck.'})
 
-    return card_bundles
+    return (CardBundle(deck=deck,
+                       blockhash=i['blockhash'],
+                       txid=i['txid'],
+                       timestamp=i['time'],
+                       blockseq=tx_serialization_order(provider, i["blockhash"],
+                                                       i["txid"]),
+                       blocknum=provider.getblock(i["blockhash"])["height"],
+                       sender=find_tx_sender(provider, i),
+                       vouts=i['vout'],
+                       tx_confirmations=i['confirmations']
+                       ) for i in raw_txns)
 
 
-def get_card_transfers(provider: Provider, deck: Deck) -> Generator:
-    '''get all <deck> card transfers, if cards match the protocol'''
+def get_card_bundles(provider: Provider, deck: Deck) -> Generator:
+    '''get all <deck> card bundles, if they match the protocol'''
 
     bundles = find_card_bundles(provider, deck)
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as th:
-        for result in th.map(card_parser, ((provider, deck, i) for i in bundles)):
+        for result in th.map(bundle_parser, bundles):
             if result:
-                yield result
+            yield result
 
 
 def find_all_valid_cards(provider: Provider, deck: Deck) -> Generator:
@@ -174,7 +192,7 @@ def find_all_valid_cards(provider: Provider, deck: Deck) -> Generator:
        filtering out cards which don't play nice with deck issue mode'''
 
     # validate_card_issue_modes must recieve a full list of cards, not batches
-    unfiltered = (card for batch in get_card_transfers(provider, deck) for card in batch)
+    unfiltered = (card for batch in get_card_bundles(provider, deck) for card in batch)
 
     for card in validate_card_issue_modes(deck.issue_mode, list(unfiltered)):
         yield card

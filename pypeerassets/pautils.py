@@ -14,19 +14,16 @@ from pypeerassets.exceptions import (InvalidDeckSpawn,
 from pypeerassets.exceptions import (InvalidCardTransferP2TH,
                                      CardVersionMismatch,
                                      CardNumberOfDecimalsMismatch,
-                                     InvalidVoutOrder,
                                      RecieverAmountMismatch
                                      )
 
+from google.protobuf.message import DecodeError
 from pypeerassets.pa_constants import param_query
-from typing import Iterable
+from typing import Iterable, Iterator, Optional, Tuple, List
 
 from pypeerassets.paproto_pb2 import DeckSpawn as DeckSpawnProto
 from pypeerassets.paproto_pb2 import CardTransfer as CardTransferProto
-from pypeerassets.protocol import Deck, CardTransfer
-from google.protobuf.message import DecodeError
-
-from typing import Optional, Tuple
+from pypeerassets.protocol import Deck, CardTransfer, CardBundle
 
 
 def load_p2th_privkey_into_local_node(provider: RpcNode, prod: bool=True) -> None:
@@ -92,7 +89,8 @@ def deck_parser(args: Tuple[Provider, dict, int, str],
     try:
         validate_deckspawn_p2th(provider, raw_tx, p2th)
 
-        d = parse_deckspawn_metainfo(read_tx_opreturn(raw_tx), deck_version)
+        d = parse_deckspawn_metainfo(read_tx_opreturn(raw_tx['vout'][1]),
+                                     deck_version)
 
         if d:
 
@@ -120,14 +118,8 @@ def tx_serialization_order(provider: Provider, blockhash: str, txid: str) -> int
     return provider.getblock(blockhash)["tx"].index(txid)
 
 
-def read_tx_opreturn(raw_tx: dict) -> bytes:
-    '''Decode OP_RETURN message from raw_tx'''
-
-    if not raw_tx['vout'][1]:
-        raise InvalidVoutOrder({'error':
-                                'PA protocol requires that OP_RETURN is vout[1]'})
-
-    vout = raw_tx['vout'][1]
+def read_tx_opreturn(vout: dict) -> bytes:
+    '''Decode OP_RETURN message from vout[1]'''
 
     asm = vout['scriptPubKey']['asm']
     n = asm.find('OP_RETURN')
@@ -233,13 +225,13 @@ def load_deck_p2th_into_local_node(provider: RpcNode, deck: Deck) -> None:
         raise DeckP2THImportError(error)
 
 
-def validate_card_transfer_p2th(deck: Deck, raw_tx: dict) -> None:
+def validate_card_transfer_p2th(deck: Deck, vout: dict) -> None:
     '''validate if card_transfer transaction pays to deck p2th in vout[0]'''
 
     error = {"error": "Card transfer is not properly tagged."}
 
     try:
-        address = raw_tx["vout"][0]["scriptPubKey"].get("addresses")[0]
+        address = vout["scriptPubKey"].get("addresses")[0]
         if not address == deck.p2th_address:
             raise InvalidCardTransferP2TH(error)
     except TypeError as e:
@@ -266,106 +258,65 @@ def parse_card_transfer_metainfo(protobuf: bytes, deck_version: int) -> dict:
     }
 
 
-def card_parser(args: Tuple[Provider, Deck, dict]) -> list:
-    '''this function wraps all the card transfer parsing'''
-
-    provider = args[0]
-    deck = args[1]
-    raw_tx = args[2]
-
-    try:
-        validate_card_transfer_p2th(deck, raw_tx)  # validate P2TH first
-        card_metainfo = parse_card_transfer_metainfo(read_tx_opreturn(raw_tx), deck.version)
-        vouts = raw_tx["vout"]
-        sender = find_tx_sender(provider, raw_tx)
-
-        try:  # try to get block seq number
-            blockseq = tx_serialization_order(provider, raw_tx["blockhash"], raw_tx["txid"])
-        except KeyError:
-            blockseq = 0
-        try:  # try to get block number of block when this tx was written
-            blocknum = provider.getblock(raw_tx["blockhash"])["height"]
-        except KeyError:
-            blocknum = 0
-        try:  # try to get tx confirmation count
-            tx_confirmations = raw_tx["confirmations"]
-        except KeyError:
-            tx_confirmations = 0
-
-        cards = postprocess_card(card_metainfo, raw_tx, sender,
-                                 vouts, blockseq, blocknum,
-                                 tx_confirmations, deck)
-        cards = [CardTransfer(**card) for card in cards]
-
-    except (InvalidCardTransferP2TH, CardVersionMismatch,
-            CardNumberOfDecimalsMismatch, InvalidVoutOrder,
-            RecieverAmountMismatch, DecodeError, TypeError,
-            InvalidNulldataOutput) as e:
-        return []
-
-    return cards
-
-
-def postprocess_card(card_metainfo: CardTransfer, raw_tx: dict, sender: str,
-                     vout: list, blockseq: int, blocknum: int, 
-                     tx_confirmations: int, deck: "Deck") -> list:
-    '''Postprocessing of all the relevant card transfer information and
-    the creation of CardTransfer object.
-
-    : card_metainfo: card_transfer protobuf
-    : raw_tx: raw transaction
-    : sender: tx sender
-    : vout: tx vout
-    : blockseq: tx block sequence number
-    : blocknum: block number
-    : tx_confirmations: number of tx confirms for the transaction
-    : deck: deck object this card transfer belongs to'''
-
-    nderror = {"error": "Number of decimals does not match."}
-
-    _card = {}
-    _card["version"] = card_metainfo["version"]
-    _card["number_of_decimals"] = card_metainfo["number_of_decimals"]
-    # check if card number of decimals matches the deck atribute
-    if not _card["number_of_decimals"] == deck.number_of_decimals:
-        raise CardNumberOfDecimalsMismatch(nderror)
-
-    _card["deck"] = deck
-    _card["txid"] = raw_tx["txid"]
-    try:
-        _card["blockhash"] = raw_tx["blockhash"]
-    except KeyError:
-        _card["blockhash"] = 0
-    if blockseq:
-        _card["blockseq"] = blockseq
-    if blocknum:
-        _card["blocknum"] = blocknum
-    if tx_confirmations:
-        _card['tx_confirmations'] = tx_confirmations
-    _card["timestamp"] = raw_tx["time"]
-    _card["sender"] = sender
-    try:
-        _card["asset_specific_data"] = card_metainfo["asset_specific_data"]
-    except KeyError:
-        _card["asset_specific_data"] = None
+def card_postprocess(card: dict, vout: list) -> List[dict]:
 
     # if card states multiple outputs, interpert it as a batch
-    if len(card_metainfo["amount"]) > 1:
+    if len(card["amount"]) > 1:
         cards = []
-        for am, v in zip(card_metainfo["amount"], vout[2:]):
-            c = _card.copy()
+        for am, v in zip(card["amount"], vout[2:]):
+            c = card.copy()
             c["amount"] = [am]
             c["receiver"] = v["scriptPubKey"]["addresses"]
             c["cardseq"] = vout[2:].index(v)
 
             cards.append(c)
         return cards
-    else:
-        _card["receiver"] = vout[2]["scriptPubKey"]["addresses"]
-        _card["amount"] = card_metainfo["amount"]
-        _card["cardseq"] = 0
 
-    return [_card,]
+    else:
+        card["receiver"] = vout[2]["scriptPubKey"]["addresses"]
+        card["cardseq"] = 0
+
+    return [card]
+
+
+def bundle_parser(bundle: CardBundle) -> Iterator:
+    '''this function wraps all the card transfer parsing'''
+
+    try:
+        # first vout of the bundle must pay to deck.p2th
+        validate_card_transfer_p2th(bundle.deck, bundle.vouts[0])
+
+        # second vout must be OP_RETURN with card_metainfo
+        card_metainfo = parse_card_transfer_metainfo(
+                            read_tx_opreturn(bundle.vouts[1]),
+                            bundle.deck.version
+                            )
+
+    # if any of this exceptions is raised, return None
+    except (InvalidCardTransferP2TH, CardVersionMismatch,
+            CardNumberOfDecimalsMismatch,
+            RecieverAmountMismatch, DecodeError, TypeError,
+            InvalidNulldataOutput) as e:
+
+        #print(e)  # re-do as logging later on
+        return
+        yield
+
+    # check for decimals
+    if not card_metainfo["number_of_decimals"] == bundle.deck.number_of_decimals:
+        raise CardNumberOfDecimalsMismatch(
+                {"error": "Number of decimals does not match."}
+                )
+
+    # deduce the individual cards in the bundle
+    cards = card_postprocess(card_metainfo, bundle.vouts)
+
+    #  drop the vouts property
+    del bundle.__dict__['vouts']
+
+    for c in cards:
+        d = {**c, **bundle.__dict__}
+        yield CardTransfer(**d)
 
 
 def amount_to_exponent(amount: float, number_of_decimals: int) -> int:

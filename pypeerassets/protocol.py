@@ -146,6 +146,43 @@ class Deck:
         return ', '.join(r)
 
 
+class CardBundle:
+
+    '''On the low level, cards come in bundles.
+    A single transaction can contain dozens of cards.
+    CardBundle is a object which is pre-coursor to CardTransfer'''
+
+    def __init__(self,
+                 deck: Deck,
+                 sender: str,
+                 txid: str,
+                 blockhash: str,
+                 blocknum: int,
+                 blockseq: int,
+                 timestamp: int,
+                 tx_confirmations: int,
+                 vouts: list=[],
+                 ) -> None:
+
+        self.deck = deck
+        self.txid = txid
+        self.sender = sender
+        self.vouts = vouts
+
+        if blockhash:
+            self.blockhash = blockhash
+            self.blockseq = blockseq
+            self.timestamp = timestamp
+            self.blocknum = blocknum
+            self.tx_confirmations = tx_confirmations
+        else:
+            self.blockhash = ""
+            self.blockseq = 0
+            self.blocknum = 0
+            self.timestamp = 0
+            self.tx_confirmations = 0
+
+
 class CardTransfer:
 
     def __init__(self, deck: Deck, receiver: list=[], amount: List[int]=[],
@@ -160,7 +197,6 @@ class CardTransfer:
         or when sending out new card_transfer.
         It can be initialized by passing the **kwargs and it will do the parsing,
         or it can be initialized with passed arguments.
-
         * deck - instance of Deck object
         * receiver - list of receivers
         * amount - list of amounts to be sent, must be integer
@@ -196,14 +232,14 @@ class CardTransfer:
             self.timestamp = timestamp
             self.blocknum = blocknum
             self.cardseq = cardseq
-            self.confirms = tx_confirmations
+            self.tx_confirmations = tx_confirmations
         else:
             self.blockhash = ""
             self.blockseq = 0
             self.blocknum = 0
             self.timestamp = 0
             self.cardseq = 0
-            self.confirms = 0
+            self.tx_confirmations = 0
 
         if type:
             self.type = type
