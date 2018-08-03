@@ -143,7 +143,9 @@ class Deck:
     def to_json(self) -> dict:
         '''export the Deck object to json-ready format'''
 
-        return self.__dict__
+        d = self.__dict__
+        d['p2th_wif'] = self.p2th_wif
+        return d
 
     @classmethod
     def from_json(cls, json: dict):

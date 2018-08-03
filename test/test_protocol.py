@@ -30,7 +30,8 @@ def test_deck_object():
                               'network': 'ppc',
                               'number_of_decimals': 2,
                               'production': True,
-                              'version': 1
+                              'version': 1,
+                              'p2th_wif': None
                               }
 
     assert deck.metainfo_to_protobuf == b'\x08\x01\x12\x05decky\x18\x02 \x04*\rJust testing.'

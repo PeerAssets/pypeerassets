@@ -25,7 +25,8 @@ def test_find_deck(prov):
                               'number_of_decimals': 2,
                               'production': True,
                               'version': 1,
-                              'tx_confirmations': 100
+                              'tx_confirmations': 100,
+                              'p2th_wif': 'cThmj6Qu6aTUeA5f4FoNJTsBA8K6ZjhXbZkwsqcmv94xjWiCBr5d'
                               }
 
 
