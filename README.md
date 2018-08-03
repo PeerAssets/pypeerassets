@@ -8,11 +8,21 @@
 
 Official Python implementation of the [PeerAssets protocol](https://github.com/PeerAssets/WhitePaper).
 
-`pypeerassets` aims to implement the PeerAssets protocol itself **and** to provide elementary interfaces to underlying blockchains.
+`pypeerassets` aims to implement the PeerAssets protocol itself **and** to provide elementary interfaces to underlying blockchain(s).
 
-Once complete, the library will be able to spawn asset decks, deduce proof-of-timeline for asset decks and handle all asset transactions **while not** communicating with a blockchain node until it needs to broadcast a transaction or to fetch a group of transactions.
+## Examples
 
-`pypeerassets` is lovingly crafted with python3 all around the world :heart: :snake: :globe_with_meridians:
+> import pypeerassets as pa
+
+> provider = pa.Explorer(network='tppc')
+
+> deck = pa.find_deck(provider, 'b6a95f94fef093ee9009b04a09ecb9cb5cba20ab6f13fe0926aeb27b8671df43', 1, True)
+
+> print(deck.to_json())
+
+## Running tests
+
+> pytest-3 -v test/
 
 ### VirtualEnv Development
 
@@ -29,3 +39,5 @@ Create a python3 virtualenv in the root directory:
 (venv) > pytest
 ...
 ```
+
+`pypeerassets` is lovingly crafted with python3 all around the world :heart: :snake: :globe_with_meridians:
