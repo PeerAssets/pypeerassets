@@ -13,9 +13,9 @@ def test_find_deck(prov):
 
     deck = pa.find_deck(provider, 'b6a95f94fef093ee9009b04a09ecb9cb5cba20ab6f13fe0926aeb27b8671df43', 1)
 
-    deck.confirms = 100  # make it deterministic
+    deck.tx_confirmations = 100  # make it deterministic
 
-    assert deck.__dict__ == {'asset_specific_data': b'',
+    assert deck.to_json() == {'asset_specific_data': b'',
                              'id': 'b6a95f94fef093ee9009b04a09ecb9cb5cba20ab6f13fe0926aeb27b8671df43',
                              'issue_mode': 4,
                              'issue_time': 1488840533,
@@ -26,7 +26,7 @@ def test_find_deck(prov):
                              'production': True,
                              'testnet': True,
                              'version': 1,
-                             'confirms': 100
+                              'tx_confirmations': 100
                              }
 
 

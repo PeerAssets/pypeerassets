@@ -20,11 +20,11 @@ def test_deck_object():
         asset_specific_data="Just testing.",
     )
 
-    assert deck.__dict__ == {'id': None,
+    assert deck.to_json() == {'id': None,
                              'asset_specific_data': 'Just testing.',
                              'issue_mode': IssueMode.MULTI.value,
                              'issue_time': None,
-                             'confirms': None,
+                              'tx_confirmations': None,
                              'issuer': '',
                              'name': 'decky',
                              'network': 'ppc',
@@ -97,7 +97,7 @@ def test_card_transfer_object():
 
     assert card_transfer.metainfo_to_protobuf == b'\x08\x01\x12\x01\x01\x18\x02'
 
-    assert card_transfer.__dict__ == {'amount': [1],
+    assert card_transfer.to_json() == {'amount': [1],
                                       'network': deck.network,
                                       'asset_specific_data': None,
                                       'blockhash': '',

@@ -70,7 +70,7 @@ class Deck:
         self.id = id
         self.issuer = issuer
         self.issue_time = time
-        self.confirms = tx_confirmations
+        self.tx_confirmations = tx_confirmations
         self.network = network
         self.production = production
         if self.network.startswith("t") or 'testnet' in self.network:
@@ -137,6 +137,11 @@ class Deck:
 
         return r
 
+    def to_json(self) -> dict:
+        '''export the Deck object to json-ready format'''
+
+        return self.__dict__
+
     def __str__(self) -> str:
 
         r = []
@@ -181,6 +186,11 @@ class CardBundle:
             self.blocknum = 0
             self.timestamp = 0
             self.tx_confirmations = 0
+
+    def to_json(self) -> dict:
+        '''export the CardBundle object to json-ready format'''
+
+        return self.__dict__
 
 
 class CardTransfer:
@@ -287,6 +297,11 @@ class CardTransfer:
             r.update({'asset_specific_data': self.asset_specific_data})
 
         return r
+
+    def to_json(self) -> dict:
+        '''export the CardTransfer object to json-ready format'''
+
+        return self.__dict__
 
     def __str__(self) -> str:
 
