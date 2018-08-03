@@ -21,18 +21,18 @@ def test_deck_object():
     )
 
     assert deck.to_json() == {'id': None,
-                             'asset_specific_data': 'Just testing.',
-                             'issue_mode': IssueMode.MULTI.value,
-                             'issue_time': None,
+                              'asset_specific_data': 'Just testing.',
+                              'issue_mode': IssueMode.MULTI.value,
+                              'issue_time': None,
                               'tx_confirmations': None,
-                             'issuer': '',
-                             'name': 'decky',
-                             'network': 'ppc',
-                             'number_of_decimals': 2,
-                             'production': True,
-                             'testnet': False,
-                             'version': 1
-                            }
+                              'issuer': '',
+                              'name': 'decky',
+                              'network': 'ppc',
+                              'number_of_decimals': 2,
+                              'production': True,
+                              'testnet': False,
+                              'version': 1
+                             }
 
     assert deck.metainfo_to_protobuf == b'\x08\x01\x12\x05decky\x18\x02 \x04*\rJust testing.'
 
@@ -98,23 +98,23 @@ def test_card_transfer_object():
     assert card_transfer.metainfo_to_protobuf == b'\x08\x01\x12\x01\x01\x18\x02'
 
     assert card_transfer.to_json() == {'amount': [1],
-                                      'network': deck.network,
-                                      'asset_specific_data': None,
-                                      'blockhash': '',
-                                      'blocknum': 0,
-                                      'blockseq': 0,
-                                      'cardseq': 0,
-                                      'tx_confirmations': 0,
-                                      'deck_id': None,
-                                      'number_of_decimals': 2,
-                                      'receiver': ['PDZ9MPBPPjtT6qdJm98PhLVY9gNtFUoSLT'],
-                                      'sender': None,
-                                      'timestamp': 0,
-                                      'txid': None,
-                                      'type': 'CardTransfer',
-                                      'version': 1,
-                                      'deck_p2th': None
-                                      }
+                                       'network': deck.network,
+                                       'asset_specific_data': None,
+                                       'blockhash': '',
+                                       'blocknum': 0,
+                                       'blockseq': 0,
+                                       'cardseq': 0,
+                                       'tx_confirmations': 0,
+                                       'deck_id': None,
+                                       'number_of_decimals': 2,
+                                       'receiver': ['PDZ9MPBPPjtT6qdJm98PhLVY9gNtFUoSLT'],
+                                       'sender': None,
+                                       'timestamp': 0,
+                                       'txid': None,
+                                       'type': 'CardTransfer',
+                                       'version': 1,
+                                       'deck_p2th': None
+                                       }
 
 
 def test_oversize_card_object():
