@@ -24,7 +24,6 @@ def test_find_deck(prov):
                               'network': 'peercoin-testnet',
                               'number_of_decimals': 2,
                               'production': True,
-                              'testnet': True,
                               'version': 1,
                               'tx_confirmations': 100
                               }
