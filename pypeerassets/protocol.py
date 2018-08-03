@@ -53,10 +53,17 @@ class IssueMode(Enum):
 
 class Deck:
 
-    def __init__(self, name: str, number_of_decimals: int, issue_mode: int,
-                 network: str, production: bool, version: int,
-                 asset_specific_data: bytes=None, issuer: str="", time: int=None,
-                 id: str=None, tx_confirmations: int=None) -> None:
+    def __init__(self, name: str,
+                 number_of_decimals: int,
+                 issue_mode: int,
+                 network: str,
+                 production: bool,
+                 version: int,
+                 asset_specific_data: bytes=None,
+                 issuer: str="",
+                 issue_time: int=None,
+                 id: str=None,
+                 tx_confirmations: int=None) -> None:
         '''
         Initialize deck object, load from dictionary Deck(**dict) or initilize
         with kwargs Deck("deck", 3, "ONCE")
@@ -69,14 +76,10 @@ class Deck:
         self.asset_specific_data = asset_specific_data  # optional metadata for the deck
         self.id = id
         self.issuer = issuer
-        self.issue_time = time
+        self.issue_time = issue_time
         self.tx_confirmations = tx_confirmations
         self.network = network
         self.production = production
-        if self.network.startswith("t") or 'testnet' in self.network:
-            self.testnet = True
-        else:
-            self.testnet = False
 
     @property
     def p2th_address(self) -> Optional[str]:
