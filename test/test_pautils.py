@@ -176,6 +176,63 @@ def test_parse_card_transfer_metainfo():
     assert isinstance(res, dict)
 
 
+def test_card_postprocess():
+
+    card = {'amount': [1000000], 'number_of_decimals': 3, 'version': 1}
+    vout = [
+            {
+                "value": 0.01,
+                "n": 0,
+                "scriptPubKey": {
+                    "asm": "OP_DUP OP_HASH160 3d9df85b2c05f0c95347e1738034e0653cd61269 OP_EQUALVERIFY OP_CHECKSIG",
+                    "hex": "76a9143d9df85b2c05f0c95347e1738034e0653cd6126988ac",
+                    "reqSigs": 1,
+                    "type": "pubkeyhash",
+                    "addresses": [
+                    "mm8kkiLVQfLtLGJk52KX57SUpjXxvJ7kop"
+                    ]
+                }
+            },
+            {
+                "value": 0,
+                "n": 1,
+                "scriptPubKey": {
+                    "asm": "OP_RETURN 080112010a1803",
+                    "hex": "6a07080112010a1803",
+                    "type": "nulldata"
+                }
+            },
+            {
+                "value": 0,
+                "n": 2,
+                "scriptPubKey": {
+                    "asm": "OP_DUP OP_HASH160 5f64e161b433fb843de5e19411e2a02136cda453 OP_EQUALVERIFY OP_CHECKSIG",
+                    "hex": "76a9145f64e161b433fb843de5e19411e2a02136cda45388ac",
+                    "reqSigs": 1,
+                    "type": "pubkeyhash",
+                    "addresses": [
+                    "mpDMLa4N6hskcuJpTkcLTd4HB7Q2yF22bG"
+                    ]
+                }
+            },
+            {
+                "value": 99.92,
+                "n": 3,
+                "scriptPubKey": {
+                    "asm": "OP_DUP OP_HASH160 60f36fdcd16dfaba412b50d9a0af53fa2260b6a6 OP_EQUALVERIFY OP_CHECKSIG",
+                    "hex": "76a91460f36fdcd16dfaba412b50d9a0af53fa2260b6a688ac",
+                    "reqSigs": 1,
+                    "type": "pubkeyhash",
+                    "addresses": [
+                    "mpManmQf6CT84xGE5zciktTmWmfHdErUQW"
+                    ]
+                }
+            }
+        ]
+
+    assert isinstance(card_postprocess(card, vout), list)
+
+
 def test_amount_to_exponent():
 
     assert isinstance(amount_to_exponent(88.99, 3), int)
