@@ -6,11 +6,16 @@ import time
 from btcpy.structs.transaction import Locktime
 from btcpy.structs.sig import P2pkhSolver
 
-from pypeerassets.btcpy_peercoin import PeercoinMutableTx, PeercoinTx
 from pypeerassets.kutil import Kutil
 from pypeerassets.provider import Explorer
 from pypeerassets.networks import net_query
-from pypeerassets.transactions import tx_output, find_parent_outputs, p2pkh_script
+from pypeerassets.transactions import (
+    MutableTransaction,
+    Transaction,
+    find_parent_outputs,
+    p2pkh_script,
+    tx_output,
+)
 
 
 def test_key_generation():
@@ -80,13 +85,14 @@ def test_sign_transaction():
                                                 address=dest_address)
                        )
 
-    unsigned = PeercoinMutableTx(version=1,
-                                 timestamp=int(time.time()),
-                                 ins=unspent['utxos'],
-                                 outs=[output],
-                                 network=network_params,
-                                 locktime=Locktime(0)
-                                 )
+    unsigned = MutableTransaction(
+        version=1,
+        ins=unspent['utxos'],
+        outs=[output],
+        locktime=Locktime(0),
+        network=network_params,
+        timestamp=int(time.time()),
+    )
 
     parent_outputs = [find_parent_outputs(provider, i) for i in unsigned.ins]
     solver = P2pkhSolver(key._private_key)
@@ -94,4 +100,4 @@ def test_sign_transaction():
     signed = unsigned.spend(parent_outputs,
                             [solver for i in parent_outputs])
 
-    assert isinstance(signed, PeercoinTx)
+    assert isinstance(signed, Transaction)

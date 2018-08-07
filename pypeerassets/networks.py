@@ -1,6 +1,21 @@
 from collections import namedtuple
 from decimal import Decimal
+
+from btcpy.structs.transaction import TxOut
+from btcpy.structs.script import NulldataScript
+
 from pypeerassets.exceptions import UnsupportedNetwork
+
+
+class PeercoinTxOut(TxOut):
+
+    def get_dust_threshold(self, size_to_relay_fee):
+
+        if isinstance(self.script_pubkey, NulldataScript):
+            return 0
+
+        return 0.01
+
 
 # constants to be consumed by the backend
 Constants = namedtuple('Constants', [
@@ -18,6 +33,7 @@ Constants = namedtuple('Constants', [
     'to_unit',
     'min_tx_fee',
     'tx_timestamp',
+    'tx_out_cls',
     'op_return_max_bytes'
 ])
 
@@ -47,6 +63,7 @@ PeercoinMainnet = Constants(
     to_unit=Decimal('1e6'),
     min_tx_fee=Decimal(0.01),
     tx_timestamp=True,
+    tx_out_cls=PeercoinTxOut,
     op_return_max_bytes=80
 )
 
@@ -72,6 +89,7 @@ PeercoinTestnet = Constants(
     to_unit=Decimal('1e6'),
     min_tx_fee=Decimal(0.01),
     tx_timestamp=True,
+    tx_out_cls=PeercoinTxOut,
     op_return_max_bytes=80
 )
 
