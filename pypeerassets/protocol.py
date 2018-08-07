@@ -7,7 +7,9 @@ from typing import List, Optional, Generator, cast, Callable
 from pypeerassets.kutil import Kutil
 from pypeerassets.paproto_pb2 import DeckSpawn as deckspawnproto
 from pypeerassets.paproto_pb2 import CardTransfer as cardtransferproto
-from pypeerassets.exceptions import RecieverAmountMismatch, OverSizeOPReturn
+from pypeerassets.exceptions import (RecieverAmountMismatch,
+                                     OverSizeOPReturn,
+                                     InvalidCardIssue)
 from pypeerassets.card_parsers import parsers
 from pypeerassets.networks import net_query
 
@@ -206,12 +208,20 @@ class CardBundle:
 
 class CardTransfer:
 
-    def __init__(self, deck: Deck, receiver: list=[], amount: List[int]=[],
-                 version: int=1, blockhash: str=None, txid: str=None,
-                 sender: str=None, asset_specific_data: bytes=None,
-                 number_of_decimals: int=None, blockseq: int=None,
-                 cardseq: int=None, blocknum: int=None,
-                 timestamp: int=None, tx_confirmations: int=None,
+    def __init__(self, deck: Deck, 
+                 receiver: list=[],
+                 amount: List[int]=[],
+                 version: int=1,
+                 blockhash: str=None,
+                 txid: str=None,
+                 sender: str=None,
+                 asset_specific_data: bytes=None,
+                 number_of_decimals: int=None,
+                 blockseq: int=None,
+                 cardseq: int=None,
+                 blocknum: int=None,
+                 timestamp: int=None,
+                 tx_confirmations: int=None,
                  type: str=None) -> None:
 
         '''CardTransfer object, used when parsing card_transfers from the blockchain
@@ -231,6 +241,9 @@ class CardTransfer:
         * asset_specific_data - extra metadata
         * number_of_decimals - number of decimals for amount, inherited from Deck object
         : type: card type [CardIssue, CardTransfer, CardBurn]'''
+
+        if not len(receiver) == len(amount):
+            raise RecieverAmountMismatch
 
         self.version = version
         self.network = deck.network
