@@ -350,7 +350,7 @@ class CardTransfer:
 
         r = []
         for key in self.__dict__:
-            r.append("{key}='{value}'".format(key=key, value=self.__dict__[key]))
+            r.append("{key}='{value}'".format(key=key, value=self.to_json()[key]))
 
         return ', '.join(r)
 
