@@ -49,6 +49,10 @@ class CardNumberOfDecimalsMismatch(Exception):
     '''card_tranfer number of decimals does not match deck rules.'''
 
 
+class InvalidCardIssue(Exception):
+    '''deck issuer can't issue cards to the deck issuing address'''
+
+
 class RecieverAmountMismatch(Exception):
     '''card_transfer list of recievers is not equal to list of amounts'''
 
