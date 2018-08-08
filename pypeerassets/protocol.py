@@ -283,7 +283,7 @@ class CardTransfer:
             else:
                 # card was sent from deck issuer to any random address,
                 # card type is CardIssue
-            self.type = "CardIssue"
+                self.type = "CardIssue"
 
         # card was sent back to issuing address
         # card type is CardBurn
