@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from decimal import Decimal
 import urllib.request
 
-from btcpy.structs.address import Address
+from btcpy.structs.address import Address, InvalidAddress
 
 from pypeerassets.exceptions import UnsupportedNetwork
 from pypeerassets.pa_constants import PAParams, param_query
@@ -117,8 +117,8 @@ class Provider(ABC):
         "Returns True if the passed address is valid, False otherwise."
 
         try:
-            Address.from_string(self.network_properties, address)
-        except ValueError:
+            Address.from_string(address, self.network_properties)
+        except InvalidAddress:
             return False
 
         return True
