@@ -41,6 +41,7 @@ def test_find_card_bundles():
     assert isinstance(next(bundles), CardBundle)
 
 
+@pytest.mark.skip
 @pytest.mark.parametrize("prov", [pa.Explorer, pa.Cryptoid])
 def test_get_card_bundles(prov):
 
@@ -54,6 +55,7 @@ def test_get_card_bundles(prov):
     assert isinstance(list(next(bundles))[0], pa.CardTransfer)
 
 
+@pytest.mark.skip
 @pytest.mark.parametrize("prov", [pa.Explorer, pa.Cryptoid])
 def test_find_all_valid_cards(prov):
 
