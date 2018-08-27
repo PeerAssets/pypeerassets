@@ -4,7 +4,7 @@ import itertools
 from pypeerassets import Kutil
 from pypeerassets.protocol import (CardTransfer, Deck, IssueMode,
                                    validate_card_issue_modes, DeckState)
-from pypeerassets.exceptions import OverSizeOPReturn
+from pypeerassets.exceptions import OverSizeOPReturn, InvalidCardIssue
 
 
 def test_deck_object():
@@ -139,6 +139,74 @@ def test_oversize_card_object():
         )
 
         assert card_transfer.metainfo_to_protobuf
+
+
+def test_card_types_issue():
+
+    deck = Deck(
+        name="decky",
+        issuer='muMpqVjUDq5voY9WnxvFb9sFvZm8wwKihu',
+        number_of_decimals=1,
+        issue_mode=IssueMode.MULTI.value,
+        network="tppc",
+        production=True,
+        version=1,
+    )
+
+    card_transfer = CardTransfer(
+        deck=deck,
+        sender=deck.issuer,
+        receiver=['mmsiUudS9W5xLoWeA44JmKa28cioFg7Yzx'],
+        amount=[1],
+        version=1,
+    )
+
+    assert card_transfer.type == 'CardIssue'
+
+
+def test_card_types_invalid():
+
+    deck = Deck(
+        name="decky",
+        issuer='muMpqVjUDq5voY9WnxvFb9sFvZm8wwKihu',
+        number_of_decimals=1,
+        issue_mode=IssueMode.MONO.value,
+        network="tppc",
+        production=True,
+        version=1,
+    )
+
+    with pytest.raises(InvalidCardIssue):
+        card_transfer = CardTransfer(
+            deck=deck,
+            sender=deck.issuer,
+            receiver=[deck.issuer],
+            amount=[1],
+            version=1,
+        )
+
+
+def test_card_types_transfer():
+
+    deck = Deck(
+        name="decky",
+        issuer='muMpqVjUDq5voY9WnxvFb9sFvZm8wwKihu',
+        number_of_decimals=1,
+        issue_mode=IssueMode.MONO.value,
+        network="tppc",
+        production=True,
+        version=1,
+    )
+
+    card_transfer = CardTransfer(
+        deck=deck,
+        sender='mxrr8ALSs9fmHEszs5y1w5tRsDv9r7M2bK',
+        receiver=['mxrr8ALSs9fmHEszs5y1w5tRsDv9r7M2bK'],
+        amount=[1],
+        version=1,
+    )
+
+    assert card_transfer.type == 'CardTransfer'
 
 
 @pytest.mark.parametrize("combo", [IssueMode.ONCE, IssueMode.MULTI, IssueMode.MONO])

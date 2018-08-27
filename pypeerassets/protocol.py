@@ -274,15 +274,28 @@ class CardTransfer:
             self.cardseq = 0
             self.tx_confirmations = 0
 
-        if type:
-            self.type = type
-
         if self.sender == deck.issuer:
-            self.type = "CardIssue"
-        elif self.receiver[0] == deck.issuer:
+            # if deck issuer is issuing cards to the deck issuing address,
+            # card is burn and issue at the same time - which is invalid!
+            if deck.issuer in self.receiver:
+                raise InvalidCardIssue
+            else:
+                # card was sent from deck issuer to any random address,
+                # card type is CardIssue
+                self.type = "CardIssue"
+
+        # card was sent back to issuing address
+        # card type is CardBurn
+        elif self.receiver[0] == deck.issuer and not self.sender == deck.issuer:
             self.type = "CardBurn"
+
+        # issuer is anyone else,
+        # card type is CardTransfer
         else:
             self.type = "CardTransfer"
+
+        if type:
+            self.type = type
 
     @property
     def metainfo_to_protobuf(self) -> bytes:
@@ -336,7 +349,7 @@ class CardTransfer:
 
         r = []
         for key in self.__dict__:
-            r.append("{key}='{value}'".format(key=key, value=self.__dict__[key]))
+            r.append("{key}='{value}'".format(key=key, value=self.to_json()[key]))
 
         return ', '.join(r)
 
