@@ -1,6 +1,5 @@
 '''transaction assembly/dissasembly'''
 
-from binascii import unhexlify
 from decimal import Decimal
 from math import ceil
 from time import time
@@ -57,7 +56,7 @@ class Transaction(BtcPyTx):
 
     @classmethod
     def unhexlify(cls, string, network=PeercoinMainnet):
-        return cls.deserialize(bytearray(unhexlify(string)), network=network)
+        return cls.deserialize(bytearray.fromhex(string), network=network)
 
     @classmethod
     def deserialize(cls, string, network=PeercoinMainnet):
