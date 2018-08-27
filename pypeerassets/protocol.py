@@ -7,8 +7,11 @@ from typing import List, Optional, Generator, cast, Callable
 from pypeerassets.kutil import Kutil
 from pypeerassets.paproto_pb2 import DeckSpawn as deckspawnproto
 from pypeerassets.paproto_pb2 import CardTransfer as cardtransferproto
-from pypeerassets.exceptions import (RecieverAmountMismatch,
-                                     OverSizeOPReturn)
+from pypeerassets.exceptions import (
+    InvalidCardIssue,
+    OverSizeOPReturn,
+    RecieverAmountMismatch,
+)
 from pypeerassets.card_parsers import parsers
 from pypeerassets.networks import net_query
 
