@@ -9,7 +9,7 @@ from pypeerassets.exceptions import UnsupportedNetwork
 
 class PeercoinTxOut(TxOut):
 
-    def get_dust_threshold(self, size_to_relay_fee):
+    def get_dust_threshold(self, size_to_relay_fee) -> float:
 
         if isinstance(self.script_pubkey, NulldataScript):
             return 0
