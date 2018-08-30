@@ -11,6 +11,7 @@ from btcpy.structs.script import (
     CoinBaseScriptSig,
     NulldataScript,
     P2pkhScript,
+    P2shScript,
     ScriptBuilder,
     ScriptSig,
     StackData,
@@ -234,6 +235,19 @@ def p2pkh_script(network: str, address: str) -> P2pkhScript:
                                string=address)
 
     return P2pkhScript(addr)
+
+
+def p2sh_p2pkh_script(network: str, address: str) -> P2shScript:
+    '''p2sh embedding p2pkh'''
+
+    network_params = net_query(network)
+
+    addr = Address.from_string(network=network_params,
+                               string=address)
+
+    p2pkh = P2pkhScript(addr)
+
+    return P2shScript(p2pkh)
 
 
 def tx_output(network: str, value: Decimal, n: int,
