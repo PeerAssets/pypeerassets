@@ -1,5 +1,4 @@
 from pypeerassets.kutil import Kutil
-from pypeerassets.provider import *
 from pypeerassets.__main__ import (deck_parser,
                                    find_all_valid_cards,
                                    find_all_valid_decks,
