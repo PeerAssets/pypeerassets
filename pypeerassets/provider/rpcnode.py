@@ -10,9 +10,9 @@ getcontext().prec = 6
 
 try:
     from peercoin_rpc import Client
-except:
-    raise EnvironmentError("peercoin_rpc library is required for this to work,\
-                            use pip to install it.")
+except ImportError:
+    raise ImportError("peercoin_rpc library is required for this to work,\
+                       use the pip to install it.")
 
 
 class RpcNode(Client, Provider):
