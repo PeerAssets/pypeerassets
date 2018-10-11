@@ -1,7 +1,7 @@
 import pytest
 import pypeerassets as pa
-from pypeerassets.__main__ import find_card_bundles
-from pypeerassets.protocol import CardBundle
+from pypeerassets.__main__ import find_card_bundles, get_card_transfer
+from pypeerassets.protocol import CardBundle, CardTransfer
 from pypeerassets.provider import Explorer, Cryptoid
 from btcpy.structs.transaction import MutableTransaction
 from pypeerassets.transactions import Transaction
@@ -53,6 +53,18 @@ def test_get_card_bundles(prov):
 
     assert bundles
     assert isinstance(list(next(bundles))[0], pa.CardTransfer)
+
+
+def test_get_card_transfer():
+    '''test finding a single card tranfer'''
+
+    provider = Explorer(network="tppc")
+
+    deck = pa.find_deck(provider, '98694bb54fafe315051d2a8f1f5ea4c0050947741ced184a5f33bf4a0081a0bb', 1, True)
+
+    card = list(get_card_transfer(provider, deck, 'e04fb602bd9d9c33d1d1af8bb680108057c2ae37ea987cc15295cc6fc4fd8d97'))
+
+    assert isinstance(card[0], CardTransfer)
 
 
 @pytest.mark.parametrize("prov", [Explorer, Cryptoid])
