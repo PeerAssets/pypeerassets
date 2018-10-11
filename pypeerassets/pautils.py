@@ -8,6 +8,7 @@ from pypeerassets.exceptions import (InvalidDeckSpawn,
                                      InvalidDeckIssueMode,
                                      InvalidDeckVersion,
                                      InvalidNulldataOutput,
+                                     InvalidCardIssue,
                                      DeckP2THImportError,
                                      P2THImportFailed)
 
@@ -279,7 +280,7 @@ def card_postprocess(card: dict, vout: list) -> List[dict]:
     return [card]
 
 
-def bundle_parser(bundle: CardBundle) -> Iterator:
+def card_bundle_parser(bundle: CardBundle, debug=False) -> Iterator:
     '''this function wraps all the card transfer parsing'''
 
     try:
@@ -293,12 +294,16 @@ def bundle_parser(bundle: CardBundle) -> Iterator:
                             )
 
     # if any of this exceptions is raised, return None
-    except (InvalidCardTransferP2TH, CardVersionMismatch,
+    except (InvalidCardTransferP2TH,
+            CardVersionMismatch,
             CardNumberOfDecimalsMismatch,
-            RecieverAmountMismatch, DecodeError, TypeError,
+            RecieverAmountMismatch,
+            DecodeError,
+            TypeError,
             InvalidNulldataOutput) as e:
 
-        #print(e)  # re-do as logging later on
+        if debug:
+            print(e)  # re-do as logging later on
         return
         yield
 
@@ -316,7 +321,16 @@ def bundle_parser(bundle: CardBundle) -> Iterator:
 
     for c in cards:
         d = {**c, **bundle.__dict__}
-        yield CardTransfer(**d)
+
+        try:
+            yield CardTransfer(**d)
+
+        # issuing cards to issuing address is forbidden,
+        # this will except the error
+        except InvalidCardIssue as e:
+
+            if debug:
+                print(e)
 
 
 def amount_to_exponent(amount: float, number_of_decimals: int) -> int:
