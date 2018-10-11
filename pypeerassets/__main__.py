@@ -14,7 +14,7 @@ from pypeerassets.provider import Provider, RpcNode
 
 from pypeerassets.pautils import (deck_parser,
                                   find_deck_spawns,
-                                  bundle_parser,
+                                  card_bundle_parser,
                                   tx_serialization_order,
                                   find_tx_sender
                                   )
@@ -193,6 +193,18 @@ def get_card_bundles(provider: Provider, deck: Deck) -> Generator:
         for result in th.map(card_bundle_parser, bundles):
             if result:
                 yield result
+
+
+def get_card_transfer(provider: Provider, deck: Deck,
+                      txid: str,
+                      debug: bool=False) -> Iterator:
+    '''get a single card transfer by it's id'''
+
+    rawtx = provider.getrawtransaction(txid, 1)
+
+    bundle = card_bundler(provider, deck, rawtx)
+
+    return card_bundle_parser(bundle, debug)
 
 
 def find_all_valid_cards(provider: Provider, deck: Deck) -> Generator:
