@@ -62,7 +62,7 @@ def test_peercoin_tx_unhexilify():
 
     In [1]: import pypeerassets as pa
 
-    In [2]: provider = pa.Explorer(network='tppc')
+    In [2]: provider = Explorer(network='tppc')
 
     In [3]: raw = provider.getrawtransaction('c418f3bded92ebc035cfefc93f54dc8a501702e6ad4e6a26a07aab87f4cfb653')
     """
@@ -118,7 +118,7 @@ def test_sign_transaction():
 
     network_params = net_query('tppc')
 
-    provider = pa.Cryptoid(network='tppc')
+    provider = Cryptoid(network='tppc')
     key = pa.Kutil(network='tppc',
                    privkey=bytearray.fromhex('9e321f5379c2d1c4327c12227e1226a7c2e08342d88431dcbb0063e1e715a36c')
                    )

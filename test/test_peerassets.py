@@ -2,11 +2,12 @@ import pytest
 import pypeerassets as pa
 from pypeerassets.__main__ import find_card_bundles
 from pypeerassets.protocol import CardBundle
+from pypeerassets.provider import Explorer, Cryptoid
 from btcpy.structs.transaction import MutableTransaction
 from pypeerassets.transactions import Transaction
 
 
-@pytest.mark.parametrize("prov", [pa.Explorer, pa.Cryptoid])
+@pytest.mark.parametrize("prov", [Explorer, Cryptoid])
 def test_find_deck(prov):
 
     provider = prov(network="tppc")
@@ -32,7 +33,7 @@ def test_find_deck(prov):
 
 def test_find_card_bundles():
 
-    provider = pa.Explorer(network="tppc")
+    provider = Explorer(network="tppc")
     deck = pa.find_deck(provider, 'adc6d888508ebfcad5c182df4ae94553bae6287735d76b8d64b3de8d29fc2b5b', 1)
 
     bundles = find_card_bundles(provider, deck)
@@ -41,8 +42,7 @@ def test_find_card_bundles():
     assert isinstance(next(bundles), CardBundle)
 
 
-@pytest.mark.skip
-@pytest.mark.parametrize("prov", [pa.Explorer, pa.Cryptoid])
+@pytest.mark.parametrize("prov", [Explorer, Cryptoid])
 def test_get_card_bundles(prov):
 
     provider = prov(network="tppc")
@@ -55,8 +55,7 @@ def test_get_card_bundles(prov):
     assert isinstance(list(next(bundles))[0], pa.CardTransfer)
 
 
-@pytest.mark.skip
-@pytest.mark.parametrize("prov", [pa.Explorer, pa.Cryptoid])
+@pytest.mark.parametrize("prov", [Explorer, Cryptoid])
 def test_find_all_valid_cards(prov):
 
     provider = prov(network="tppc")
@@ -71,7 +70,7 @@ def test_find_all_valid_cards(prov):
 
 def test_deck_spawn():
 
-    provider = pa.Explorer(network='tppc')
+    provider = Explorer(network='tppc')
     inputs = provider.select_inputs("mthKQHpr7zUbMvLcj8GHs33mVcf91DtN6L", 0.02)
     change_address = "mthKQHpr7zUbMvLcj8GHs33mVcf91DtN6L"
     deck = pa.Deck(name="just-testing.", number_of_decimals=1, issue_mode=1,
@@ -85,13 +84,13 @@ def test_deck_spawn():
 
 def test_card_transfer():
 
-    provider = pa.Explorer(network='tppc')
+    provider = Explorer(network='tppc')
     address = "mthKQHpr7zUbMvLcj8GHs33mVcf91DtN6L"
     inputs = provider.select_inputs(address, 0.02)
     change_address = address
     deck = pa.find_deck(provider,
-                        '078f41c257642a89ade91e52fd484c141b11eda068435c0e34569a5dfcce7915',
-                        1, True)
+                         '078f41c257642a89ade91e52fd484c141b11eda068435c0e34569a5dfcce7915',
+                         1, True)
     card = pa.CardTransfer(deck=deck,
                            receiver=['n12h8P5LrVXozfhEQEqg8SFUmVKtphBetj',
                                      'n422r6tcJ5eofjsmRvF6TcBMigmGbY5P7E'],
