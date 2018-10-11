@@ -135,6 +135,24 @@ def deck_transfer(provider: Provider, deck: Deck,
     raise NotImplementedError
 
 
+def card_bundler(provider: Provider, deck: Deck, tx: dict) -> CardBundle:
+    '''each blockchain transaction can contain multiple cards,
+       wrapped in bundles. This method finds and returns those bundles.'''
+
+    return CardBundle(deck=deck,
+                      blockhash=tx['blockhash'],
+                      txid=tx['txid'],
+                      timestamp=tx['time'],
+                      blockseq=tx_serialization_order(provider,
+                                                      tx["blockhash"],
+                                                      tx["txid"]),
+                      blocknum=provider.getblock(tx["blockhash"])["height"],
+                      sender=find_tx_sender(provider, tx),
+                      vouts=tx['vout'],
+                      tx_confirmations=tx['confirmations']
+                      )
+
+
 def find_card_bundles(provider: Provider, deck: Deck) -> Optional[Iterator]:
     '''each blockchain transaction can contain multiple cards,
        wrapped in bundles. This method finds and returns those bundles.'''
@@ -163,17 +181,7 @@ def find_card_bundles(provider: Provider, deck: Deck) -> Optional[Iterator]:
         except TypeError:
             raise EmptyP2THDirectory({'error': 'No cards found on this deck.'})
 
-    return (CardBundle(deck=deck,
-                       blockhash=i['blockhash'],
-                       txid=i['txid'],
-                       timestamp=i['time'],
-                       blockseq=tx_serialization_order(provider, i["blockhash"],
-                                                       i["txid"]),
-                       blocknum=provider.getblock(i["blockhash"])["height"],
-                       sender=find_tx_sender(provider, i),
-                       vouts=i['vout'],
-                       tx_confirmations=i['confirmations']
-                       ) for i in raw_txns)
+    return (card_bundler(provider, deck, i) for i in raw_txns)
 
 
 def get_card_bundles(provider: Provider, deck: Deck) -> Generator:
@@ -182,7 +190,7 @@ def get_card_bundles(provider: Provider, deck: Deck) -> Generator:
     bundles = find_card_bundles(provider, deck)
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as th:
-        for result in th.map(bundle_parser, bundles):
+        for result in th.map(card_bundle_parser, bundles):
             if result:
                 yield result
 
