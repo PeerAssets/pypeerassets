@@ -25,7 +25,7 @@ from pypeerassets.transactions import (
     tx_output,
     sign_transaction
 )
-
+from pypeerassets.provider import Cryptoid
 import pypeerassets as pa
 
 
