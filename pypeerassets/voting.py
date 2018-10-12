@@ -17,9 +17,10 @@ def deck_vote_tag(deck: Deck) -> str:
     if deck.id is None:
         raise Exception("deck.id is required")
 
-    deck_vote_tag_privkey = sha256(unhexlify(deck.id) + b"vote_init").hexdigest()
-    deck_vote_tag_address = Kutil(network=deck.network, privkey=bytearray.fromhex(deck_vote_tag_privkey))
-    return deck_vote_tag_address.address
+    return Kutil(network=deck.network,
+                 privkey=sha256(bytearray.fromhex(deck.id) + 'vote_init'.encode()
+                                ).digest()
+                 ).address
 
 
 class Vote:
