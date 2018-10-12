@@ -1,5 +1,4 @@
-import warnings
-from typing import Iterable, List
+from typing import Iterable, List, Optional
 
 from pypeerassets.kutil import Kutil
 from pypeerassets.protocol import Deck
@@ -9,6 +8,8 @@ from hashlib import sha256
 from pypeerassets import transactions
 from pypeerassets.pautils import read_tx_opreturn, find_tx_sender
 from pypeerassets.networks import net_query
+
+from pypeerassets.exceptions import OverSizeOPReturn
 
 
 def deck_vote_tag(deck: Deck) -> str:
@@ -25,78 +26,134 @@ def deck_vote_tag(deck: Deck) -> str:
 
 class Vote:
 
-    def __init__(self, version: int, description: str, count_mode: str,
-                 start_block: int, end_block: int, deck: Deck,
-                 choices: list=[], vote_metainfo: str="", vote_id: str=None, sender: str=None) -> None:
+    def __init__(self,
+                 version: int,
+                 description: str,
+                 count_method: str,
+                 start: int,
+                 end: int,
+                 deck: Deck,
+                 choices: list=[],
+                 vote_metainfo: str="",
+                 id: str=None,
+                 sender: str=None) -> None:
         '''initialize vote object'''
 
         self.version = version
-        self.description = description
-        self.choices = choices
-        self.count_mode = count_mode
-        self.start_block = start_block  # at which block does vote start
-        self.end_block = end_block  # at which block does vote end
-        self.vote_id = vote_id  # vote_init txid
-        self.vote_metainfo = vote_metainfo  # any extra info describing the vote
+        self.description = description  # short description of the vote
+        self.choices = choices  # list of vote choices
+        self.count_method = count_method
+        self.start = start  # at which block does vote start
+        self.end = end  # at which block does vote end
+        self.id = id  # vote_init txid
         self.sender = sender
         self.deck = deck
+        self.network = self.deck.network
 
     @property
-    def to_protobuf(self) -> str:
+    def p2th_address(self) -> Optional[str]:
+        '''P2TH address of this deck'''
+
+        if self.id:
+            return Kutil(network=self.network,
+                         privkey=bytearray.fromhex(self.id)).address
+        else:
+            return None
+
+    @property
+    def p2th_wif(self) -> Optional[str]:
+        '''P2TH privkey in WIF format'''
+
+        if self.id:
+            return Kutil(network=self.network,
+                         privkey=bytearray.fromhex(self.id)).wif
+        else:
+            return None
+
+    @property
+    def metainfo_to_protobuf(self) -> str:
         '''encode vote into protobuf'''
 
         vote = pavoteproto.Vote()
         vote.version = self.version
         vote.description = self.description
-        vote.count_mode = vote.MODE.Value(self.count_mode)
-        vote.start_block = self.start_block
-        vote.end_block = self.end_block
+        vote.count_method = vote.MODE.Value(self.count_method)
+        vote.start = self.start
+        vote.end = self.end
         vote.choices.extend(self.choices)
 
-        if not isinstance(self.vote_metainfo, bytes):
-            vote.vote_metainfo = self.vote_metainfo.encode()
+        if not isinstance(self.description, bytes):
+            vote.description = self.description.encode()
         else:
-            vote.vote_metainfo = self.vote_metainfo
+            vote.description = self.description
 
-        proto = vote.SerializeToString()
-
-        if len(proto) > 80:
-            warnings.warn('\nMetainfo size exceeds maximum of 80 bytes allowed by OP_RETURN.')
-
-        return proto
+        if vote.ByteSize() > net_query(self.network).op_return_max_bytes:
+            raise OverSizeOPReturn('''
+                        Metainfo size exceeds maximum of {max} bytes supported by this network.'''
+                                   .format(max=net_query(self.network)
+                                           .op_return_max_bytes))
+        return vote.SerializeToString()
 
     @property
-    def to_dict(self) -> dict:
+    def metainfo_to_dict(self) -> dict:
         '''vote info as dict'''
 
-        return {
+        r = {
             "version": self.version,
-            "description": self.description,
-            "count_mode": self.count_mode,
-            "start_block": self.start_block,
-            "end_block": self.end_block,
+            "count_method": self.count_method,
+            "start": self.start,
+            "end": self.end,
             "choices": self.choices,
-            "vote_metainfo": self.vote_metainfo
+            "choice_address": self.vote_choice_address
         }
+
+        if self.description:
+            r.update({'description': self.description})
+
+        return r
 
     @property
     def vote_choice_address(self) -> List[str]:
         '''calculate the addresses on which the vote is casted.'''
 
-        if self.vote_id is None:
-            raise Exception("vote_id is required")
+        if self.id is None:
+            raise Exception("vote id is required")
 
         addresses = []
-        vote_init_txid = unhexlify(self.vote_id)
 
         for choice in self.choices:
-            vote_cast_privkey = sha256(vote_init_txid + bytes(
-                                    list(self.choices).index(choice))
-                                    ).hexdigest()
-            addresses.append(Kutil(network=self.deck.network,
-                                   privkey=bytearray.fromhex(vote_cast_privkey)).address)
+
+            addresses.append(
+                Kutil(network=self.deck.network,
+                      privkey=sha256(bytearray.fromhex(self.id) +
+                                     bytearray(self.choices.index(choice))
+                                     ).digest()
+                      ).address
+            )
 
         return addresses
+
+    def to_json(self) -> dict:
+        '''export the Vote object to json-ready format'''
+
+        d = self.__dict__
+        d['p2th_address'] = self.p2th_address
+        d['p2th_wif'] = self.p2th_wif
+        return d
+
+    @classmethod
+    def from_json(cls, json: dict):
+        '''load the Deck object from json'''
+
+        return cls(**json)
+
+    def __str__(self) -> str:
+
+        r = []
+        for key in self.__dict__:
+            r.append("{key}='{value}'".format(key=key, value=self.__dict__[key]))
+
+        return ', '.join(r)
 
 
 def parse_vote_info(protobuf: bytes) -> dict:
