@@ -139,6 +139,7 @@ class Vote:
         d = self.__dict__
         d['p2th_address'] = self.p2th_address
         d['p2th_wif'] = self.p2th_wif
+        d['vote_choice_address'] = self.vote_choice_address
         return d
 
     @classmethod
