@@ -117,7 +117,6 @@ class Vote:
         vote.count_mode = self.count_mode
         vote.start_block = self.start_block
         vote.end_block = self.end_block
-        vote.vote_metainfo = self.vote_metainfo
         vote.choices.extend(self.choices)
 
         if not isinstance(self.vote_metainfo, bytes):
