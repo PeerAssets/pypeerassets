@@ -1,4 +1,5 @@
 from typing import Iterable, List, Optional
+from enum import Enum
 
 from pypeerassets.kutil import Kutil
 from pypeerassets.protocol import Deck
@@ -9,7 +10,41 @@ from pypeerassets import transactions
 from pypeerassets.pautils import read_tx_opreturn, find_tx_sender
 from pypeerassets.networks import net_query
 
-from pypeerassets.exceptions import OverSizeOPReturn
+from pypeerassets.exceptions import (OverSizeOPReturn,
+                                     InvalidVoteVersion
+                                     )
+
+
+class CountMethod(Enum):
+
+    NONE = 0x00
+    # Nothing, just placeholder.
+
+    SIMPLE = 0x01
+    # https://github.com/PeerAssets/peerassets-rfcs/blob/master/0005-on-chain-voting-protocol-proposal.md#simple-vote-counting
+    """
+    Simplest form of vote counting is counting one vote per transaction, with filtering of double votes and invalid votes.
+    Filtering is done by using "first come, first served" rule, where only the first vote is registered and subsequent ones are dismissed as invalid.
+    The only requisite of valid vote with this schema is positive card balance.
+    However this schema is easily gamed by buying cards just before casting a vote and selling them after the vote has been casted,
+    so two more complex voting schemes are proposed bellow.
+    """
+
+    WEIGHT_CARD_BALANCE = 0x03
+    # https://github.com/PeerAssets/peerassets-rfcs/blob/master/0005-on-chain-voting-protocol-proposal.md#weighting-votes-with-pa-card-balance
+    """
+    This schema allows weighting the vote with PeerAssets card balance.
+    This allows equating casted vote with stake in the PeerAssets deck.
+    Simplest form of card balance weighted voting is using card balance when summing up votes.
+    Same rule of "first come, first served" is applied to prevent double voting.
+    """
+
+    WEIGHT_CARD_DAYS = 0x07
+    # https://github.com/PeerAssets/peerassets-rfcs/blob/master/0005-on-chain-voting-protocol-proposal.md#weighting-vote-with-pa-card-days
+    """
+    Votes are counted as card days, card balance is multiplied with age of UTXO which was used to deliver the cards.
+    This schema prevents "last minute" vote manipulations by giving more weight to older card holders.
+    """
 
 
 def deck_vote_tag(deck: Deck) -> str:
