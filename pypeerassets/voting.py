@@ -3,7 +3,7 @@ from typing import Iterable, List, Optional
 from pypeerassets.kutil import Kutil
 from pypeerassets.protocol import Deck
 from pypeerassets.provider import Provider
-from pypeerassets import pavoteproto_pb2 as pavoteproto
+from pypeerassets.pavoteproto_pb2 import Vote as pavoteproto
 from hashlib import sha256
 from pypeerassets import transactions
 from pypeerassets.pautils import read_tx_opreturn, find_tx_sender
@@ -29,9 +29,9 @@ class Vote:
     def __init__(self,
                  version: int,
                  description: str,
-                 count_method: str,
-                 start: int,
-                 end: int,
+                 count_mode: int,
+                 start_block: int,
+                 end_block: int,
                  deck: Deck,
                  choices: list=[],
                  vote_metainfo: str="",
@@ -42,10 +42,11 @@ class Vote:
         self.version = version
         self.description = description  # short description of the vote
         self.choices = choices  # list of vote choices
-        self.count_method = count_method
-        self.start = start  # at which block does vote start
-        self.end = end  # at which block does vote end
+        self.count_mode = count_mode
+        self.start_block = start_block  # at which block does vote start
+        self.end_block = end_block  # at which block does vote end
         self.id = id  # vote_init txid
+        self.vote_metainfo = vote_metainfo
         self.sender = sender
         self.deck = deck
         self.network = self.deck.network
@@ -74,18 +75,19 @@ class Vote:
     def metainfo_to_protobuf(self) -> str:
         '''encode vote into protobuf'''
 
-        vote = pavoteproto.Vote()
+        vote = pavoteproto()
         vote.version = self.version
         vote.description = self.description
-        vote.count_method = vote.MODE.Value(self.count_method)
-        vote.start = self.start
-        vote.end = self.end
+        vote.count_mode = self.count_mode
+        vote.start_block = self.start_block
+        vote.end_block = self.end_block
+        vote.vote_metainfo = self.vote_metainfo
         vote.choices.extend(self.choices)
 
-        if not isinstance(self.description, bytes):
-            vote.description = self.description.encode()
+        if not isinstance(self.vote_metainfo, bytes):
+            vote.vote_metainfo = self.vote_metainfo.encode()
         else:
-            vote.description = self.description
+            vote.vote_metainfo = self.vote_metainfo
 
         if vote.ByteSize() > net_query(self.network).op_return_max_bytes:
             raise OverSizeOPReturn('''
@@ -100,15 +102,16 @@ class Vote:
 
         r = {
             "version": self.version,
-            "count_method": self.count_method,
-            "start": self.start,
-            "end": self.end,
+            "count_mode": self.count_mode,
+            "start_block": self.start_block,
+            "end_block": self.end_block,
             "choices": self.choices,
-            "choice_address": self.vote_choice_address
+            "choice_address": self.vote_choice_address,
+            "description": self.description
         }
 
-        if self.description:
-            r.update({'description': self.description})
+        if self.vote_metainfo:
+            r.update({'vote_metainfo': self.vote_metainfo})
 
         return r
 
