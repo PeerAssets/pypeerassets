@@ -11,7 +11,8 @@ from pypeerassets.pautils import read_tx_opreturn, find_tx_sender
 from pypeerassets.networks import net_query
 
 from pypeerassets.exceptions import (OverSizeOPReturn,
-                                     InvalidVoteVersion
+                                     InvalidVoteVersion,
+                                     InvalidVoteEndBlock
                                      )
 
 
@@ -195,14 +196,21 @@ class Vote:
         return ', '.join(r)
 
 
-def parse_vote_info(protobuf: bytes) -> dict:
+def parse_vote_init(protobuf: bytes) -> dict:
     '''decode vote init tx op_return protobuf message and validate it.'''
 
-    vote = pavoteproto.Vote()
+    vote = pavoteproto()
     vote.ParseFromString(protobuf)
 
-    assert vote.version > 0, {"error": "Vote info incomplete, version can't be 0."}
-    assert vote.start_block < vote.end_block, {"error": "vote can't end in the past."}
+    if not vote.version > 0:
+        raise InvalidVoteVersion(
+            {"error": "Vote info incomplete, version can't be 0."}
+        )
+
+    if vote.start_block > vote.end_block:
+        raise InvalidVoteEndBlock(
+            {"error": "vote can't end in the past."}
+        )
 
     return {
         "version": vote.version,

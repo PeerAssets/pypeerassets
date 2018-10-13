@@ -48,3 +48,21 @@ def test_vote_object():
     assert isinstance(str(vote), str)
 
     assert isinstance(vote.metainfo_to_protobuf, bytes)
+
+
+def test_parse_vote_info():
+    '''test parsing vote metainfo from the OP_RETURN'''
+
+    protobuf = b'\x08\x01\x12\x0cmy test vote\x18\xf9\x87\x16 \xe1\x8f\x16(\x012\x02no2\x03yes2\x05maybe'
+
+    vote = voting.parse_vote_init(protobuf)
+
+    assert isinstance(vote, dict)
+
+    assert vote == {'choices': ['no', 'yes', 'maybe'],
+                    'count_mode': 'SIMPLE',
+                    'description': 'my test vote',
+                    'end_block': 362465,
+                    'start_block': 361465,
+                    'version': 1,
+                    'vote_metainfo': b''}
