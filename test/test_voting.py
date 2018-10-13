@@ -25,18 +25,19 @@ def test_vote_object():
     vote_init = {
         "deck": deck,
         "version": 1,
-        "start": 1,
-        "end": 100,
-        "count_method": "weight_card_days",
+        "start_block": 1,
+        "end_block": 100,
+        "count_mode": 1,  # SIMPLE vote count method
         "choices": [
                     "putin"
                     "merkel",
                     "trump"],
         "description": "test vote",
-        "id": "0fce7f493038abb8aaa8f5b3e8130d01e5804c8dee9a19202c6cceae7c8e5e27"
+        "id": "0fce7f493038abb8aaa8f5b3e8130d01e5804c8dee9a19202c6cceae7c8e5e27",
+        "vote_metainfo": b"https://imgur.com/my_logo.png"
     }
 
-    vote = voting.Vote(**vote_init)
+    vote = voting.Vote.from_json(vote_init)
 
     assert isinstance(vote, voting.Vote)
 
