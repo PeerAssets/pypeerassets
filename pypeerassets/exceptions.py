@@ -71,3 +71,11 @@ class InvalidVoutOrder(Exception):
 
 class OverSizeOPReturn(Exception):
     '''op_return size is exceeding the maximum size allowed by this network.'''
+
+
+class InvalidVoteVersion(Exception):
+    '''invalid Vote version'''
+
+
+class InvalidVoteEndBlock(Exception):
+    '''Invalid Vote end block'''
