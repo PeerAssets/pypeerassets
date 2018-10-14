@@ -48,7 +48,7 @@ class CountMethod(Enum):
     """
 
 
-def deck_vote_tag(deck: Deck) -> str:
+def deck_vote_tag(deck: Deck) -> Kutil:
     '''deck vote tag address'''
 
     if deck.id is None:
@@ -57,7 +57,7 @@ def deck_vote_tag(deck: Deck) -> str:
     return Kutil(network=deck.network,
                  privkey=sha256(bytearray.fromhex(deck.id) + 'vote_init'.encode()
                                 ).digest()
-                 ).address
+                 )
 
 
 class Vote:

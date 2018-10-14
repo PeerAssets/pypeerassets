@@ -17,7 +17,7 @@ deck = Deck(
 def test_vote_tag():
     '''test deck vote tag creation'''
 
-    assert voting.deck_vote_tag(deck) == 'PFjDw9tJnCj3PExZPDUjY1fqFN1vtt8CUj'
+    assert voting.deck_vote_tag(deck).address == 'PFjDw9tJnCj3PExZPDUjY1fqFN1vtt8CUj'
 
 
 def test_vote_object():
