@@ -86,8 +86,7 @@ def test_vote_init():
         "end_block": 100,
         "count_mode": 1,  # SIMPLE vote count method
         "choices": [
-                    "1"
-                    "1",
+                    "11",
                     "3"],
         "description": "",
         "id": "0fce7f493038abb8aaa8f5b3e8130d01e5804c8dee9a19202c6cceae7c8e5e27",
