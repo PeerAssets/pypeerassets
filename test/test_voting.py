@@ -97,3 +97,15 @@ def test_vote_init():
     vote_init = voting.vote_init(vote, inputs, change_address)
 
     assert isinstance(vote_init, Transaction)
+
+
+def test_find_vote_inits():
+    '''test finding and parsing vote inits for <deck>'''
+
+    expected_vote_init = "6382bf31a3f8e288afd6a981e09d621d0f1bd8319cbf9657d7b332072ceffdc8"
+    provider = Explorer(network='tppc')
+
+    inits = list(voting.find_vote_inits(provider, deck))
+
+    assert isinstance(inits[0], voting.Vote)
+    assert inits[0].id == expected_vote_init

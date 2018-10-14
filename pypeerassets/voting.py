@@ -264,17 +264,21 @@ def vote_init(vote: Vote, inputs: dict, change_address: str,
 def find_vote_inits(provider: Provider, deck: Deck) -> Iterable[Vote]:
     '''find vote_inits on this deck'''
 
-    vote_ints = provider.listtransactions(deck_vote_tag(deck))
+    vote_ints = provider.listtransactions(deck_vote_tag(deck).address)
 
     for txid in vote_ints:
         try:
-            raw_vote = provider.getrawtransaction(txid)
-            vote = parse_vote_info(read_tx_opreturn(raw_vote))
-            vote["vote_id"] = txid
+            raw_vote = provider.getrawtransaction(txid, 1)
+            vote = parse_vote_init(read_tx_opreturn(raw_vote["vout"][1])
+                                   )
+            vote["id"] = txid
             vote["sender"] = find_tx_sender(provider, raw_vote)
             vote["deck"] = deck
-            yield Vote(**vote)
-        except AssertionError:
+
+            yield Vote.from_json(vote)
+
+        except (InvalidVoteVersion,
+                InvalidVoteEndBlock) as e:
             pass
 
 
