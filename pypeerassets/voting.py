@@ -78,7 +78,7 @@ class Vote:
                  start_block: int,
                  end_block: int,
                  deck: Deck,
-                 choices: list=[],
+                 choices: List[str]=[],
                  vote_metainfo: str="",
                  id: str=None,
                  sender: str=None) -> None:
@@ -98,11 +98,10 @@ class Vote:
 
     @property
     def p2th_address(self) -> Optional[str]:
-        '''P2TH address of this deck'''
+        '''P2TH address for the deck vote'''
 
-        if self.id:
-            return Kutil(network=self.network,
-                         privkey=bytearray.fromhex(self.id)).address
+        if self.deck.id:
+            return deck_vote_tag(self.deck).address
         else:
             return None
 
@@ -111,13 +110,12 @@ class Vote:
         '''P2TH privkey in WIF format'''
 
         if self.id:
-            return Kutil(network=self.network,
-                         privkey=bytearray.fromhex(self.id)).wif
+            return deck_vote_tag(self.deck).wif
         else:
             return None
 
     @property
-    def metainfo_to_protobuf(self) -> str:
+    def metainfo_to_protobuf(self) -> bytes:
         '''encode vote into protobuf'''
 
         vote = pavoteproto()
