@@ -1,5 +1,6 @@
 from typing import Iterable, List, Optional
 from enum import Enum
+from decimal import Decimal
 
 from pypeerassets.kutil import Kutil
 from pypeerassets.protocol import Deck
@@ -14,6 +15,14 @@ from pypeerassets.exceptions import (OverSizeOPReturn,
                                      InvalidVoteVersion,
                                      InvalidVoteEndBlock
                                      )
+
+from pypeerassets.transactions import (tx_output,
+                                       p2pkh_script,
+                                       nulldata_script,
+                                       Transaction,
+                                       make_raw_transaction,
+                                       Locktime
+                                       )
 
 
 class CountMethod(Enum):
@@ -222,26 +231,36 @@ def parse_vote_init(protobuf: bytes) -> dict:
     }
 
 
-def vote_init(vote: Vote, inputs: dict, change_address: str) -> bytes:
+def vote_init(vote: Vote, inputs: dict, change_address: str,
+              locktime: int=0) -> Transaction:
     '''initialize vote transaction, must be signed by the deck_issuer privkey'''
 
     network_params = net_query(vote.deck.network)
-    deck_vote_tag_address = deck_vote_tag(vote.deck)
+    p2th = vote.p2th_address
 
-    tx_fee = network_params.min_tx_fee  # settle for min tx fee for now
+    #  first round of txn making is done by presuming minimal fee
+    change_sum = Decimal(inputs['total'] - network_params.min_tx_fee - Decimal(0.01))
+    # this final 0.01 deduced from the fee is to accomodate for the vote_init p2th fee
 
-    for utxo in inputs['utxos']:
-        utxo['txid'] = unhexlify(utxo['txid'])
-        utxo['scriptSig'] = unhexlify(utxo['scriptSig'])
+    txouts = [
+        tx_output(network=vote.deck.network, value=Decimal(0.01),
+                  n=0, script=p2pkh_script(address=p2th,
+                                           network=vote.deck.network)),  # p2th
 
-    outputs = [
-        {"redeem": 0.01, "outputScript": transactions.monosig_script(deck_vote_tag_address)},
-        {"redeem": 0, "outputScript": transactions.op_return_script(vote.to_protobuf)},
-        {"redeem": float(inputs['total']) - float(tx_fee) - float(0.01),
-         "outputScript": transactions.monosig_script(change_address)
-         }]
+        tx_output(network=vote.deck.network, value=Decimal(0),
+                  n=1, script=nulldata_script(vote.metainfo_to_protobuf)),  # op_return
 
-    return transactions.make_raw_transaction(inputs['utxos'], outputs)
+        tx_output(network=vote.deck.network, value=change_sum,
+                  n=2, script=p2pkh_script(address=change_address,
+                                           network=vote.deck.network))  # change
+              ]
+
+    unsigned_tx = make_raw_transaction(network=vote.deck.network,
+                                       inputs=inputs['utxos'],
+                                       outputs=txouts,
+                                       locktime=Locktime(locktime)
+                                       )
+    return unsigned_tx
 
 
 def find_vote_inits(provider: Provider, deck: Deck) -> Iterable[Vote]:
