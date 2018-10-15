@@ -7,7 +7,7 @@ from pypeerassets.protocol import Deck
 from pypeerassets.provider import Provider
 from pypeerassets.pavoteproto_pb2 import Vote as pavoteproto
 from hashlib import sha256
-from pypeerassets import transactions
+
 from pypeerassets.pautils import read_tx_opreturn, find_tx_sender
 from pypeerassets.networks import net_query
 
@@ -69,7 +69,7 @@ def deck_vote_tag(deck: Deck) -> Kutil:
                  )
 
 
-class Vote:
+class VoteInit:
 
     def __init__(self,
                  version: int,
@@ -229,7 +229,7 @@ def parse_vote_init(protobuf: bytes) -> dict:
     }
 
 
-def vote_init(vote: Vote, inputs: dict, change_address: str,
+def vote_init(vote: VoteInit, inputs: dict, change_address: str,
               locktime: int=0) -> Transaction:
     '''initialize vote transaction, must be signed by the deck_issuer privkey'''
 
@@ -261,7 +261,7 @@ def vote_init(vote: Vote, inputs: dict, change_address: str,
     return unsigned_tx
 
 
-def find_vote_inits(provider: Provider, deck: Deck) -> Iterable[Vote]:
+def find_vote_inits(provider: Provider, deck: Deck) -> Iterable[VoteInit]:
     '''find vote_inits on this deck'''
 
     vote_ints = provider.listtransactions(deck_vote_tag(deck).address)
@@ -275,14 +275,14 @@ def find_vote_inits(provider: Provider, deck: Deck) -> Iterable[Vote]:
             vote["sender"] = find_tx_sender(provider, raw_vote)
             vote["deck"] = deck
 
-            yield Vote.from_json(vote)
+            yield VoteInit.from_json(vote)
 
         except (InvalidVoteVersion,
                 InvalidVoteEndBlock) as e:
             pass
 
 
-def vote_cast(vote: Vote, choice_index: int, inputs: dict,
+def vote_cast(vote: VoteInit, choice_index: int, inputs: dict,
               change_address: str,
               locktime: int=0) -> Transaction:
     '''vote cast transaction'''
@@ -314,7 +314,7 @@ def vote_cast(vote: Vote, choice_index: int, inputs: dict,
 class VoteCast:
     '''vote cast object, internal represtentation of the vote_cast transaction'''
 
-    def __init__(self, vote: Vote, sender: str, blocknum: int,
+    def __init__(self, vote: VoteInit, sender: str, blocknum: int,
                  confirmations: int, timestamp: int) -> None:
         self.vote = vote
         self.sender = sender
@@ -336,7 +336,7 @@ class VoteCast:
         return True
 
 
-def find_vote_casts(provider: Provider, vote: Vote, choice_index: int) -> Iterable[VoteCast]:
+def find_vote_casts(provider: Provider, vote: VoteInit, choice_index: int) -> Iterable[VoteCast]:
     '''find and verify vote_casts on this vote_choice_address'''
 
     vote_casts = provider.listtransactions(vote.vote_choice_address[choice_index])

@@ -39,9 +39,9 @@ def test_vote_object():
         "vote_metainfo": b"https://imgur.com/my_logo.png"
     }
 
-    vote = voting.Vote.from_json(vote_init)
+    vote = voting.VoteInit.from_json(vote_init)
 
-    assert isinstance(vote, voting.Vote)
+    assert isinstance(vote, voting.VoteInit)
 
     assert isinstance(vote.metainfo_to_dict, dict)
 
@@ -79,7 +79,7 @@ def test_vote_init():
     my_deck = deck
     my_deck.network = "tppc"
 
-    vote = voting.Vote.from_json({
+    vote = voting.VoteInit.from_json({
         "deck": my_deck,
         "version": 1,
         "start_block": 1,
@@ -106,7 +106,7 @@ def test_find_vote_inits():
 
     inits = list(voting.find_vote_inits(provider, deck))
 
-    assert isinstance(inits[0], voting.Vote)
+    assert isinstance(inits[0], voting.VoteInit)
     assert inits[0].id == expected_vote_init
 
 
@@ -120,7 +120,7 @@ def test_vote_cast():
     my_deck = deck
     my_deck.network = "tppc"
 
-    vote = voting.Vote.from_json({
+    vote = voting.VoteInit.from_json({
         "deck": my_deck,
         "version": 1,
         "start_block": 1,
