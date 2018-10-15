@@ -108,3 +108,35 @@ def test_find_vote_inits():
 
     assert isinstance(inits[0], voting.Vote)
     assert inits[0].id == expected_vote_init
+
+
+def test_vote_cast():
+    '''test casting a vote'''
+
+    provider = Explorer(network='tppc')
+    inputs = provider.select_inputs("msnHPXDWuJhRBPVNQnwXdKvEMQHLr9z1P5", 0.02)
+    change_address = "msnHPXDWuJhRBPVNQnwXdKvEMQHLr9z1P5"
+
+    my_deck = deck
+    my_deck.network = "tppc"
+
+    vote = voting.Vote.from_json({
+        "deck": my_deck,
+        "version": 1,
+        "start_block": 1,
+        "end_block": 100,
+        "count_mode": 1,  # SIMPLE vote count method
+        "choices": [
+                    "11",
+                    "3"],
+        "description": "",
+        "id": "0fce7f493038abb8aaa8f5b3e8130d01e5804c8dee9a19202c6cceae7c8e5e27",
+        "vote_metainfo": b"https://imgur.com/my_pic.png"
+    })
+
+    cast = voting.vote_cast(vote=vote,
+                            choice_index=0,
+                            inputs=inputs,
+                            change_address=change_address)
+
+    assert isinstance(cast, Transaction)

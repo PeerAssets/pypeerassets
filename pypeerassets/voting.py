@@ -283,25 +283,32 @@ def find_vote_inits(provider: Provider, deck: Deck) -> Iterable[Vote]:
 
 
 def vote_cast(vote: Vote, choice_index: int, inputs: dict,
-              change_address: str) -> bytes:
+              change_address: str,
+              locktime: int=0) -> Transaction:
     '''vote cast transaction'''
 
     network_params = net_query(vote.deck.network)
-    vote_cast_addr = vote.vote_choice_address[choice_index]
+    p2th = vote.vote_choice_address[choice_index]
 
-    tx_fee = network_params.min_tx_fee  # settle for min tx fee for now
+    #  first round of txn making is done by presuming minimal fee
+    change_sum = Decimal(inputs['total'] - network_params.min_tx_fee - Decimal(0.01))
 
-    for utxo in inputs['utxos']:
-        utxo['txid'] = unhexlify(utxo['txid'])
-        utxo['scriptSig'] = unhexlify(utxo['scriptSig'])
+    txouts = [
+        tx_output(network=vote.deck.network, value=Decimal(0.01),
+                  n=0, script=p2pkh_script(address=p2th,
+                                           network=vote.deck.network)),  # p2th
 
-    outputs = [
-        {"redeem": 0.01, "outputScript": transactions.monosig_script(vote_cast_addr)},
-        {"redeem": float(inputs['total']) - float(tx_fee) - float(0.01),
-         "outputScript": transactions.monosig_script(change_address)
-         }]
+        tx_output(network=vote.deck.network, value=change_sum,
+                  n=1, script=p2pkh_script(address=change_address,
+                                           network=vote.deck.network))  # change
+              ]
 
-    return transactions.make_raw_transaction(inputs['utxos'], outputs)
+    unsigned_tx = make_raw_transaction(network=vote.deck.network,
+                                       inputs=inputs['utxos'],
+                                       outputs=txouts,
+                                       locktime=Locktime(locktime)
+                                       )
+    return unsigned_tx
 
 
 class VoteCast:
