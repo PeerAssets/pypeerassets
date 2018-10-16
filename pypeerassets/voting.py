@@ -311,12 +311,18 @@ def vote_cast(vote: VoteInit, choice_index: int, inputs: dict,
     return unsigned_tx
 
 
-class VoteCast:
-    '''vote cast object, internal represtentation of the vote_cast transaction'''
+class Vote:
+    '''vote object, internal represtentation of the vote_cast transaction'''
 
-    def __init__(self, vote: VoteInit, sender: str, blocknum: int,
-                 confirmations: int, timestamp: int) -> None:
-        self.vote = vote
+    def __init__(self,
+                 vote_init: VoteInit,
+                 id: str,
+                 sender: str,
+                 blocknum: int,
+                 confirmations: int,
+                 timestamp: int) -> None:
+
+        self.vote_init = vote_init
         self.sender = sender
         self.blocknum = blocknum
         self.confirmations = confirmations
@@ -326,11 +332,8 @@ class VoteCast:
     def is_valid(self) -> bool:
         '''check if VoteCast is valid'''
 
-        if not (self.blocknum >= self.vote.start_block and
-                self.blocknum <= self.vote.end_block):
-            return False
-
-        if not self.confirmations >= 6:
+        if not (self.blocknum >= self.vote_init.start_block and
+                self.blocknum <= self.vote_init.end_block):
             return False
 
         return True

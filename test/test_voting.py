@@ -3,6 +3,7 @@ from pypeerassets import voting
 from pypeerassets.protocol import (Deck, IssueMode)
 from pypeerassets.transactions import Transaction
 from pypeerassets.provider import Explorer
+from pypeerassets.pautils import find_tx_sender
 
 
 deck = Deck(
@@ -37,7 +38,7 @@ def test_vote_tag():
     assert voting.deck_vote_tag(deck).address == 'PFjDw9tJnCj3PExZPDUjY1fqFN1vtt8CUj'
 
 
-def test_vote_object():
+def test_vote_init_object():
 
     vote_init = {
         "deck": deck,
@@ -127,3 +128,24 @@ def test_vote_cast():
                             change_address=change_address)
 
     assert isinstance(cast, Transaction)
+
+
+def test_vote_object():
+
+    provider = Explorer(network='tppc')
+
+    raw_tx = provider.getrawtransaction('a2328f95d50261438cf4184119d84337a86cce9000e71255cbf36dbcd5c06096', 1)
+    sender = find_tx_sender(provider, raw_tx)
+    confirmations = raw_tx["confirmations"]
+    blocknum = provider.getblock(raw_tx["blockhash"])["height"]
+
+    v = voting.Vote(vote_init=vote,
+                    id=raw_tx['txid'],
+                    sender=sender,
+                    blocknum=blocknum,
+                    confirmations=confirmations,
+                    timestamp=raw_tx["blocktime"]
+                    )
+
+    assert isinstance(v, voting.Vote)
+    assert not v.is_valid
