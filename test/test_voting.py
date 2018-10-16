@@ -1,4 +1,6 @@
 import pytest
+from typing import Iterator
+
 from pypeerassets import voting
 from pypeerassets.protocol import (Deck, IssueMode)
 from pypeerassets.transactions import Transaction
@@ -149,3 +151,16 @@ def test_vote_object():
 
     assert isinstance(v, voting.Vote)
     assert not v.is_valid
+
+
+def test_find_casts():
+
+    provider = Explorer(network='tppc')
+
+    my_vote = vote
+    my_vote.deck.network = 'tppc'
+
+    casts = voting.find_vote_casts(provider, vote, 0)
+
+    assert isinstance(casts, Iterator)
+    assert isinstance(next(casts), voting.Vote)

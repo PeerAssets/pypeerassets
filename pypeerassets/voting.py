@@ -339,14 +339,26 @@ class Vote:
         return True
 
 
-def find_vote_casts(provider: Provider, vote: VoteInit, choice_index: int) -> Iterable[VoteCast]:
+def find_vote_casts(provider: Provider,
+                    vote_init: VoteInit,
+                    choice_index: int) -> Iterable[Vote]:
     '''find and verify vote_casts on this vote_choice_address'''
 
-    vote_casts = provider.listtransactions(vote.vote_choice_address[choice_index])
+    vote_casts = provider.listtransactions(
+                    vote_init.vote_choice_address[choice_index]
+                    )
+
     for tx in vote_casts:
         raw_tx = provider.getrawtransaction(tx, 1)
 
         sender = find_tx_sender(provider, raw_tx)
         confirmations = raw_tx["confirmations"]
         blocknum = provider.getblock(raw_tx["blockhash"])["height"]
-        yield VoteCast(vote, sender, blocknum, confirmations, raw_tx["blocktime"])
+
+        yield Vote(vote_init=vote_init,
+                   id=raw_tx['txid'],
+                   sender=sender,
+                   blocknum=blocknum,
+                   confirmations=confirmations,
+                   timestamp=raw_tx["blocktime"]
+                   )
