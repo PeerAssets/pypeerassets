@@ -16,6 +16,21 @@ deck = Deck(
 )
 
 
+vote = voting.VoteInit.from_json({
+    "deck": deck,
+    "version": 1,
+    "start_block": 1,
+    "end_block": 100,
+    "count_mode": 1,  # SIMPLE vote count method
+    "choices": [
+                "11",
+                "3"],
+    "description": "",
+    "id": "0fce7f493038abb8aaa8f5b3e8130d01e5804c8dee9a19202c6cceae7c8e5e27",
+    "vote_metainfo": b"https://imgur.com/my_pic.png"
+})
+
+
 def test_vote_tag():
     '''test deck vote tag creation'''
 
@@ -79,20 +94,6 @@ def test_vote_init():
     my_deck = deck
     my_deck.network = "tppc"
 
-    vote = voting.VoteInit.from_json({
-        "deck": my_deck,
-        "version": 1,
-        "start_block": 1,
-        "end_block": 100,
-        "count_mode": 1,  # SIMPLE vote count method
-        "choices": [
-                    "11",
-                    "3"],
-        "description": "",
-        "id": "0fce7f493038abb8aaa8f5b3e8130d01e5804c8dee9a19202c6cceae7c8e5e27",
-        "vote_metainfo": b"https://imgur.com/my_pic.png"
-    })
-
     vote_init = voting.vote_init(vote, inputs, change_address)
 
     assert isinstance(vote_init, Transaction)
@@ -119,20 +120,6 @@ def test_vote_cast():
 
     my_deck = deck
     my_deck.network = "tppc"
-
-    vote = voting.VoteInit.from_json({
-        "deck": my_deck,
-        "version": 1,
-        "start_block": 1,
-        "end_block": 100,
-        "count_mode": 1,  # SIMPLE vote count method
-        "choices": [
-                    "11",
-                    "3"],
-        "description": "",
-        "id": "0fce7f493038abb8aaa8f5b3e8130d01e5804c8dee9a19202c6cceae7c8e5e27",
-        "vote_metainfo": b"https://imgur.com/my_pic.png"
-    })
 
     cast = voting.vote_cast(vote=vote,
                             choice_index=0,
