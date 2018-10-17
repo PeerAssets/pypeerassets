@@ -13,7 +13,8 @@ from pypeerassets.networks import net_query
 
 from pypeerassets.exceptions import (OverSizeOPReturn,
                                      InvalidVoteVersion,
-                                     InvalidVoteEndBlock
+                                     InvalidVoteEndBlock,
+                                     EmptyP2THDirectory
                                      )
 
 from pypeerassets.transactions import (tx_output,
@@ -344,9 +345,12 @@ def find_vote_casts(provider: Provider,
                     choice_index: int) -> Iterable[Vote]:
     '''find and verify vote_casts on this vote_choice_address'''
 
-    vote_casts = provider.listtransactions(
-                    vote_init.vote_choice_address[choice_index]
-                    )
+    try:
+        vote_casts = provider.listtransactions(
+                        vote_init.vote_choice_address[choice_index]
+                        )
+    except TypeError:
+        raise EmptyP2THDirectory({'error': 'No cards found on this deck.'})
 
     for tx in vote_casts:
         raw_tx = provider.getrawtransaction(tx, 1)
