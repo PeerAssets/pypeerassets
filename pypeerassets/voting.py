@@ -339,6 +339,22 @@ class Vote:
 
         return True
 
+    def to_json(self) -> dict:
+        '''export the Vote object to json-ready format'''
+
+        d = self.__dict__
+        d['is_valid'] = self.is_valid
+
+        return d
+
+    def __str__(self) -> str:
+
+        r = []
+        for key in self.__dict__:
+            r.append("{key}='{value}'".format(key=key, value=self.__dict__[key]))
+
+        return ', '.join(r)
+
 
 def find_vote_casts(provider: Provider,
                     vote_init: VoteInit,
