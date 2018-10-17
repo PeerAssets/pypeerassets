@@ -318,10 +318,10 @@ class Vote:
     def __init__(self,
                  vote_init: VoteInit,
                  id: str,
-                 sender: str,
                  blocknum: int,
                  confirmations: int,
-                 timestamp: int) -> None:
+                 timestamp: int,
+                 sender: str=None,) -> None:
 
         self.vote_init = vote_init
         self.sender = sender
