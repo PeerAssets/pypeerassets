@@ -132,10 +132,10 @@ class VoteInit:
         else:
             vote.vote_metainfo = self.vote_metainfo
 
-        if vote.ByteSize() > net_query(self.network).op_return_max_bytes:
+        if vote.ByteSize() > net_query(self.deck.network).op_return_max_bytes:
             raise OverSizeOPReturn('''
                         Metainfo size exceeds maximum of {max} bytes supported by this network.'''
-                                   .format(max=net_query(self.network)
+                                   .format(max=net_query(self.deck.network)
                                            .op_return_max_bytes))
         return vote.SerializeToString()
 
@@ -180,18 +180,26 @@ class VoteInit:
         return addresses
 
     def to_json(self) -> dict:
-        '''export the Vote object to json-ready format'''
+        '''export the VoteInit object to json-ready format'''
 
         d = self.__dict__
         d['p2th_address'] = self.p2th_address
         d['p2th_wif'] = self.p2th_wif
         d['vote_choice_address'] = self.vote_choice_address
+        d['deck'] = self.deck.to_json()
+
         return d
 
     @classmethod
     def from_json(cls, json: dict):
-        '''load the Deck object from json'''
+        '''load the VoteInit object from json'''
 
+        try:
+            del json['p2th_address']
+            del json['p2th_wif']
+            del json['vote_choice_address']
+        except KeyError:
+            pass
         return cls(**json)
 
     def __str__(self) -> str:
