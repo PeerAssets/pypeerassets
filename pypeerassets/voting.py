@@ -366,7 +366,7 @@ def find_vote_casts(provider: Provider,
                         vote_init.vote_choice_address[choice_index]
                         )
     except TypeError:
-        raise EmptyP2THDirectory({'error': 'No cards found on this deck.'})
+        raise EmptyP2THDirectory({'error': 'No votes found on this vote init.'})
 
     for tx in vote_casts:
         raw_tx = provider.getrawtransaction(tx, 1)
