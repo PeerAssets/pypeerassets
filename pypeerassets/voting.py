@@ -95,7 +95,6 @@ class VoteInit:
         self.vote_metainfo = vote_metainfo
         self.sender = sender
         self.deck = deck
-        self.network = self.deck.network
 
     @property
     def p2th_address(self) -> Optional[str]:
@@ -115,7 +114,6 @@ class VoteInit:
         else:
             return None
 
-    @property
     def metainfo_to_protobuf(self) -> bytes:
         '''encode vote into protobuf'''
 
@@ -139,7 +137,6 @@ class VoteInit:
                                            .op_return_max_bytes))
         return vote.SerializeToString()
 
-    @property
     def metainfo_to_dict(self) -> dict:
         '''vote info as dict'''
 
@@ -194,13 +191,18 @@ class VoteInit:
     def from_json(cls, json: dict):
         '''load the VoteInit object from json'''
 
-        try:
-            del json['p2th_address']
-            del json['p2th_wif']
-            del json['vote_choice_address']
-        except KeyError:
-            pass
-        return cls(**json)
+        return cls(**{
+            "version": json["version"],
+            "description": json["description"],
+            "choices": json["choices"],
+            "count_mode": json["count_mode"],
+            "start_block": json["start_block"],
+            "end_block": json["end_block"],
+            "id": json["id"],
+            "vote_metainfo": json["vote_metainfo"],
+            "sender": json["sender"],
+            "deck": Deck.from_json(json["deck"])
+            })
 
     def __str__(self) -> str:
 
@@ -255,7 +257,8 @@ def vote_init(vote: VoteInit, inputs: dict, change_address: str,
                                            network=vote.deck.network)),  # p2th
 
         tx_output(network=vote.deck.network, value=Decimal(0),
-                  n=1, script=nulldata_script(vote.metainfo_to_protobuf)),  # op_return
+                  n=1, script=nulldata_script(vote.metainfo_to_protobuf())
+                  ),  # op_return
 
         tx_output(network=vote.deck.network, value=change_sum,
                   n=2, script=p2pkh_script(address=change_address,
@@ -282,7 +285,7 @@ def find_vote_inits(provider: Provider, deck: Deck) -> Iterable[VoteInit]:
                                    )
             vote["id"] = txid
             vote["sender"] = find_tx_sender(provider, raw_vote)
-            vote["deck"] = deck
+            vote["deck"] = deck.to_json()
 
             yield VoteInit.from_json(vote)
 
@@ -390,3 +393,34 @@ def find_vote_casts(provider: Provider,
                    confirmations=confirmations,
                    timestamp=raw_tx["blocktime"]
                    )
+
+
+class VoteState:
+
+    '''calculate the state of the vote'''
+
+    def __init__(self,
+                 provider: Provider,
+                 vote_init: VoteInit
+                 ) -> None:
+
+        self.provider = provider
+        self.vote_init = vote_init
+
+    def all_vote_casts(self) -> dict:
+        '''find all the votes related to this vote_init'''
+
+        choices = self.vote_init.choices
+
+        return {choices.index(c): find_vote_casts(self.provider,
+                                                  self.vote_init,
+                                                  choices.index(c)
+                                                  )
+                for c in choices}
+
+    def all_valid_vote_casts(self) -> dict:
+        '''filter out the invalid votes'''
+
+        return {k: (i for i in v if v.is_valid)
+                for k, v in self.all_vote_casts().items()
+                }
