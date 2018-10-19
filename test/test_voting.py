@@ -19,19 +19,19 @@ deck = Deck(
 )
 
 
-vote = voting.VoteInit.from_json({
-    "deck": deck,
-    "version": 1,
-    "start_block": 1,
-    "end_block": 100,
-    "count_mode": 1,  # SIMPLE vote count method
-    "choices": [
-                "11",
-                "3"],
-    "description": "",
-    "id": "0fce7f493038abb8aaa8f5b3e8130d01e5804c8dee9a19202c6cceae7c8e5e27",
-    "vote_metainfo": b"https://imgur.com/my_pic.png"
-})
+vote = voting.VoteInit(
+            deck=deck,
+            version=1,
+            start_block=1,
+            end_block=100,
+            count_mode=1,  # SIMPLE vote count method
+            choices=["11",
+                      "3"],
+            description="",
+            id="0fce7f493038abb8aaa8f5b3e8130d01e5804c8dee9a19202c6cceae7c8e5e27",
+            vote_metainfo="https://imgur.com/my_pic.png",
+            sender=None
+        )
 
 
 def test_vote_tag():
@@ -42,32 +42,32 @@ def test_vote_tag():
 
 def test_vote_init_object():
 
-    vote_init = {
-        "deck": deck,
-        "version": 1,
-        "start_block": 1,
-        "end_block": 100,
-        "count_mode": 1,  # SIMPLE vote count method
-        "choices": [
-                    "putin"
-                    "merkel",
-                    "trump"],
-        "description": "test vote",
-        "id": "0fce7f493038abb8aaa8f5b3e8130d01e5804c8dee9a19202c6cceae7c8e5e27",
-        "vote_metainfo": b"https://imgur.com/my_logo.png"
-    }
+    vote_init = voting.VoteInit.from_json(
+        {
+         "deck": deck.to_json(),
+         "version": 1,
+         "start_block": 1,
+         "end_block": 100,
+         "count_mode": 1,  # SIMPLE vote count method
+         "choices": ["putin"
+                     "merkel",
+                     "trump"],
+         "description": "test vote",
+         "id": "0fce7f493038abb8aaa8f5b3e8130d01e5804c8dee9a19202c6cceae7c8e5e27",
+         "vote_metainfo": b"https://imgur.com/my_logo.png",
+         "sender": None
+        }
+        )
 
-    vote = voting.VoteInit.from_json(vote_init)
+    assert isinstance(vote_init, voting.VoteInit)
 
-    assert isinstance(vote, voting.VoteInit)
+    assert isinstance(vote_init.metainfo_to_dict(), dict)
 
-    assert isinstance(vote.metainfo_to_dict, dict)
+    assert isinstance(vote_init.to_json(), dict)
 
-    assert isinstance(vote.to_json(), dict)
+    assert isinstance(str(vote_init), str)
 
-    assert isinstance(str(vote), str)
-
-    assert isinstance(vote.metainfo_to_protobuf, bytes)
+    #assert isinstance(vote_init.metainfo_to_protobuf(), bytes)
 
 
 def test_parse_vote_info():
@@ -94,10 +94,10 @@ def test_vote_init():
     inputs = provider.select_inputs("msnHPXDWuJhRBPVNQnwXdKvEMQHLr9z1P5", 0.02)
     change_address = "msnHPXDWuJhRBPVNQnwXdKvEMQHLr9z1P5"
 
-    my_deck = deck
-    my_deck.network = "tppc"
+    my_vote = vote
+    my_vote.deck.network = "tppc"
 
-    vote_init = voting.vote_init(vote, inputs, change_address)
+    vote_init = voting.vote_init(my_vote, inputs, change_address)
 
     assert isinstance(vote_init, Transaction)
 
@@ -108,7 +108,10 @@ def test_find_vote_inits():
     expected_vote_init = "6382bf31a3f8e288afd6a981e09d621d0f1bd8319cbf9657d7b332072ceffdc8"
     provider = Explorer(network='tppc')
 
-    inits = list(voting.find_vote_inits(provider, deck))
+    my_deck = deck
+    my_deck.network = 'tppc'
+
+    inits = list(voting.find_vote_inits(provider, my_deck))
 
     assert isinstance(inits[0], voting.VoteInit)
     assert inits[0].id == expected_vote_init
