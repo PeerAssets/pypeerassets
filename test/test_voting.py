@@ -167,3 +167,46 @@ def test_find_casts():
 
     assert isinstance(casts, Iterator)
     assert isinstance(next(casts), voting.Vote)
+
+
+def test_vote_state():
+    '''test the VoteState object'''
+
+    provider = Explorer(network='tppc')
+
+    my_deck = {'asset_specific_data': b'',
+               'id': 'adc6d888508ebfcad5c182df4ae94553bae6287735d76b8d64b3de8d29fc2b5b',
+               'issue_mode': 4,
+               'issue_time': 1527876888,
+               'issuer': 'msnHPXDWuJhRBPVNQnwXdKvEMQHLr9z1P5',
+               'p2th_wif': '',
+               'name': 'peercointalk.net',
+               'network': 'peercoin-testnet',
+               'number_of_decimals': 3,
+               'production': True,
+               'tx_confirmations': 23999,
+               'version': 1
+               }
+
+    vote_init = voting.VoteInit.from_json(
+        {'choices': ['ne', 'ni', 'niti'],
+         'count_mode': 1,
+         'deck': my_deck,
+         'description': 'debate.',
+         'end_block': 461940,
+         'id': '5020361ef0cc6f3108b9bd7f8e9b78d2b0f301aae7337e6e53c3d33a4f281e47',
+         'p2th_address': 'moSZqeZrtcZJ6zNbFSJYCLCaGCwXpYdBey',
+         'p2th_wif': 'cPoRWLQAKQN5hWXB5yhZP2yjK2JcTSWSfaEG6K6ZuAYrEtyEkDR8',
+         'sender': None,
+         'start_block': 361950,
+         'version': 1,
+         'vote_choice_address': ['mgHsarCrrxtcfhUPehLGqjeh6S2FHYgXT1',
+                                 'mfqbSVYUKKj4Fg7efr8SfKBjvp23nBU8kt',
+                                 'mwLxjNVN2MK6JtKE8mkKL8iPTz68KniDKh'],
+         'vote_metainfo': ''}
+    )
+
+    state = voting.VoteState(provider, vote_init, [])
+
+    assert isinstance(state.all_vote_casts(), dict)
+    assert isinstance(state.all_valid_vote_casts(), dict)

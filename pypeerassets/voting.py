@@ -377,7 +377,8 @@ def find_vote_casts(provider: Provider,
                         )
 
     if vote_casts is None:
-        raise EmptyP2THDirectory({'error': 'No votes found.'})
+        #raise EmptyP2THDirectory({'error': 'No votes found.'})
+        return None
 
     for tx in vote_casts:
         raw_tx = provider.getrawtransaction(tx, 1)
@@ -401,11 +402,13 @@ class VoteState:
 
     def __init__(self,
                  provider: Provider,
-                 vote_init: VoteInit
+                 vote_init: VoteInit,
+                 deck_balances: list
                  ) -> None:
 
         self.provider = provider
         self.vote_init = vote_init
+        self.deck_balances = deck_balances
 
     def all_vote_casts(self) -> dict:
         '''find all the votes related to this vote_init'''
