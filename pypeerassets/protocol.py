@@ -155,12 +155,19 @@ class Deck:
     def from_json(cls, json: dict):
         '''load the Deck object from json'''
 
-        try:
-            del json['p2th_wif']
-        except KeyError:
-            pass
-
-        return cls(**json)
+        return cls(**{
+            "version": json["version"],
+            "name": json["name"],
+            "issue_mode": json["issue_mode"],
+            "number_of_decimals": json["number_of_decimals"],
+            "asset_specific_data": json["asset_specific_data"],
+            "id": json["id"],
+            "issuer": json["issuer"],
+            "issue_time": json["issue_time"],
+            "tx_confirmations": json["tx_confirmations"],
+            "network": json["network"],
+            "production": json["production"]
+        })
 
     def __str__(self) -> str:
 
