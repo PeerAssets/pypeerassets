@@ -372,12 +372,12 @@ def find_vote_casts(provider: Provider,
                     choice_index: int) -> Iterable[Vote]:
     '''find and verify vote_casts on this vote_choice_address'''
 
-    try:
-        vote_casts = provider.listtransactions(
+    vote_casts = provider.listtransactions(
                         vote_init.vote_choice_address[choice_index]
                         )
-    except TypeError:
-        raise EmptyP2THDirectory({'error': 'No votes found on this vote init.'})
+
+    if vote_casts is None:
+        raise EmptyP2THDirectory({'error': 'No votes found.'})
 
     for tx in vote_casts:
         raw_tx = provider.getrawtransaction(tx, 1)
