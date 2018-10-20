@@ -424,6 +424,6 @@ class VoteState:
     def all_valid_vote_casts(self) -> dict:
         '''filter out the invalid votes'''
 
-        return {k: (i for i in v if v.is_valid)
+        return {k: (i for i in v if i.is_valid)
                 for k, v in self.all_vote_casts().items()
                 }
