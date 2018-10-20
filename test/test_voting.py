@@ -210,3 +210,4 @@ def test_vote_state():
 
     assert isinstance(state.all_vote_casts(), dict)
     assert isinstance(state.all_valid_vote_casts(), dict)
+    assert isinstance(len(state), int)

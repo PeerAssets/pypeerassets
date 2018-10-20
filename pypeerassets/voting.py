@@ -427,3 +427,10 @@ class VoteState:
         return {k: (i for i in v if i.is_valid)
                 for k, v in self.all_vote_casts().items()
                 }
+
+    def __len__(self) -> int:
+        '''count the valid votes'''
+
+        return sum(
+            [len(list(v)) for v in self.all_vote_casts().values()]
+            )
