@@ -24,7 +24,7 @@ class RpcNode(Client, Provider):
         Argument is intiger, returns list of apropriate UTXO's'''
 
         utxos = []
-        utxo_sum = Decimal(-0.01)  # starts from negative due to minimal fee
+        utxo_sum = Decimal(0)
         for tx in sorted(self.listunspent(address=address), key=itemgetter('confirmations')):
 
             if tx["address"] not in (self.pa_parameters.P2TH_addr,
