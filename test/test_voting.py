@@ -211,3 +211,5 @@ def test_vote_state():
     assert isinstance(state.all_vote_casts(), dict)
     assert isinstance(state.all_valid_vote_casts(), dict)
     assert isinstance(len(state), int)
+
+    assert state.parsers[voting.CountMethod(1).name] == voting.VoteState._simple_vote_parser

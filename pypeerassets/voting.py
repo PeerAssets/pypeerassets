@@ -1,4 +1,9 @@
-from typing import Iterable, List, Optional
+from typing import (Iterable,
+                    List,
+                    Optional,
+                    Callable,
+                    cast
+                    )
 from enum import Enum
 from decimal import Decimal
 
@@ -409,6 +414,68 @@ class VoteState:
         self.provider = provider
         self.vote_init = vote_init
         self.deck_balances = deck_balances
+
+    def validate_count_method(self,
+                              count_method: int,
+                              votes: list) -> list:
+        """validate votes against vote_init count method"""
+
+        supported_mask = 7  # sum of all count_method values
+
+        if not bool(count_method & supported_mask):
+            return []  # return empty list
+
+        for i in [1 << x for x in range(len(CountMethod))]:
+            if bool(i & count_method):
+
+                try:
+                    parser_fn = self.parsers[CountMethod(i).name]
+
+                except KeyError:
+                    continue
+
+                parsed_cards = parser_fn(votes)
+
+                if not parsed_cards:
+                    return []
+
+                cards = parsed_cards
+
+        return cards
+
+    def _none_vote_parser(self, votes: list) -> None:
+        '''
+        parser for NONE [0] count method
+        '''
+
+        return None
+
+    def _simple_vote_parser(self, votes: list) -> list:
+        '''
+        parser for SIMPLE [1] count method
+        https://github.com/PeerAssets/peerassets-rfcs/blob/master/0005-on-chain-voting-protocol-proposal.md#simple-vote-counting
+        '''
+
+        raise NotImplementedError
+
+    def _weight_card_balance_vote_parser(self,
+                                         votes: list,
+                                         card_balances: list
+                                         ) -> list:
+        raise NotImplementedError
+
+    def _weight_card_days_vote_parser(self,
+                                      votes: list,
+                                      card_balances: list
+                                      ):
+        raise NotImplementedError
+
+    parsers = {
+        'NONE': _none_vote_parser,
+        'SIMPLE': _simple_vote_parser,
+        'WEIGHT_CARD_BALANCE': _weight_card_balance_vote_parser,
+        'WEIGHT_CARD_DAYS': _weight_card_days_vote_parser
+    }
 
     def all_vote_casts(self) -> dict:
         '''find all the votes related to this vote_init'''
