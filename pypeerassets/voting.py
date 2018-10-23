@@ -31,7 +31,7 @@ from pypeerassets.transactions import (tx_output,
                                        )
 
 
-class CountMethod(Enum):
+class CountMode(Enum):
 
     NONE = 0x00
     # Nothing, just placeholder.
