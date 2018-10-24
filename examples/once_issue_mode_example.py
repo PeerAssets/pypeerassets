@@ -34,8 +34,8 @@ from pypeerassets.transactions import sign_transaction
 RPC_USERNAME = "<rpc username>"
 RPC_PASSWORD = "<rpc password>"
 
-# Generate an address for Friendly Co., Alice, Bob and Charles, David and Zam
-# using the Peercoin Wallet software:
+# Generate an address for Friendly Co., Alice, Bob and Charles using the
+# Peercoin Wallet software:
 
 FRIENDLY_CO = "<testnet address>"
 ALICE = "<testnet address>"
@@ -177,6 +177,6 @@ if __name__ == "__main__":
     deck_state = pa.DeckState(cards)
     assert len(deck_state.balances) == 3, "Alice, Bob and Charles should have Friendly Co. Cards."
     assert deck_state.balances[ALICE] == 500000, "Alice should have 500,000 Cards."
-    assert deck_state.balances[BOB] == 250000, "Bob should have 500,000 Cards."
-    assert deck_state.balances[CHARLES] == 250000, "Charles should have 500,000 Cards."
+    assert deck_state.balances[BOB] == 250000, "Bob should have 250,000 Cards."
+    assert deck_state.balances[CHARLES] == 250000, "Charles should have 250,000 Cards."
     print("Friendly Co. Deck State looks good!")
