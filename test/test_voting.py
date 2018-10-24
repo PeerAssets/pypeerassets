@@ -5,7 +5,9 @@ from pypeerassets import voting
 from pypeerassets.protocol import (Deck, IssueMode)
 from pypeerassets.transactions import Transaction
 from pypeerassets.provider import Explorer
-from pypeerassets.pautils import find_tx_sender
+from pypeerassets.pautils import (find_tx_sender,
+                                  tx_serialization_order
+                                  )
 
 
 deck = Deck(
@@ -143,11 +145,15 @@ def test_vote_object():
     sender = find_tx_sender(provider, raw_tx)
     confirmations = raw_tx["confirmations"]
     blocknum = provider.getblock(raw_tx["blockhash"])["height"]
+    blockseq = tx_serialization_order(provider,
+                                      raw_tx["blockhash"],
+                                      raw_tx["txid"])
 
     v = voting.Vote(vote_init=vote,
                     id=raw_tx['txid'],
                     sender=sender,
                     blocknum=blocknum,
+                    blockseq=blockseq,
                     confirmations=confirmations,
                     timestamp=raw_tx["blocktime"]
                     )

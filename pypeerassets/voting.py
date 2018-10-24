@@ -13,7 +13,10 @@ from pypeerassets.provider import Provider
 from pypeerassets.pavoteproto_pb2 import Vote as pavoteproto
 from hashlib import sha256
 
-from pypeerassets.pautils import read_tx_opreturn, find_tx_sender
+from pypeerassets.pautils import (read_tx_opreturn,
+                                  find_tx_sender,
+                                  tx_serialization_order
+                                  )
 from pypeerassets.networks import net_query
 
 from pypeerassets.exceptions import (OverSizeOPReturn,
@@ -335,6 +338,7 @@ class Vote:
                  vote_init: VoteInit,
                  id: str,
                  blocknum: int,
+                 blockseq: int,
                  confirmations: int,
                  timestamp: int,
                  sender: str=None,) -> None:
@@ -342,6 +346,7 @@ class Vote:
         self.vote_init = vote_init
         self.sender = sender
         self.blocknum = blocknum
+        self.blockseq = blockseq
         self.confirmations = confirmations
         self.timestamp = timestamp
 
@@ -391,11 +396,15 @@ def find_vote_casts(provider: Provider,
         sender = find_tx_sender(provider, raw_tx)
         confirmations = raw_tx["confirmations"]
         blocknum = provider.getblock(raw_tx["blockhash"])["height"]
+        blockseq = tx_serialization_order(provider,
+                                          raw_tx["blockhash"],
+                                          raw_tx["txid"])
 
         yield Vote(vote_init=vote_init,
                    id=raw_tx['txid'],
                    sender=sender,
                    blocknum=blocknum,
+                   blockseq=blockseq,
                    confirmations=confirmations,
                    timestamp=raw_tx["blocktime"]
                    )
