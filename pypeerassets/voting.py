@@ -1,4 +1,5 @@
 from typing import (Iterable,
+                    Generator,
                     List,
                     Optional,
                     Callable,
@@ -6,12 +7,14 @@ from typing import (Iterable,
                     )
 from enum import Enum
 from decimal import Decimal
+from hashlib import sha256
+from operator import itemgetter
 
 from pypeerassets.kutil import Kutil
 from pypeerassets.protocol import Deck
 from pypeerassets.provider import Provider
 from pypeerassets.pavoteproto_pb2 import Vote as pavoteproto
-from hashlib import sha256
+from pypeerassets.protocol import DeckState
 
 from pypeerassets.pautils import (read_tx_opreturn,
                                   find_tx_sender,
@@ -418,49 +421,61 @@ class VoteState:
     def __init__(self,
                  provider: Provider,
                  vote_init: VoteInit,
-                 deck_balances: list
+                 deck_state: DeckState
                  ) -> None:
 
         self.provider = provider
         self.vote_init = vote_init
-        self.deck_balances = deck_balances
+        self.deck_state = deck_state
+        self.count_mode = vote_init.count_mode
 
-    def validate_count_method(self,
-                              count_method: int,
-                              votes: list) -> list:
+    def _sort_votes(self, votes: Generator) -> list:
+        '''sort votes by blocknum and blockseq'''
+
+        return sorted([v.to_json() for v in votes],
+                      key=itemgetter('blocknum', 'blockseq')
+                      )
+
+    def _validate_against_count_method(self,
+                                       votes: list
+                                       ) -> list:
         """validate votes against vote_init count method"""
 
         supported_mask = 7  # sum of all count_method values
 
-        if not bool(count_method & supported_mask):
+        if not bool(self.count_mode & supported_mask):
             return []  # return empty list
 
-        for i in [1 << x for x in range(len(CountMethod))]:
-            if bool(i & count_method):
+        for i in [1 << x for x in range(len(CountMode))]:
+            if bool(i & self.count_mode):
 
                 try:
-                    parser_fn = self.parsers[CountMethod(i).name]
+                    parser_fn = self.parsers[CountMode(i).name]
 
                 except KeyError:
                     continue
 
-                parsed_cards = parser_fn(votes)
+                parsed_votes = parser_fn(votes)
 
-                if not parsed_cards:
+                if not parsed_votes:
                     return []
 
-                cards = parsed_cards
+                cards = parsed_votes
 
         return cards
 
-    def _none_vote_parser(self, votes: list) -> None:
+    def _none_vote_parser(self,
+                          votes: list
+                          ) -> None:
         '''
         parser for NONE [0] count method
         '''
 
         return None
 
-    def _simple_vote_parser(self, votes: list) -> list:
+    def _simple_vote_parser(self,
+                            votes: dict
+                            ) -> list:
         '''
         parser for SIMPLE [1] count method
         https://github.com/PeerAssets/peerassets-rfcs/blob/master/0005-on-chain-voting-protocol-proposal.md#simple-vote-counting
@@ -469,14 +484,12 @@ class VoteState:
         raise NotImplementedError
 
     def _weight_card_balance_vote_parser(self,
-                                         votes: list,
-                                         card_balances: list
+                                         votes: list
                                          ) -> list:
         raise NotImplementedError
 
     def _weight_card_days_vote_parser(self,
-                                      votes: list,
-                                      card_balances: list
+                                      votes: list
                                       ):
         raise NotImplementedError
 

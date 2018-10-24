@@ -160,6 +160,7 @@ def test_vote_object():
 
     assert isinstance(v, voting.Vote)
     assert not v.is_valid
+    assert v.blockseq == 1
 
 
 def test_find_casts():
@@ -216,6 +217,9 @@ def test_vote_state():
 
     assert isinstance(state.all_vote_casts(), dict)
     assert isinstance(state.all_valid_vote_casts(), dict)
+    assert isinstance(state._sort_votes(state.all_valid_vote_casts()[2]
+                                        ), list)
     assert isinstance(len(state), int)
 
-    assert state.parsers[voting.CountMethod(1).name] == voting.VoteState._simple_vote_parser
+    assert state.parsers[voting.CountMode(1).name] == voting.VoteState._simple_vote_parser
+
