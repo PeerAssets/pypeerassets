@@ -345,6 +345,7 @@ class Vote:
 
         self.vote_init = vote_init
         self.sender = sender
+        self.id = id
         self.blocknum = blocknum
         self.blockseq = blockseq
         self.confirmations = confirmations
