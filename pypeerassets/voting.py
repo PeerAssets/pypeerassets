@@ -372,6 +372,10 @@ class Vote:
 
         return d
 
+    def uid(self):
+
+        return self.id + str(self.blocknum) + str(self.blockseq)
+
     def __str__(self) -> str:
 
         r = []
@@ -427,6 +431,7 @@ class VoteState:
         self.provider = provider
         self.vote_init = vote_init
         self.deck_state = deck_state
+        self.balances = deck_state.balances
         self.count_mode = vote_init.count_mode
 
     def _sort_votes(self, votes: Generator) -> list:
@@ -455,7 +460,9 @@ class VoteState:
                 except KeyError:
                     continue
 
-                parsed_votes = parser_fn(votes)
+                parsed_votes = parser_fn(self._sort_votes(
+                                                          votes)
+                                         )
 
                 if not parsed_votes:
                     return []
@@ -481,7 +488,12 @@ class VoteState:
         https://github.com/PeerAssets/peerassets-rfcs/blob/master/0005-on-chain-voting-protocol-proposal.md#simple-vote-counting
         '''
 
-        raise NotImplementedError
+        v = votes[0]  # only first vote is valid
+
+        if v.sender not in self.balances.keys():
+            return []
+
+        return v
 
     def _weight_card_balance_vote_parser(self,
                                          votes: list
@@ -524,3 +536,8 @@ class VoteState:
         return sum(
             [len(list(v)) for v in self.all_vote_casts().values()]
             )
+
+    def calculate_state(self) -> dict:
+        '''do the final calculation'''
+
+        pass
