@@ -271,10 +271,12 @@ def test_vote_state_balances():
 
     assert isinstance(vote_state, voting.VoteState)
 
-    # Try None CountMode
-    vote_state.count_mode = 0
+    # Try None CountMethod
+    #vote_state.count_mode = 0
 
     assert isinstance(vote_state, voting.VoteState)
-    assert vote_state._validate_against_count_method(
-                                                     vote_state.all_valid_vote_casts()
-                                                     ) == []
+    assert isinstance(vote_state.calculate_state(), dict)
+
+    #assert vote_state.calculate_state()[0] == []
+    #assert vote_state.calculate_state()[1] == []
+    assert len(vote_state.calculate_state()[2]) == 1

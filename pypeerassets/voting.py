@@ -441,35 +441,25 @@ class VoteState:
                       key=itemgetter('blocknum', 'blockseq')
                       )
 
-    def _validate_against_count_method(self,
-                                       votes: list
-                                       ) -> list:
-        """validate votes against vote_init count method"""
+    def _validate_against_count_mode(self,
+                                     votes: list
+                                     ) -> list:
+        """validate votes against vote_init count mode"""
 
-        supported_mask = 7  # sum of all count_method values
+        supported_mask = 7  # sum of all count_mode values
 
+        # if CountMode is invalid / unknown
         if not bool(self.count_mode & supported_mask):
             return []  # return empty list
 
-        for i in [1 << x for x in range(len(CountMode))]:
-            if bool(i & self.count_mode):
+        parser_fn = self.parsers[CountMode(self.count_mode
+                                           ).name]
 
-                try:
-                    parser_fn = self.parsers[CountMode(i).name]
+        parsed_votes = parser_fn(
+                                 votes=self._sort_votes(votes)
+                                 )
 
-                except KeyError:
-                    continue
-
-                parsed_votes = parser_fn(self._sort_votes(
-                                                          votes)
-                                         )
-
-                if not parsed_votes:
-                    return []
-
-                cards = parsed_votes
-
-        return cards
+        return parsed_votes
 
     def _none_vote_parser(self,
                           votes: list
@@ -490,7 +480,8 @@ class VoteState:
 
         v = votes[0]  # only first vote is valid
 
-        if v.sender not in self.balances.keys():
+        # Vote is invalid if sender has no stake in the deck
+        if v['sender'] not in self.balances.keys():
             return []
 
         return v
@@ -540,4 +531,8 @@ class VoteState:
     def calculate_state(self) -> dict:
         '''do the final calculation'''
 
-        pass
+        all_votes = self.all_valid_vote_casts()
+
+        return {k: self._validate_against_count_mode(v)
+                for k, v in all_votes.items()
+                }
