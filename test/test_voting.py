@@ -163,7 +163,7 @@ def test_vote_object():
     assert isinstance(v, voting.Vote)
     assert not v.is_valid
     assert v.blockseq == 1
-    assert v.uid == "a2328f95d50261438cf4184119d84337a86cce9000e71255cbf36dbcd5c060961"
+    assert v.uid == "a2328f95d50261438cf4184119d84337a86cce9000e71255cbf36dbcd5c060963617591"
 
 
 def test_find_casts():

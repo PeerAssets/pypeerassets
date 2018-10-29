@@ -377,6 +377,7 @@ class Vote:
 
         return d
 
+    @property
     def uid(self):
 
         return self.id + str(self.blocknum) + str(self.blockseq)
