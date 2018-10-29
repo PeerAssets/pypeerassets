@@ -1,7 +1,6 @@
 from typing import (Iterable,
                     Generator,
                     List,
-                    Tuple,
                     Optional,
                     Callable,
                     cast
@@ -91,7 +90,7 @@ class VoteInit:
                  start_block: int,
                  end_block: int,
                  deck: Deck,
-                 choices: Tuple[str]=(),
+                 choices: List[str]=(),
                  vote_metainfo: str="",
                  id: str=None,
                  sender: str=None,
@@ -101,7 +100,7 @@ class VoteInit:
 
         self.version = version
         self.description = description  # short description of the vote
-        self.choices = choices  # tuple of vote choices
+        self.choices = choices  # list of vote choices
         self.count_mode = count_mode
         self.start_block = start_block  # at which block does vote start
         self.end_block = end_block  # at which block does vote end
@@ -255,32 +254,35 @@ def parse_vote_init(protobuf: bytes) -> dict:
     }
 
 
-def vote_init(vote: VoteInit, inputs: dict, change_address: str,
+def vote_init(vote_init: VoteInit, inputs: dict,
+              change_address: str,
               locktime: int=0) -> Transaction:
     '''initialize vote transaction, must be signed by the deck_issuer privkey'''
 
-    network_params = net_query(vote.deck.network)
-    p2th = vote.p2th_address
+    network_params = net_query(vote_init.deck.network)
+    p2th = vote_init.p2th_address
 
     #  first round of txn making is done by presuming minimal fee
     change_sum = Decimal(inputs['total'] - network_params.min_tx_fee - Decimal(0.01))
     # this final 0.01 deduced from the fee is to accomodate for the vote_init p2th fee
 
     txouts = [
-        tx_output(network=vote.deck.network, value=Decimal(0.01),
+        tx_output(network=vote_init.deck.network, value=Decimal(0.01),
                   n=0, script=p2pkh_script(address=p2th,
-                                           network=vote.deck.network)),  # p2th
+                                           network=vote_init.deck.network)
+                  ),  # p2th
 
-        tx_output(network=vote.deck.network, value=Decimal(0),
-                  n=1, script=nulldata_script(vote.metainfo_to_protobuf())
+        tx_output(network=vote_init.deck.network, value=Decimal(0),
+                  n=1, script=nulldata_script(vote_init.metainfo_to_protobuf())
                   ),  # op_return
 
-        tx_output(network=vote.deck.network, value=change_sum,
+        tx_output(network=vote_init.deck.network, value=change_sum,
                   n=2, script=p2pkh_script(address=change_address,
-                                           network=vote.deck.network))  # change
+                                           network=vote_init.deck.network)
+                  )  # change
               ]
 
-    unsigned_tx = make_raw_transaction(network=vote.deck.network,
+    unsigned_tx = make_raw_transaction(network=vote_init.deck.network,
                                        inputs=inputs['utxos'],
                                        outputs=txouts,
                                        locktime=Locktime(locktime)
