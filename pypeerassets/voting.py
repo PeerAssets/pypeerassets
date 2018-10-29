@@ -1,6 +1,7 @@
 from typing import (Iterable,
                     Generator,
                     List,
+                    Tuple,
                     Optional,
                     Callable,
                     cast
@@ -90,21 +91,24 @@ class VoteInit:
                  start_block: int,
                  end_block: int,
                  deck: Deck,
-                 choices: List[str]=[],
+                 choices: Tuple[str]=(),
                  vote_metainfo: str="",
                  id: str=None,
-                 sender: str=None) -> None:
+                 sender: str=None,
+                 tx_confirmations=None
+                 ) -> None:
         '''initialize vote object'''
 
         self.version = version
         self.description = description  # short description of the vote
-        self.choices = choices  # list of vote choices
+        self.choices = choices  # tuple of vote choices
         self.count_mode = count_mode
         self.start_block = start_block  # at which block does vote start
         self.end_block = end_block  # at which block does vote end
         self.id = id  # vote_init txid
         self.vote_metainfo = vote_metainfo
         self.sender = sender
+        self.tx_confirmations = tx_confirmations
         self.deck = deck
 
     @property
@@ -296,6 +300,7 @@ def find_vote_inits(provider: Provider, deck: Deck) -> Iterable[VoteInit]:
                                    )
             vote["id"] = txid
             vote["sender"] = find_tx_sender(provider, raw_vote)
+            vote["tx_confirmations"] = raw_vote["confirmations"]
             vote["deck"] = deck.to_json()
 
             yield VoteInit.from_json(vote)
