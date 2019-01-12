@@ -87,10 +87,10 @@ PeercoinTestnet = Constants(
     wif_prefix=0xef,
     from_unit=Decimal('1e-6'),
     to_unit=Decimal('1e6'),
-    min_tx_fee=Decimal(0.01),
+    min_tx_fee=Decimal(0.001),
     tx_timestamp=True,
     tx_out_cls=PeercoinTxOut,
-    op_return_max_bytes=80
+    op_return_max_bytes=256
 )
 
 
