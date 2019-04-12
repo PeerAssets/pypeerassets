@@ -1,6 +1,7 @@
 '''transaction assembly/dissasembly'''
 
 from decimal import Decimal
+from math import ceil
 from time import time
 
 from btcpy.lib.parsing import Parser, TransactionParser as BtcPyTxParser
@@ -210,14 +211,12 @@ class TransactionParser(BtcPyTxParser):
         return result.to_mutable() if mutable else result
 
 
-def calculate_tx_fee(tx_size_bytes: int) -> Decimal:
+def calculate_tx_fee(tx_size: int) -> Decimal:
     '''return tx fee from tx size in bytes'''
 
-    if tx_size_bytes < 1001:
-        return Decimal(0.01)
+    min_fee = Decimal(0.01)  # minimum
 
-    else:
-        return Decimal(round(tx_size_bytes * 0.00001, 5))
+    return Decimal(ceil(tx_size / 1000) * min_fee)
 
 
 def nulldata_script(data: bytes) -> NulldataScript:
