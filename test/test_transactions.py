@@ -73,7 +73,12 @@ def test_peercoin_tx_unhexilify():
 @pytest.mark.parametrize("tx_size", [181, 311])
 def test_calculate_transaction_fee(tx_size):
 
-    assert round(calculate_tx_fee(tx_size), 2) == round(Decimal(0.01), 2)
+    if tx_size == 181:
+        assert calculate_tx_fee(tx_size) == Decimal(0.00181)
+    if tx_size == 311:
+        assert calculate_tx_fee(tx_size) == Decimal(0.00311)
+    if tx_size == 3903:
+        assert calculate_tx_fee(tx_size) == Decimal(0.03903)
 
 
 @pytest.mark.parametrize("network", ['peercoin'])

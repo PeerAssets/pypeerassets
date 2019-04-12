@@ -214,9 +214,15 @@ class TransactionParser(BtcPyTxParser):
 def calculate_tx_fee(tx_size: int) -> Decimal:
     '''return tx fee from tx size in bytes'''
 
-    min_fee = Decimal(0.01)  # minimum
+    per_kb_cost = 0.01
+    min_fee = Decimal(0.001)
 
-    return Decimal(ceil(tx_size / 1000) * min_fee)
+    fee = Decimal((tx_size / 1000) * per_kb_cost)
+
+    if fee <= min_fee:
+        return min_fee
+    else:
+        return fee
 
 
 def nulldata_script(data: bytes) -> NulldataScript:
