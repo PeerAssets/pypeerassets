@@ -99,11 +99,14 @@ def deck_parser(args: Tuple[Provider, dict, int, str],
             try:
                 d["issue_time"] = raw_tx["blocktime"]
             except KeyError:
-                d["time"] = 0
+                d["issue_time"] = 0
             d["issuer"] = find_tx_sender(provider, raw_tx)
             d["network"] = provider.network
             d["production"] = prod
-            d["tx_confirmations"] = raw_tx["confirmations"]
+            try:
+                d["tx_confirmations"] = raw_tx["confirmations"]
+            except KeyError:
+                d["tx_confirmations"] = 0
             return Deck(**d)
 
     except (InvalidDeckSpawn, InvalidDeckMetainfo, InvalidDeckVersion,
