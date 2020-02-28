@@ -1,7 +1,7 @@
 
 '''miscellaneous utilities.'''
 
-from pypeerassets.provider import Provider, RpcNode, Explorer, Cryptoid
+from pypeerassets.provider import Provider, RpcNode, Cryptoid, Blockbook
 
 from pypeerassets.exceptions import (InvalidDeckSpawn,
                                      InvalidDeckMetainfo,
@@ -68,7 +68,7 @@ def find_deck_spawns(provider: Provider, prod: bool=True) -> Iterable[str]:
         else:
             decks = (i["txid"] for i in provider.listtransactions("PATEST"))
 
-    if isinstance(provider, Cryptoid) or isinstance(provider, Explorer):
+    if isinstance(provider, Cryptoid) or isinstance(provider, Blockbook):
 
         if prod:
             decks = (i for i in provider.listtransactions(pa_params.P2TH_addr))
