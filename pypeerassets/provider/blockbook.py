@@ -9,7 +9,11 @@ from btcpy.structs.transaction import ScriptSig, Sequence, TxIn
 from pypeerassets.exceptions import InsufficientFunds, UnsupportedNetwork
 from pypeerassets.provider.common import Provider
 
+'''
+TODO:
+Everything except getrawtransaction, getblockhash, getblock
 
+'''
 class Blockbook(Provider):
     '''API wrapper for https://blockbook.peercoin.net blockexplorer.'''
 
@@ -73,12 +77,12 @@ class Blockbook(Provider):
     def getblockhash(self, index: int) -> str:
         '''Returns the hash of the block at ; index 0 is the genesis block.'''
 
-        return cast(str, self.api_fetch('getblockhash?index=' + str(index)))
+        return cast(str, self.api_fetch('/block-index/' + str(index)))
 
     def getblock(self, hash: str) -> dict:
         '''Returns information about the block with the given hash.'''
 
-        return cast(dict, self.api_fetch('getblock?hash=' + hash))
+        return cast(dict, self.api_fetch('/block/' + hash))
 
     def getrawtransaction(self, txid: str, decrypt: int=0) -> dict:
         '''Returns raw transaction representation for given transaction id.
